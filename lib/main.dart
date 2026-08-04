@@ -1,4 +1,4 @@
-import 'package:expense_tracker/my_home_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -12,8 +12,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      theme: ThemeData(colorScheme: .fromSeed(seedColor: Colors.deepPurple)),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+      ),
+      home: const RegisterPage(),
     );
   }
 }

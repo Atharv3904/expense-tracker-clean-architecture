@@ -1,0 +1,22 @@
+import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
+import 'package:expense_tracker/feature/authentication/data/models/user_model.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
+  final SupabaseClient supabaseClient;
+  AuthRemoteDatasourceImpl(this.supabaseClient);
+
+  @override
+  Future<UserModel> registerUser(RegisterParams params) async {
+    final response = await supabaseClient.auth.signUp(
+      email: params.email,
+      password: params.password,
+    );
+
+    if (response.user == null) {
+      throw Exception('User registration failed');
+    }
+    return UserModel.fromSupabaseUser(response.user!);
+  }
+}
