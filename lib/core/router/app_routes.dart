@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/login_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +16,10 @@ class AppRoutes {
     GoRoute(
       path: RoutesName.login,
       builder: (context, state) => const LoginPage(),
+    ),
+    GoRoute(
+      path: RoutesName.dashboard,
+      builder: (context, state) => DashBoardPage(),
     ),
   ];
 }
