@@ -1,3 +1,5 @@
+import 'package:dartz/dartz.dart';
+import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/feature/authentication/domain/entities/auth_user_entity.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/repositories/auth_repository.dart';
@@ -7,8 +9,9 @@ class RegisterUsecase {
 
   RegisterUsecase(this.repository);
 
-  Future<AuthUserEntity> call(RegisterParams params) async {
-    return await repository.registerUser(params);
+  Future<Either<AppFailure, AuthUserEntity>> call(RegisterParams params) async {
+    final result = await repository.registerUser(params);
+    return result;
   }
 }
 

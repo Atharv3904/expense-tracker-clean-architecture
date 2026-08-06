@@ -1,3 +1,6 @@
+import 'package:dartz/dartz.dart';
+import 'package:expense_tracker/core/errors/app_exception.dart';
+import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/domain/entities/auth_user_entity.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
@@ -7,8 +10,15 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthRemoteDatasource remoteDataSource;
 
   AuthRepositoryImpl(this.remoteDataSource);
-
-  Future<AuthUserEntity> registerUser(RegisterParams params) {
-    return remoteDataSource.registerUser(params);
+  @override
+  Future<Either<AppFailure, AuthUserEntity>> registerUser(
+    RegisterParams params,
+  ) async {
+    try {
+      final user = await remoteDataSource.registerUser(params);
+      return Right(user);
+    } on AppException catch (exception) {
+      return Left(AppFailure(exception.message));
+    }
   }
 }

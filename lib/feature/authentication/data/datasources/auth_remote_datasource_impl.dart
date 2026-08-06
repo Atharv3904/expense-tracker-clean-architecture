@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/models/user_model.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
@@ -15,8 +16,9 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     );
 
     if (response.user == null) {
-      throw Exception('User registration failed');
+      throw const AppException("User registration failed");
     }
+
     return UserModel.fromSupabaseUser(response.user!);
   }
 }
