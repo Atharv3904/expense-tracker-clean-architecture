@@ -35,4 +35,26 @@ class AuthRepositoryImpl implements AuthRepository {
       return left(AppFailure(exception.message));
     }
   }
+
+  @override
+  Future<Either<AppFailure, AuthUserEntity?>> getCurrentUser() async {
+    try {
+      final user = remoteDataSource.getCurrentUser();
+      return Right(user);
+    } catch (_) {
+      return const Left(AuthFailure("we are unable to fetch user"));
+    }
+  }
+
+  @override
+  Future<Either<AppFailure, void>> logout() async {
+    try {
+      await remoteDataSource.logout();
+      return const Right(null);
+    } on AppException catch (e) {
+      return Left(AuthFailure(e.message));
+    } catch (_) {
+      return Left(AuthFailure("Logout_failed"));
+    }
+  }
 }

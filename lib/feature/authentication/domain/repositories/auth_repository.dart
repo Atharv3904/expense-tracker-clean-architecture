@@ -10,4 +10,8 @@ abstract class AuthRepository {
   );
 
   Future<Either<AppFailure, AuthUserEntity>> loginUser(LoginParams params);
+
+  Future<Either<AppFailure, AuthUserEntity?>> getCurrentUser();
+
+  Future<Either<AppFailure, void>> logout();
 }

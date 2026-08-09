@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/errors/app_exception.dart';
+
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/models/user_model.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
@@ -48,6 +49,28 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       throw AppException(exception.message);
     } catch (_) {
       throw const AppException("something went wrong");
+    }
+  }
+
+  @override
+  UserModel? getCurrentUser() {
+    final user = supabaseClient.auth.currentUser;
+
+    if (user == null) {
+      return null;
+    }
+
+    return UserModel.fromSupabaseUser(user);
+  }
+
+  @override
+  Future<void> logout() async {
+    try {
+      await supabaseClient.auth.signOut();
+    } on AuthException catch (e) {
+      throw AppException(e.message);
+    } catch (_) {
+      throw AppException("Unable to logout");
     }
   }
 }

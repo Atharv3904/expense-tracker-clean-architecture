@@ -2,12 +2,17 @@ import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/login_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRoutes {
   AppRoutes._();
 
   static final List<GoRoute> routes = [
+    GoRoute(
+      path: RoutesName.splashscreen,
+      builder: (context, state) => const SplashPage(),
+    ),
     GoRoute(
       path: RoutesName.register,
       builder: (context, state) => const RegisterPage(),

@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors
+
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
@@ -17,7 +19,7 @@ class _LoginFormState extends State<LoginForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
-  void _Login() {
+  void _login() {
     if (!_formKey.currentState!.validate()) return;
 
     final params = LoginParams(
@@ -125,7 +127,7 @@ class _LoginFormState extends State<LoginForm> {
                       return SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _Login,
+                          onPressed: _login,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.green,
                             foregroundColor: Colors.white,
@@ -139,9 +141,10 @@ class _LoginFormState extends State<LoginForm> {
                       );
                     },
                   ),
+                  SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () => context.push(RoutesName.dashboard),
-                    child: const Text("DashBoard"),
+                    onPressed: () => context.push(RoutesName.register),
+                    child: const Text("go for registration"),
                   ),
                 ],
               ),
