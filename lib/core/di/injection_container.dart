@@ -12,6 +12,12 @@ import 'package:expense_tracker/feature/authentication/presentation/cubit/login/
 import 'package:expense_tracker/feature/authentication/presentation/cubit/logout/logout_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/register/register_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/splash/splash_cubit.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
+import 'package:expense_tracker/feature/dashboard/data/datasources/dasboard_datasource.dart';
+import 'package:expense_tracker/feature/dashboard/data/datasources/dashboard_datasource_impl.dart';
+import 'package:expense_tracker/feature/dashboard/data/repository/dashboard_repository_impl.dart';
+import 'package:expense_tracker/feature/dashboard/domain/repository/dashboard_repository.dart';
+import 'package:expense_tracker/feature/dashboard/domain/usecase/dashboard_summary_usecases.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -39,4 +45,13 @@ Future<void> init() async {
   sl.registerFactory(() => LogoutCubit(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));
   sl.registerFactory(() => ForgotPassCubit(sl()));
+
+  sl.registerFactory(() => DashboardCubit(sl()));
+  sl.registerLazySingleton(() => DashboardSummaryUsecases(sl()));
+  sl.registerLazySingleton<DashboardRepository>(
+    () => DashboardRepositoryImpl(sl()),
+  );
+  sl.registerLazySingleton<DasboardDatasource>(
+    () => DashboardDatasourceImpl(sl()),
+  );
 }

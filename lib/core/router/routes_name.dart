@@ -4,4 +4,5 @@ class RoutesName {
   static const dashboard = '/dashboard';
   static const splashscreen = "/splashscreen";
   static const forgotPage = "/forgotPassPage";
+  static const logout = "/logout";
 }

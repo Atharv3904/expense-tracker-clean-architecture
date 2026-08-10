@@ -21,7 +21,7 @@ class LoginPage extends StatelessWidget {
               context,
             ).showSnackBar(const SnackBar(content: Text("Login Successful")));
 
-            context.push(RoutesName.dashboard);
+            context.pushReplacement(RoutesName.dashboard);
           }
 
           if (state is LoginFailure) {
