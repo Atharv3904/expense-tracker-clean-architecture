@@ -1,9 +1,10 @@
 import 'package:expense_tracker/core/router/routes_name.dart';
-import 'package:expense_tracker/feature/authentication/presentation/pages/dashboard_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/Logout_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/forgot_pass_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/login_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRoutes {
@@ -25,11 +26,12 @@ class AppRoutes {
     ),
     GoRoute(
       path: RoutesName.dashboard,
-      builder: (context, state) => DashBoardPage(),
+      builder: (context, state) => DashboardPage(),
     ),
     GoRoute(
       path: RoutesName.forgotPage,
       builder: (context, state) => ForgotPassPage(),
     ),
+    GoRoute(path: RoutesName.logout, builder: (context, state) => LogoutPage()),
   ];
 }
