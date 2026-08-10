@@ -142,9 +142,23 @@ class _LoginFormState extends State<LoginForm> {
                     },
                   ),
                   SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () => context.push(RoutesName.register),
-                    child: const Text("go for registration"),
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () => context.push(RoutesName.register),
+                        child: const Text("go for registration"),
+                      ),
+                      SizedBox(width: 50),
+                      SizedBox(
+                        width: 130,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            context.push(RoutesName.forgotPage);
+                          },
+                          child: const Text("Forgot Password"),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

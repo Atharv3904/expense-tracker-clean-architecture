@@ -3,6 +3,7 @@ import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/domain/entities/auth_user_entity.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/repositories/auth_repository.dart';
@@ -55,6 +56,20 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AuthFailure(e.message));
     } catch (_) {
       return Left(AuthFailure("Logout_failed"));
+    }
+  }
+
+  @override
+  Future<Either<AppFailure, void>> forgotPassword(
+    ForgotPasswordParams email,
+  ) async {
+    try {
+      await remoteDataSource.forgotPassword(email);
+      return Right(null);
+    } on AppException catch (exception) {
+      return Left(AppFailure(exception.message));
+    } catch (_) {
+      return Left(AppFailure("Unable to reset password"));
     }
   }
 }

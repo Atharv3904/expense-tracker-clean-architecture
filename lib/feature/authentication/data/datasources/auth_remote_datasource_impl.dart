@@ -1,7 +1,9 @@
-import 'package:expense_tracker/core/errors/app_exception.dart';
+// ignore_for_file: non_constant_identifier_names
 
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/models/user_model.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -71,6 +73,17 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       throw AppException(e.message);
     } catch (_) {
       throw AppException("Unable to logout");
+    }
+  }
+
+  @override
+  Future<void> forgotPassword(ForgotPasswordParams Email) async {
+    try {
+      await supabaseClient.auth.resetPasswordForEmail(Email.email);
+    } on AuthException catch (e) {
+      throw AppException(e.message);
+    } catch (_) {
+      throw AppException("try Again");
     }
   }
 }

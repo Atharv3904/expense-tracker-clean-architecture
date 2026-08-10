@@ -151,6 +151,7 @@ class _RegisterFormState extends State<RegisterForm> {
                     onPressed: () {
                       context.go(RoutesName.login);
                     },
+
                     child: Text("Login"),
                   ),
                 ],
