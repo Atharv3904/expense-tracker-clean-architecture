@@ -1,5 +1,5 @@
 import 'package:expense_tracker/core/router/routes_name.dart';
-import 'package:expense_tracker/feature/authentication/presentation/pages/Logout_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/logout_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/forgot_pass_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/login_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
