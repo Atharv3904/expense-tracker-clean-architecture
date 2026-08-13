@@ -33,6 +33,8 @@ import 'package:expense_tracker/feature/transaction/domain/repository/transactio
 import 'package:expense_tracker/feature/transaction/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/delete_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/get_transaction_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/update_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -109,4 +111,6 @@ Future<void> init() async {
   sl.registerLazySingleton<TransactionCategoryRepository>(
     () => TransactionCategoryRepositoryImpl(sl()),
   );
+  sl.registerLazySingleton(() => TransactionTypesUsecase(sl()));
+  sl.registerLazySingleton(() => TransactionCategoriesUsecase(sl()));
 }
