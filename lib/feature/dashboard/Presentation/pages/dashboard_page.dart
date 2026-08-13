@@ -233,7 +233,9 @@ class DashboardPage extends StatelessWidget {
         ),
 
         floatingActionButton: FloatingActionButton(
-          onPressed: () {},
+          onPressed: () {
+            context.push(RoutesName.addTransactionpage);
+          },
           child: const Icon(Icons.add),
         ),
       ),

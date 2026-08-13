@@ -5,6 +5,7 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/login_
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
+import 'package:expense_tracker/feature/transaction/presentation/pages/add_transaction_page.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRoutes {
@@ -33,5 +34,9 @@ class AppRoutes {
       builder: (context, state) => ForgotPassPage(),
     ),
     GoRoute(path: RoutesName.logout, builder: (context, state) => LogoutPage()),
+    GoRoute(
+      path: RoutesName.addTransactionpage,
+      builder: (context, state) => AddTransactionPage(),
+    ),
   ];
 }
