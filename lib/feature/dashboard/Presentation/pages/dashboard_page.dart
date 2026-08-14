@@ -1,4 +1,3 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_states.dart';
@@ -273,22 +272,16 @@ class _DashboardPageState extends State<DashboardPage> {
         },
       ),
 
-      floatingActionButton:
-          // Builder(
-          // builder: (context) {
-          // return
-          FloatingActionButton(
-            onPressed: () async {
-              final result = await context.push(RoutesName.addTransactionpage);
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await context.push(RoutesName.addTransactionpage);
 
-              if (result == true && context.mounted) {
-                context.read<TransactionBloc>().add(const LoadTransaction());
-              }
-            },
-            child: const Icon(Icons.add),
-          ),
-      // },
-      // ),
+          if (result == true && context.mounted) {
+            context.read<TransactionBloc>().add(const LoadTransaction());
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }
