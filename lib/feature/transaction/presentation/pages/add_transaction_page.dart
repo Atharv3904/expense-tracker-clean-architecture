@@ -43,7 +43,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   @override
   void initState() {
     super.initState();
-    print('INIT STATE CALLED');
     loadTransactionData();
   }
 
