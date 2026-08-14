@@ -13,12 +13,10 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     final userId = supabaseClient.auth.currentUser!.id;
     try {
       final response = await supabaseClient
-          .from('trasactions')
+          .from('transactions')
           .select()
           .eq('user_id', userId)
           .order('created_at', ascending: false);
-
-      print('TRANSACTIONS FROM SUPABASE: $response');
 
       return (response as List)
           .map((json) => TransactionModel.fromJson(json))

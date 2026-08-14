@@ -122,7 +122,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                   ),
                 );
 
-                context.pop();
+                context.pop(true);
               }
               if (state is TransactionFailure) {
                 ScaffoldMessenger.of(

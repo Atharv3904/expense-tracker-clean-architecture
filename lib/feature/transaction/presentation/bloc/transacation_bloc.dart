@@ -50,14 +50,18 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     LoadTransaction event,
     Emitter<TransactionState> emit,
   ) async {
+    print('LOAD TRANSACTION EVENT RECEIVED');
     emit(const TransactionLoading());
+
     final result = await getTransactionUsecase();
 
     result.fold(
       (failure) {
+        print('LOAD FAILED: ${failure.message}');
         emit(TransactionFailure(failure.message));
       },
       (transactions) {
+        print('TRANSACTIONS LOADED: ${transactions.length}');
         emit(TransactionLoaded(transactions));
       },
     );
