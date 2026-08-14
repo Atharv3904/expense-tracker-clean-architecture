@@ -24,8 +24,7 @@ class TransactionModel extends TransactionEntity {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
+    final data = {
       'user_id': userId,
       'amount': amount,
       'type_id': typeId,
@@ -33,5 +32,9 @@ class TransactionModel extends TransactionEntity {
       'description': description,
       'created_at': date.toIso8601String(),
     };
+    if (id.isNotEmpty) {
+      data['id'] = id;
+    }
+    return data;
   }
 }

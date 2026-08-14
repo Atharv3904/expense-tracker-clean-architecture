@@ -12,6 +12,7 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddTransactionPage extends StatefulWidget {
   const AddTransactionPage({super.key});
@@ -376,26 +377,25 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       height: 52,
                       child: ElevatedButton(
                         onPressed: () {
-                          print('SAVE CLICKED');
                           if (!validateTransaction()) {
                             return;
                           }
-                          print('VALIDATION PASSED');
+                          final UserId =
+                              Supabase.instance.client.auth.currentUser!.id;
+
                           final transaction = TransactionEntity(
                             id: '',
-                            userId: '',
+                            userId: UserId,
                             amount: double.parse(amountController.text.trim()),
                             typeId: selectedTypeId!,
                             categoryId: selectedCategoryId!,
                             description: descriptionController.text.trim(),
                             date: selectedDate,
                           );
-                          print('TRANSACTION CREATED');
+
                           context.read<TransactionBloc>().add(
                             AddTransaction(transaction),
                           );
-
-                          print('ADD EVENT SENT');
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.green,

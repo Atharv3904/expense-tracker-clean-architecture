@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -10,32 +11,40 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   @override
   Future<List<TransactionModel>> getTransaction() async {
     final userId = supabaseClient.auth.currentUser!.id;
+    try {
+      final response = await supabaseClient
+          .from('trasactions')
+          .select()
+          .eq('user_id', userId)
+          .order('created_at', ascending: false);
 
-    final response = await supabaseClient
-        .from('trasactions')
-        .select()
-        .eq('user_id', userId)
-        .order('created_at', ascending: false);
+      print('TRANSACTIONS FROM SUPABASE: $response');
 
-    return (response as List)
-        .map((json) => TransactionModel.fromJson(json))
-        .toList();
+      return (response as List)
+          .map((json) => TransactionModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw ServerException("Failed to get transaction");
+    }
   }
 
   @override
   Future<TransactionModel> addTransaction(TransactionModel transaction) async {
     final userId = supabaseClient.auth.currentUser!.id;
+    try {
+      final data = transaction.toJson();
+      data['user_id'] = userId;
+      print('DATA SENT TO SUPABASE: $data');
+      final response = await supabaseClient
+          .from('transactions')
+          .insert(data)
+          .select()
+          .single();
 
-    final data = transaction.toJson();
-    data['user_id'] = userId;
-
-    final response = await supabaseClient
-        .from('transactions')
-        .insert(data)
-        .select()
-        .single();
-
-    return TransactionModel.fromJson(response);
+      return TransactionModel.fromJson(response);
+    } catch (e) {
+      throw ServerException(e.toString());
+    }
   }
 
   @override
@@ -43,18 +52,29 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     TransactionModel transaction,
   ) async {
     final data = transaction.toJson();
-    final response = await supabaseClient
-        .from('transactions')
-        .update(data)
-        .eq('id', transaction.id)
-        .select()
-        .single();
+    try {
+      final response = await supabaseClient
+          .from('transactions')
+          .update(data)
+          .eq('id', transaction.id)
+          .select()
+          .single();
 
-    return TransactionModel.fromJson(response);
+      return TransactionModel.fromJson(response);
+    } catch (e) {
+      throw ServerException("Failed to update transaction");
+    }
   }
 
   @override
   Future<void> deleteTransaction(String transactionId) async {
-    await supabaseClient.from('transactions').delete().eq('id', transactionId);
+    try {
+      await supabaseClient
+          .from('transactions')
+          .delete()
+          .eq('id', transactionId);
+    } catch (e) {
+      throw ServerException("Failed to delete transaction");
+    }
   }
 }

@@ -3,3 +3,9 @@ class AppException implements Exception {
 
   const AppException(this.message);
 }
+
+class ServerException implements Exception {
+  final String message;
+
+  ServerException(this.message);
+}

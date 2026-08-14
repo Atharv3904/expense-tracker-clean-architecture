@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
@@ -15,8 +16,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     try {
       final result = await datasource.getTransaction();
       return Right(result);
-    } catch (e) {
-      return Left(AppFailure(e.toString()));
+    } on ServerException catch (e) {
+      return Left(AppFailure(e.message));
     }
   }
 
@@ -37,8 +38,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       final result = await datasource.addTransaction(model);
       return Right(result);
-    } catch (e) {
-      return Left(AppFailure(e.toString()));
+    } on ServerException catch (e) {
+      return Left(AppFailure(e.message));
     }
   }
 
@@ -59,8 +60,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
       final result = await datasource.updateTransaction(model);
       return Right(result);
-    } catch (e) {
-      return Left(AppFailure(e.toString()));
+    } on ServerException catch (e) {
+      return Left(AppFailure(e.message));
     }
   }
 
@@ -71,8 +72,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     try {
       await datasource.deleteTransaction(TransactionId);
       return Right(null);
-    } catch (e) {
-      return Left(AppFailure(e.toString()));
+    } on ServerException catch (e) {
+      return Left(AppFailure(e.message));
     }
   }
 }
