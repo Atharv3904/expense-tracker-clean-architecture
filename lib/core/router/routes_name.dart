@@ -5,4 +5,5 @@ class RoutesName {
   static const splashscreen = "/splashscreen";
   static const forgotPage = "/forgotPassPage";
   static const logout = "/logout";
+  static const addTransactionpage = "/addTransactionpage";
 }
