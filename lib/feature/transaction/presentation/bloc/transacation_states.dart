@@ -27,3 +27,7 @@ class TransactionFailure extends TransactionState {
 
   const TransactionFailure(this.message);
 }
+
+class TransactionDeleteSuccess extends TransactionState {
+  const TransactionDeleteSuccess();
+}

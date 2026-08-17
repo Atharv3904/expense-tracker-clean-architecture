@@ -16,7 +16,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           .from('transactions')
           .select()
           .eq('user_id', userId)
-          .order('created_at', ascending: false);
+          .order('updated_at', ascending: false);
 
       return (response as List)
           .map((json) => TransactionModel.fromJson(json))
@@ -67,12 +67,19 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   @override
   Future<void> deleteTransaction(String transactionId) async {
     try {
-      await supabaseClient
+      print('DELETE REQUEST ID: $transactionId');
+
+      final response = await supabaseClient
           .from('transactions')
           .delete()
-          .eq('id', transactionId);
+          .eq('id', transactionId)
+          .select();
+
+      print('DELETE RESPONSE: $response');
     } catch (e) {
-      throw ServerException("Failed to delete transaction");
+      print('DELETE ERROR: $e');
+
+      throw ServerException('Failed to delete transaction');
     }
   }
 }

@@ -1,4 +1,3 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_states.dart';
@@ -82,7 +81,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
                   const SizedBox(height: 25),
 
-                  // Balance
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(22),
@@ -114,7 +112,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
                   const SizedBox(height: 18),
 
-                  // Income & Expense
                   Row(
                     children: [
                       Expanded(
@@ -233,6 +230,22 @@ class _DashboardPageState extends State<DashboardPage> {
                             return ListTile(
                               title: Text(transaction.description),
                               subtitle: Text(transaction.amount.toString()),
+                              onTap: () async {
+                                final result = await context.push(
+                                  RoutesName.updateTransactionpage,
+                                  extra: transaction,
+                                );
+
+                                print('RESULT FROM UPDATE PAGE: $result');
+
+                                if (result == true && context.mounted) {
+                                  print('RELOADING TRANSACTIONS');
+
+                                  context.read<TransactionBloc>().add(
+                                    LoadTransaction(),
+                                  );
+                                }
+                              },
                             );
                           }).toList(),
                         );
