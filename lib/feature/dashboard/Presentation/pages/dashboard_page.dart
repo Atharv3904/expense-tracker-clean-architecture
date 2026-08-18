@@ -226,28 +226,36 @@ class _DashboardPageState extends State<DashboardPage> {
                           );
                         }
                         return Column(
-                          children: state.transactions.map((transaction) {
-                            return ListTile(
-                              title: Text(transaction.description),
-                              subtitle: Text(transaction.amount.toString()),
-                              onTap: () async {
-                                final result = await context.push(
-                                  RoutesName.updateTransactionpage,
-                                  extra: transaction,
-                                );
-
-                                print('RESULT FROM UPDATE PAGE: $result');
-
-                                if (result == true && context.mounted) {
-                                  print('RELOADING TRANSACTIONS');
-
-                                  context.read<TransactionBloc>().add(
-                                    LoadTransaction(),
+                          children: [
+                            ...state.transactions.map((transaction) {
+                              return ListTile(
+                                title: Text(transaction.description),
+                                subtitle: Text(transaction.amount.toString()),
+                                onTap: () async {
+                                  final result = await context.push(
+                                    RoutesName.updateTransactionpage,
+                                    extra: transaction,
                                   );
-                                }
-                              },
-                            );
-                          }).toList(),
+
+                                  if (result == true && context.mounted) {
+                                    context.read<TransactionBloc>().add(
+                                      LoadTransaction(),
+                                    );
+                                  }
+                                },
+                              );
+                            }),
+
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: TextButton(
+                                onPressed: () {
+                                  context.push(RoutesName.allTransactionpage);
+                                },
+                                child: const Text('See More'),
+                              ),
+                            ),
+                          ],
                         );
                       }
 
@@ -286,22 +294,16 @@ class _DashboardPageState extends State<DashboardPage> {
         },
       ),
 
-      floatingActionButton:
-          // Builder(
-          // builder: (context) {
-          // return
-          FloatingActionButton(
-            onPressed: () async {
-              final result = await context.push(RoutesName.addTransactionpage);
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          final result = await context.push(RoutesName.addTransactionpage);
 
-              if (result == true && context.mounted) {
-                context.read<TransactionBloc>().add(const LoadTransaction());
-              }
-            },
-            child: const Icon(Icons.add),
-          ),
-      // },
-      // ),
+          if (result == true && context.mounted) {
+            context.read<TransactionBloc>().add(const LoadTransaction());
+          }
+        },
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

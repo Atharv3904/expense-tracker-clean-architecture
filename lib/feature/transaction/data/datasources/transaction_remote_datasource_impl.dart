@@ -9,7 +9,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   TransactionRemoteDatasourceImpl(this.supabaseClient);
 
   @override
-  Future<List<TransactionModel>> getTransaction() async {
+  Future<List<TransactionModel>> getAllTransactionData() async {
     final userId = supabaseClient.auth.currentUser!.id;
     try {
       final response = await supabaseClient
@@ -17,6 +17,25 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           .select()
           .eq('user_id', userId)
           .order('updated_at', ascending: false);
+
+      return (response as List)
+          .map((json) => TransactionModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw ServerException("Failed to get transaction");
+    }
+  }
+
+  @override
+  Future<List<TransactionModel>> getTransaction() async {
+    final userId = supabaseClient.auth.currentUser!.id;
+    try {
+      final response = await supabaseClient
+          .from('transactions')
+          .select()
+          .eq('user_id', userId)
+          .order('updated_at', ascending: false)
+          .limit(4);
 
       return (response as List)
           .map((json) => TransactionModel.fromJson(json))

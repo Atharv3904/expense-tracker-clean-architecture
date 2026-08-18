@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/delete_transaction_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/get_all_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/get_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/update_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
@@ -11,12 +12,14 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final GetTransactionUsecase getTransactionUsecase;
   final UpdateTransactionUsecase updateTransactionUsecase;
   final DeleteTransactionUsecase deleteTransactionUsecase;
+  final GetAllTransactionUsecase getAllTransactionUsecase;
 
   TransactionBloc({
     required this.addTransactionUsecase,
     required this.deleteTransactionUsecase,
     required this.getTransactionUsecase,
     required this.updateTransactionUsecase,
+    required this.getAllTransactionUsecase,
   }) : super(const TransactionInitial()) {
     on<LoadTransaction>(_loadTransactions);
 
@@ -25,6 +28,25 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<UpdateTransaction>(_updateTransaction);
 
     on<DeleteTransaction>(_deleteTransaction);
+
+    on<GetAllTransaction>(_getAllTransaction);
+  }
+
+  Future<void> _getAllTransaction(
+    GetAllTransaction event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(const TransactionLoading());
+    final result = await getAllTransactionUsecase();
+
+    result.fold(
+      (failure) {
+        emit(TransactionFailure(failure.message));
+      },
+      (transactions) {
+        emit(TransactionLoaded(transactions));
+      },
+    );
   }
 
   Future<void> _addTransaction(

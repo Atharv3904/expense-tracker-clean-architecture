@@ -7,4 +7,5 @@ class RoutesName {
   static const logout = "/logout";
   static const addTransactionpage = "/addTransactionpage";
   static const updateTransactionpage = "/updateTransactionpage";
+  static const allTransactionpage = "/allTransactionpage";
 }

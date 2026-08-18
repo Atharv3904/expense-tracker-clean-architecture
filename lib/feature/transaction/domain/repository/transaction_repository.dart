@@ -5,6 +5,8 @@ import 'package:expense_tracker/feature/transaction/domain/entities/transaction_
 abstract class TransactionRepository {
   //curd
 
+  Future<Either<AppFailure, List<TransactionEntity>>> getAllTransactionData();
+
   Future<Either<AppFailure, List<TransactionEntity>>> getTransaction();
 
   Future<Either<AppFailure, TransactionEntity>> addTransaction(

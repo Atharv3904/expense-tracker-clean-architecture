@@ -32,6 +32,7 @@ import 'package:expense_tracker/feature/transaction/domain/repository/transactio
 import 'package:expense_tracker/feature/transaction/domain/repository/transaction_type_repository.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/add_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/delete_transaction_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/get_all_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/get_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
@@ -92,6 +93,7 @@ Future<void> init() async {
       deleteTransactionUsecase: sl(),
       getTransactionUsecase: sl(),
       updateTransactionUsecase: sl(),
+      getAllTransactionUsecase: sl(),
     ),
   );
 
@@ -113,4 +115,5 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => TransactionTypesUsecase(sl()));
   sl.registerLazySingleton(() => TransactionCategoriesUsecase(sl()));
+  sl.registerLazySingleton(() => GetAllTransactionUsecase(sl()));
 }

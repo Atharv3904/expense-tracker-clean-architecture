@@ -12,6 +12,17 @@ class TransactionRepositoryImpl implements TransactionRepository {
   TransactionRepositoryImpl(this.datasource);
 
   @override
+  Future<Either<AppFailure, List<TransactionEntity>>>
+  getAllTransactionData() async {
+    try {
+      final result = await datasource.getAllTransactionData();
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(AppFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<AppFailure, List<TransactionEntity>>> getTransaction() async {
     try {
       final result = await datasource.getTransaction();
