@@ -1,5 +1,4 @@
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
-import 'package:expense_tracker/feature/transaction/domain/entities/transaction_filter.dart';
 
 abstract class TransactionEvent {
   const TransactionEvent();

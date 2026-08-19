@@ -117,6 +117,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       },
       (_) {
         emit(const TransactionDeleteSuccess());
+        add(const GetAllTransaction());
       },
     );
   }

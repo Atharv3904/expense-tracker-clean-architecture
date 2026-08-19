@@ -8,4 +8,5 @@ class RoutesName {
   static const addTransactionpage = "/addTransactionpage";
   static const updateTransactionpage = "/updateTransactionpage";
   static const allTransactionpage = "/allTransactionpage";
+  static const String financialInsights = '/financial-insights';
 }

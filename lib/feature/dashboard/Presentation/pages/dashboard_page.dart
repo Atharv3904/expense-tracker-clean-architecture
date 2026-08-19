@@ -17,6 +17,13 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   @override
+  void initState() {
+    super.initState();
+
+    context.read<TransactionBloc>().add(LoadTransaction());
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
@@ -186,8 +193,18 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        context.push(RoutesName.financialInsights);
+                      },
+                      icon: const Icon(Icons.analytics),
+                      label: const Text('Financial Insights'),
+                    ),
+                  ),
 
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
 
                   const Text(
                     "Recent Transactions",
@@ -227,7 +244,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         }
                         return Column(
                           children: [
-                            ...state.transactions.map((transaction) {
+                            ...state.transactions.take(3).map((transaction) {
                               return ListTile(
                                 title: Text(transaction.description),
                                 subtitle: Text(transaction.amount.toString()),

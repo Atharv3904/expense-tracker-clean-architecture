@@ -8,10 +8,10 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/splash
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+
 import 'package:expense_tracker/feature/transaction/presentation/pages/add_transaction_page.dart';
-import 'package:expense_tracker/feature/transaction/presentation/pages/all_transaction_page.dart';
+
+import 'package:expense_tracker/feature/transaction/presentation/pages/financial_insights_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/pages/update_transaction_page.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -39,9 +39,6 @@ class AppRoutes {
       builder: (context, state) => MultiBlocProvider(
         providers: [
           BlocProvider(create: (_) => sl<DashboardCubit>()..dashboardSummary()),
-          BlocProvider(
-            create: (_) => sl<TransactionBloc>()..add(LoadTransaction()),
-          ),
         ],
         child: DashboardPage(),
       ),
@@ -62,20 +59,20 @@ class AppRoutes {
       path: RoutesName.updateTransactionpage,
       builder: (context, state) {
         final transaction = state.extra as TransactionEntity;
-        return BlocProvider(
-          create: (context) => sl<TransactionBloc>(),
-          child: UpdateTransactionPage(transaction: transaction),
-        );
+        return UpdateTransactionPage(transaction: transaction);
       },
     ),
 
     GoRoute(
-      path: RoutesName.allTransactionpage,
+      path: RoutesName.financialInsights,
       builder: (context, state) {
-        return BlocProvider(
-          create: (_) => sl<TransactionBloc>()..add(const GetAllTransaction()),
-          child: const AllTransactionPage(),
-        );
+        return const FinancialInsightsPage();
+      },
+    ),
+    GoRoute(
+      path: RoutesName.financialInsights,
+      builder: (context, state) {
+        return const FinancialInsightsPage();
       },
     ),
   ];

@@ -1,6 +1,8 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -12,7 +14,12 @@ void main() async {
   );
   await init();
 
-  runApp(const MyApp());
+  runApp(
+    MultiBlocProvider(
+      providers: [BlocProvider(create: (_) => sl<TransactionBloc>())],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

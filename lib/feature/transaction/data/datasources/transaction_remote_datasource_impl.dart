@@ -35,7 +35,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           .select()
           .eq('user_id', userId)
           .order('updated_at', ascending: false)
-          .limit(4);
+          .limit(3);
 
       return (response as List)
           .map((json) => TransactionModel.fromJson(json))
