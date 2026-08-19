@@ -17,5 +17,5 @@ abstract class TransactionRepository {
     TransactionEntity transaction,
   );
 
-  Future<Either<AppFailure, void>> deleteTransaction(String TransactionId);
+  Future<Either<AppFailure, void>> deleteTransaction(String transactionid);
 }

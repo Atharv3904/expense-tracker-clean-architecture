@@ -78,10 +78,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   Future<Either<AppFailure, void>> deleteTransaction(
-    String TransactionId,
+    String transactionid,
   ) async {
     try {
-      await datasource.deleteTransaction(TransactionId);
+      await datasource.deleteTransaction(transactionid);
       return Right(null);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));

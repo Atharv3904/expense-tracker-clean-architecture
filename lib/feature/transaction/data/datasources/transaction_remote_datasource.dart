@@ -7,5 +7,5 @@ abstract class TransactionRemoteDatasource {
   Future<List<TransactionModel>> getTransaction();
   Future<TransactionModel> addTransaction(TransactionModel transaction);
   Future<TransactionModel> updateTransaction(TransactionModel transaction);
-  Future<void> deleteTransaction(String TransactionId);
+  Future<void> deleteTransaction(String transactionid);
 }

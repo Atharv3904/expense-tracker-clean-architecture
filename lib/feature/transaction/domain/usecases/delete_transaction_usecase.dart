@@ -7,7 +7,7 @@ class DeleteTransactionUsecase {
 
   DeleteTransactionUsecase(this.repository);
 
-  Future<Either<AppFailure, void>> call(String TransactionId) {
-    return repository.deleteTransaction(TransactionId);
+  Future<Either<AppFailure, void>> call(String transactionid) {
+    return repository.deleteTransaction(transactionid);
   }
 }

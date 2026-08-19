@@ -48,22 +48,18 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
   bool validateTransaction() {
     if (amountController.text.trim().isEmpty) {
-      print('Amount is empty');
       return false;
     }
 
     if (selectedTypeId == null) {
-      print('Type is not selected');
       return false;
     }
 
     if (selectedCategoryId == null) {
-      print('Category is not selected');
       return false;
     }
 
     if (descriptionController.text.trim().isEmpty) {
-      print('Description is empty');
       return false;
     }
 

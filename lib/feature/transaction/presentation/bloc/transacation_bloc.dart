@@ -110,7 +110,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     emit(TransactionLoading());
 
-    final result = await deleteTransactionUsecase(event.TransactionId);
+    final result = await deleteTransactionUsecase(event.transactionid);
     result.fold(
       (failure) {
         emit(TransactionFailure(failure.message));
