@@ -24,17 +24,5 @@ class DeleteTransaction extends TransactionEvent {
 }
 
 class GetAllTransaction extends TransactionEvent {
-  final String? typeId;
-  final String? categoryId;
-  final DateTime? date;
-  final double? minAmount;
-  final double? maxAmount;
-
-  const GetAllTransaction({
-    this.typeId,
-    this.categoryId,
-    this.date,
-    this.minAmount,
-    this.maxAmount,
-  });
+  const GetAllTransaction();
 }

@@ -267,8 +267,17 @@ class _DashboardPageState extends State<DashboardPage> {
                               alignment: Alignment.bottomLeft,
                               child: TextButton(
                                 onPressed: () {
-                                  context.push(RoutesName.allTransactionpage);
+                                  final result = context.push(
+                                    RoutesName.allTransactionpage,
+                                  );
+
+                                  if (result == true && context.mounted) {
+                                    context.read<TransactionBloc>().add(
+                                      LoadTransaction(),
+                                    );
+                                  }
                                 },
+
                                 child: const Text('See More'),
                               ),
                             ),

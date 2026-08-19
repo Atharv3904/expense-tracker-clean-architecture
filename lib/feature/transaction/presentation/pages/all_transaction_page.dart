@@ -39,7 +39,6 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
 
       body: Column(
         children: [
-          // Search bar
           Padding(
             padding: const EdgeInsets.all(16),
             child: TextField(
@@ -71,7 +70,6 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
             ),
           ),
 
-          // Transaction list
           Expanded(
             child: BlocBuilder<TransactionBloc, TransactionState>(
               builder: (context, state) {
@@ -111,15 +109,18 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                             size: 16,
                           ),
                           onTap: () async {
+                            final transactionBloc = context
+                                .read<TransactionBloc>();
+
                             final result = await context.push(
                               RoutesName.updateTransactionpage,
                               extra: transaction,
                             );
 
-                            if (result == true && context.mounted) {
-                              context.read<TransactionBloc>().add(
-                                const GetAllTransaction(),
-                              );
+                            if (!mounted) return;
+
+                            if (result == true) {
+                              transactionBloc.add(const GetAllTransaction());
                             }
                           },
                         ),
