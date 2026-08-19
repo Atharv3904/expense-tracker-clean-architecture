@@ -14,6 +14,16 @@ class AllTransactionPage extends StatefulWidget {
 }
 
 class _AllTransactionPageState extends State<AllTransactionPage> {
+  final TextEditingController searchController = TextEditingController();
+
+  String searchQuery = '';
+
+  @override
+  void dispose() {
+    searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,52 +37,102 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
         ),
       ),
 
-      body: BlocBuilder<TransactionBloc, TransactionState>(
-        builder: (context, state) {
-          if (state is TransactionLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (state is TransactionFailure) {
-            return Center(child: Text(state.message));
-          }
-
-          if (state is TransactionLoaded) {
-            if (state.transactions.isEmpty) {
-              return const Center(child: Text('No transactions yet'));
-            }
-
-            return ListView.builder(
-              padding: const EdgeInsets.all(20),
-              itemCount: state.transactions.length,
-              itemBuilder: (context, index) {
-                final transaction = state.transactions[index];
-
-                return Card(
-                  child: ListTile(
-                    title: Text(transaction.description),
-                    subtitle: Text('₹${transaction.amount}'),
-                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                    onTap: () async {
-                      final result = await context.push(
-                        RoutesName.updateTransactionpage,
-                        extra: transaction,
-                      );
-
-                      if (result == true && context.mounted) {
-                        context.read<TransactionBloc>().add(
-                          const GetAllTransaction(),
-                        );
-                      }
-                    },
-                  ),
-                );
+      body: Column(
+        children: [
+          // Search bar
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: TextField(
+              controller: searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                });
               },
-            );
-          }
+              decoration: InputDecoration(
+                hintText: 'Search transactions...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        onPressed: () {
+                          searchController.clear();
 
-          return const SizedBox();
-        },
+                          setState(() {
+                            searchQuery = '';
+                          });
+                        },
+                        icon: const Icon(Icons.clear),
+                      )
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+
+          // Transaction list
+          Expanded(
+            child: BlocBuilder<TransactionBloc, TransactionState>(
+              builder: (context, state) {
+                if (state is TransactionLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (state is TransactionFailure) {
+                  return Center(child: Text(state.message));
+                }
+
+                if (state is TransactionLoaded) {
+                  final filteredTransactions = state.transactions.where((
+                    transaction,
+                  ) {
+                    return transaction.description.toLowerCase().contains(
+                      searchQuery,
+                    );
+                  }).toList();
+
+                  if (filteredTransactions.isEmpty) {
+                    return const Center(child: Text('No transactions found'));
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.all(20),
+                    itemCount: filteredTransactions.length,
+                    itemBuilder: (context, index) {
+                      final transaction = filteredTransactions[index];
+
+                      return Card(
+                        child: ListTile(
+                          title: Text(transaction.description),
+                          subtitle: Text('₹${transaction.amount}'),
+                          trailing: const Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                          ),
+                          onTap: () async {
+                            final result = await context.push(
+                              RoutesName.updateTransactionpage,
+                              extra: transaction,
+                            );
+
+                            if (result == true && context.mounted) {
+                              context.read<TransactionBloc>().add(
+                                const GetAllTransaction(),
+                              );
+                            }
+                          },
+                        ),
+                      );
+                    },
+                  );
+                }
+
+                return const SizedBox();
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

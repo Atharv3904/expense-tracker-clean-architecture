@@ -31,3 +31,13 @@ class TransactionFailure extends TransactionState {
 class TransactionDeleteSuccess extends TransactionState {
   const TransactionDeleteSuccess();
 }
+
+class TransactionsFiltered extends TransactionState {
+  final List<TransactionEntity> transactions;
+  final List<TransactionEntity> allTransactions;
+
+  const TransactionsFiltered({
+    required this.transactions,
+    required this.allTransactions,
+  });
+}
