@@ -186,16 +186,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        context.push(RoutesName.financialInsights);
-                      },
-                      icon: const Icon(Icons.analytics),
-                      label: const Text('Financial Insights'),
-                    ),
-                  ),
 
                   const SizedBox(height: 20),
 
@@ -238,21 +228,27 @@ class _DashboardPageState extends State<DashboardPage> {
                         return Column(
                           children: [
                             ...state.transactions.take(3).map((transaction) {
-                              return ListTile(
-                                title: Text(transaction.description),
-                                subtitle: Text(transaction.amount.toString()),
-                                onTap: () async {
-                                  final result = await context.push(
-                                    RoutesName.updateTransactionpage,
-                                    extra: transaction,
-                                  );
-
-                                  if (result == true && context.mounted) {
-                                    context.read<TransactionBloc>().add(
-                                      LoadTransaction(),
+                              return Card(
+                                child: ListTile(
+                                  title: Text(transaction.description),
+                                  subtitle: Text('₹${transaction.amount}'),
+                                  trailing: const Icon(
+                                    Icons.arrow_forward_ios,
+                                    size: 16,
+                                  ),
+                                  onTap: () async {
+                                    final result = await context.push(
+                                      RoutesName.updateTransactionpage,
+                                      extra: transaction,
                                     );
-                                  }
-                                },
+
+                                    if (result == true && context.mounted) {
+                                      context.read<TransactionBloc>().add(
+                                        const LoadTransaction(),
+                                      );
+                                    }
+                                  },
+                                ),
                               );
                             }),
 
@@ -304,12 +300,6 @@ class _DashboardPageState extends State<DashboardPage> {
                       );
                     },
                   ),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.push(RoutesName.profilePage);
-                    },
-                    child: Text("profile"),
-                  ),
                 ],
               ),
             );
@@ -317,17 +307,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
           return const SizedBox();
         },
-      ),
-
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final result = await context.push(RoutesName.addTransactionpage);
-
-          if (result == true && context.mounted) {
-            context.read<TransactionBloc>().add(const LoadTransaction());
-          }
-        },
-        child: const Icon(Icons.add),
       ),
     );
   }

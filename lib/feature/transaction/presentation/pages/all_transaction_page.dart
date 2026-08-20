@@ -31,7 +31,7 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
         title: const Text('All Transactions'),
         leading: IconButton(
           onPressed: () {
-            context.pop(true);
+            context.pop();
           },
           icon: const Icon(Icons.arrow_back),
         ),

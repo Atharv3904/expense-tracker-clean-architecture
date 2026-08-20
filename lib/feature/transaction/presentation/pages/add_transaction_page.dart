@@ -117,8 +117,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                     content: Text('Transaction added successfully'),
                   ),
                 );
-
-                context.pop(true);
               }
               if (state is TransactionFailure) {
                 ScaffoldMessenger.of(

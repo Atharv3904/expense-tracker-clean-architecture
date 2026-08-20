@@ -1,7 +1,7 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
@@ -29,54 +29,59 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(
-          create: (context) => sl<DashboardCubit>()..dashboardSummary(),
-        ),
-        BlocProvider(
-          create: (context) => sl<TransactionBloc>()..add(LoadTransaction()),
-        ),
-        BlocProvider(create: (_) => sl<ProfileBloc>()),
-      ],
-      child: Scaffold(
-        body: IndexedStack(index: currentIndex, children: pages),
+    return Scaffold(
+      body: IndexedStack(index: currentIndex, children: pages),
 
-        bottomNavigationBar: NavigationBar(
-          selectedIndex: currentIndex,
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentIndex,
 
-          onDestinationSelected: (index) {
-            setState(() {
-              currentIndex = index;
-            });
-          },
+        onDestinationSelected: (index) {
+          setState(() {
+            currentIndex = index;
+          });
+          if (index == 0) {
+            // Dashboard
+            context.read<TransactionBloc>().add(const LoadTransaction());
 
-          destinations: const [
-            NavigationDestination(
-              icon: Icon(Icons.dashboard_outlined),
-              selectedIcon: Icon(Icons.dashboard),
-              label: 'Dashboard',
-            ),
+            context.read<DashboardCubit>().dashboardSummary();
+          }
 
-            NavigationDestination(
-              icon: Icon(Icons.add_circle_outline),
-              selectedIcon: Icon(Icons.add_circle),
-              label: 'Add',
-            ),
+          if (index == 2) {
+            // Insights
+            context.read<TransactionBloc>().add(const GetAllTransaction());
+          }
 
-            NavigationDestination(
-              icon: Icon(Icons.bar_chart_outlined),
-              selectedIcon: Icon(Icons.bar_chart),
-              label: 'Insights',
-            ),
+          if (index == 3) {
+            // Insights
+            context.read<ProfileBloc>().add(const LoadProfile());
+          }
+        },
 
-            NavigationDestination(
-              icon: Icon(Icons.person_outline),
-              selectedIcon: Icon(Icons.person),
-              label: 'Profile',
-            ),
-          ],
-        ),
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard),
+            label: 'Dashboard',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.add_circle_outline),
+            selectedIcon: Icon(Icons.add_circle),
+            label: 'Add',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart),
+            label: 'Insights',
+          ),
+
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
       ),
     );
   }

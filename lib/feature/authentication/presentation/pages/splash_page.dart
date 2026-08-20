@@ -17,7 +17,7 @@ class SplashPage extends StatelessWidget {
       child: BlocListener<SplashCubit, SplashState>(
         listener: (context, state) {
           if (state is SplashAuthenticated) {
-            context.go(RoutesName.dashboard);
+            context.go(RoutesName.mainNavigationPage);
           }
 
           if (state is SplashUnauthenticated) {
