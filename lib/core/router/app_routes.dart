@@ -7,6 +7,11 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/regist
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
+import 'package:expense_tracker/feature/profile/presentation/pages/change_password_page.dart';
+import 'package:expense_tracker/feature/profile/presentation/pages/edit_profile_page.dart';
+import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
@@ -97,6 +102,34 @@ class AppRoutes {
       builder: (context, state) => BlocProvider(
         create: (_) => sl<TransactionBloc>()..add(GetAllTransaction()),
         child: const AllTransactionPage(),
+      ),
+    ),
+
+    GoRoute(
+      path: RoutesName.profilePage,
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<ProfileBloc>()..add(LoadProfile()),
+        child: const ProfilePage(),
+      ),
+    ),
+
+    GoRoute(
+      path: RoutesName.editProfile,
+      builder: (context, state) {
+        final name = state.extra as String;
+
+        return BlocProvider(
+          create: (_) => sl<ProfileBloc>(),
+          child: EditProfilePage(currentName: name),
+        );
+      },
+    ),
+
+    GoRoute(
+      path: RoutesName.changePassword,
+      builder: (context, state) => BlocProvider(
+        create: (_) => sl<ProfileBloc>(),
+        child: const ChangePasswordPage(),
       ),
     ),
   ];

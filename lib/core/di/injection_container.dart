@@ -18,6 +18,14 @@ import 'package:expense_tracker/feature/dashboard/data/datasources/dashboard_dat
 import 'package:expense_tracker/feature/dashboard/data/repository/dashboard_repository_impl.dart';
 import 'package:expense_tracker/feature/dashboard/domain/repository/dashboard_repository.dart';
 import 'package:expense_tracker/feature/dashboard/domain/usecase/dashboard_summary_usecases.dart';
+import 'package:expense_tracker/feature/profile/data/datasource/profile_remote_datasource.dart';
+import 'package:expense_tracker/feature/profile/data/datasource/profile_remote_datasource_impl.dart';
+import 'package:expense_tracker/feature/profile/data/repository/profile_repository_impl.dart';
+import 'package:expense_tracker/feature/profile/domain/repository/profile_repository.dart';
+import 'package:expense_tracker/feature/profile/domain/usecases/change_password_usecase.dart';
+import 'package:expense_tracker/feature/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:expense_tracker/feature/profile/domain/usecases/update_profile_usecase.dart';
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource_impl.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
@@ -116,4 +124,28 @@ Future<void> init() async {
   sl.registerLazySingleton(() => TransactionTypesUsecase(sl()));
   sl.registerLazySingleton(() => TransactionCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => GetAllTransactionUsecase(sl()));
+
+  //profile
+
+  sl.registerLazySingleton<ProfileRemoteDatasource>(
+    () => ProfileRemoteDatasourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => ChangePasswordUsecase(sl()));
+
+  sl.registerLazySingleton(() => GetProfileUsecase(sl()));
+
+  sl.registerLazySingleton(() => UpdateProfileUsecase(sl()));
+
+  sl.registerFactory(
+    () => ProfileBloc(
+      getProfileUsecase: sl<GetProfileUsecase>(),
+      updateProfileUsecase: sl<UpdateProfileUsecase>(),
+      changePasswordUsecase: sl<ChangePasswordUsecase>(),
+    ),
+  );
 }

@@ -190,7 +190,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
         );
       },
     );
-    if (shouldDelete == true && mounted) {
+    if (shouldDelete == true && context.mounted) {
       context.read<TransactionBloc>().add(
         DeleteTransaction(widget.transaction.id),
       );

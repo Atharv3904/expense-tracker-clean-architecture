@@ -1,3 +1,5 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_states.dart';
@@ -42,15 +44,6 @@ class _DashboardPageState extends State<DashboardPage> {
             const Text("Expense Tracker"),
           ],
         ),
-
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.push(RoutesName.logout);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
       ),
 
       body: BlocBuilder<DashboardCubit, DashboardStates>(
@@ -310,6 +303,12 @@ class _DashboardPageState extends State<DashboardPage> {
                         ),
                       );
                     },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      context.push(RoutesName.profilePage);
+                    },
+                    child: Text("profile"),
                   ),
                 ],
               ),
