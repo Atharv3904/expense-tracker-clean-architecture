@@ -1,7 +1,6 @@
 class RoutesName {
   static const register = '/register';
   static const login = '/login';
-  static const dashboard = '/dashboard';
   static const splashscreen = "/splashscreen";
   static const forgotPage = "/forgotPassPage";
   static const logout = "/logout";
@@ -12,5 +11,5 @@ class RoutesName {
   static const String profilePage = '/profilePage';
   static const String editProfile = '/edit-profile';
   static const String changePassword = '/change-password';
-  static const String mainNavigationPage = '/mainNavigationPage()';
+  static const String mainNavigationPage = '/mainNavigationPage';
 }

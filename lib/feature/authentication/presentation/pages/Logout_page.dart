@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/logout/logout_cubit.dart';
