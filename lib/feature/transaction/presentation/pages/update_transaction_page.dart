@@ -1,9 +1,6 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
-import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
-import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
@@ -41,37 +38,18 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
     descriptionController.text = widget.transaction.description;
 
     selectedTypeId = widget.transaction.typeId;
-
     selectedCategoryId = widget.transaction.categoryId;
-
     selectedDate = widget.transaction.date;
 
     loadTransactionData();
   }
 
-  Future<void> loadTransactionData() async {
-    try {
-      final typeUsecase = sl<TransactionTypesUsecase>();
+  // UI -> Bloc
+  // No UseCase is called directly from UI.
+  void loadTransactionData() {
+    context.read<TransactionBloc>().add(const GetTypesTransaction());
 
-      final categoryUsecase = sl<TransactionCategoriesUsecase>();
-
-      final types = await typeUsecase();
-
-      final categoriesList = await categoryUsecase();
-
-      if (!mounted) return;
-
-      setState(() {
-        transactionTypes = types;
-        categories = categoriesList;
-      });
-    } catch (e) {
-      if (!mounted) return;
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load transaction data: $e')),
-      );
-    }
+    context.read<TransactionBloc>().add(const GetCategoryTransaction());
   }
 
   Future<void> selectDate() async {
@@ -169,14 +147,13 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
           actions: [
             TextButton(
               onPressed: () {
-                context.pop(false);
+                dialogContext.pop(false);
               },
               child: const Text('Cancel'),
             ),
-
             TextButton(
               onPressed: () {
-                context.pop(true);
+                dialogContext.pop(true);
               },
               child: const Text(
                 'Delete',
@@ -190,6 +167,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
         );
       },
     );
+
     if (shouldDelete == true && context.mounted) {
       context.read<TransactionBloc>().add(
         DeleteTransaction(widget.transaction.id),
@@ -201,6 +179,30 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   Widget build(BuildContext context) {
     return BlocListener<TransactionBloc, TransactionState>(
       listener: (context, state) {
+        if (state is TypeLoaded) {
+          setState(() {
+            transactionTypes = state.types;
+          });
+        }
+
+        if (state is TypeFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+
+        if (state is CategoryLoaded) {
+          setState(() {
+            categories = state.categories;
+          });
+        }
+
+        if (state is CategoryFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+
         if (state is TransactionSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Transaction updated successfully')),
@@ -211,8 +213,9 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
         if (state is TransactionDeleteSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text("Transaction deleted successfully")),
+            const SnackBar(content: Text('Transaction deleted successfully')),
           );
+
           context.pop(true);
         }
 
@@ -222,6 +225,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
+
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7FA),
 
@@ -239,15 +243,17 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
-              // Header
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(18),
+
                 decoration: BoxDecoration(
                   color: const Color(0xFFE8D8FF),
                   borderRadius: BorderRadius.circular(18),
                 ),
+
                 child: const Row(
                   children: [
                     Icon(Icons.edit_note, color: Colors.green, size: 35),
@@ -287,6 +293,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                 selectedTypeId = income.id;
                               });
                             },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             transactionTypes.any(
@@ -296,6 +303,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                             )
                             ? Colors.green
                             : Colors.white,
+
                         foregroundColor:
                             transactionTypes.any(
                               (type) =>
@@ -304,14 +312,17 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                             )
                             ? Colors.white
                             : Colors.black,
+
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
+
                       child: const Text('Income'),
                     ),
                   ),
 
                   const SizedBox(width: 12),
 
+                  // Expense
                   Expanded(
                     child: ElevatedButton(
                       onPressed: transactionTypes.isEmpty
@@ -325,6 +336,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                 selectedTypeId = expense.id;
                               });
                             },
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
                             transactionTypes.any(
@@ -334,6 +346,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                             )
                             ? Colors.red
                             : Colors.white,
+
                         foregroundColor:
                             transactionTypes.any(
                               (type) =>
@@ -342,8 +355,10 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                             )
                             ? Colors.white
                             : Colors.black,
+
                         padding: const EdgeInsets.symmetric(vertical: 15),
                       ),
+
                       child: const Text('Expense'),
                     ),
                   ),
@@ -352,6 +367,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
               const SizedBox(height: 20),
 
+              // Amount
               const Text(
                 'Amount',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -361,14 +377,17 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
               TextField(
                 controller: amountController,
+
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,
                 ),
+
                 decoration: InputDecoration(
                   hintText: 'Enter amount',
                   prefixText: '₹ ',
                   filled: true,
                   fillColor: Colors.white,
+
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -378,6 +397,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
               const SizedBox(height: 20),
 
+              // Category
               const Text(
                 'Category',
                 style: TextStyle(fontWeight: FontWeight.bold),
@@ -392,21 +412,25 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                     )
                     ? selectedCategoryId
                     : null,
+
                 decoration: InputDecoration(
                   hintText: 'Select category',
                   filled: true,
                   fillColor: Colors.white,
+
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
                   ),
                 ),
+
                 items: categories.map((category) {
                   return DropdownMenuItem<String>(
                     value: category.id,
                     child: Text(category.name),
                   );
                 }).toList(),
+
                 onChanged: (value) {
                   setState(() {
                     selectedCategoryId = value;
@@ -425,11 +449,14 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
               TextField(
                 controller: descriptionController,
+
                 maxLines: 2,
+
                 decoration: InputDecoration(
                   hintText: 'What was this transaction for?',
                   filled: true,
                   fillColor: Colors.white,
+
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: BorderSide.none,
@@ -438,21 +465,22 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
               ),
 
               const SizedBox(height: 20),
-
-              // Date
               const Text('Date', style: TextStyle(fontWeight: FontWeight.bold)),
 
               const SizedBox(height: 10),
 
               InkWell(
                 onTap: selectDate,
+
                 child: Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
+
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(12),
                   ),
+
                   child: Row(
                     children: [
                       const Icon(Icons.calendar_today, color: Colors.green),
@@ -475,24 +503,28 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
               const SizedBox(height: 30),
 
-              // Update Button
               BlocBuilder<TransactionBloc, TransactionState>(
                 builder: (context, state) {
                   if (state is TransactionLoading) {
-                    return Center(child: CircularProgressIndicator());
+                    return const Center(child: CircularProgressIndicator());
                   }
+
                   return SizedBox(
                     width: double.infinity,
                     height: 52,
+
                     child: ElevatedButton(
                       onPressed: updateTransaction,
+
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
+
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
+
                       child: const Text(
                         'Update Transaction',
                         style: TextStyle(
@@ -506,22 +538,27 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
               ),
 
               const SizedBox(height: 20),
+
               const SizedBox(height: 15),
 
               SizedBox(
                 width: double.infinity,
                 height: 52,
+
                 child: OutlinedButton(
                   onPressed: () {
                     _showDeleteConfirmation(context);
                   },
+
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
                     side: const BorderSide(color: Colors.red),
+
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
+
                   child: const Text(
                     'Delete Transaction',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

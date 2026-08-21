@@ -102,6 +102,8 @@ Future<void> init() async {
       getTransactionUsecase: sl(),
       updateTransactionUsecase: sl(),
       getAllTransactionUsecase: sl(),
+      transactionTypesUsecase: sl(),
+      transactionCategoriesUsecase: sl(),
     ),
   );
 

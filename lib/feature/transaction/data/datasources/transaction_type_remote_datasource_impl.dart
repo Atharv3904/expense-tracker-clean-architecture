@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_type_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,10 +12,14 @@ class TransactionTypeRemoteDatasourceImpl
 
   @override
   Future<List<TransactionTypeModel>> getTypes() async {
-    final response = await supabaseClient.from('transaction_types').select();
+    try {
+      final response = await supabaseClient.from('transaction_types').select();
 
-    return (response as List)
-        .map((json) => TransactionTypeModel.fromJson(json))
-        .toList();
+      return (response as List)
+          .map((json) => TransactionTypeModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw TypeException("check your Internet connection");
+    }
   }
 }

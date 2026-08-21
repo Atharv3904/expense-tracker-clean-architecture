@@ -28,13 +28,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
 
-    try {
-      final profile = await getProfileUsecase();
+    final profile = await getProfileUsecase();
 
-      emit(ProfileLoaded(profile));
-    } catch (e) {
-      emit(ProfileFailure(e.toString()));
-    }
+    profile.fold(
+      (failure) {
+        emit(ProfileFailure(failure.message));
+      },
+      (profile) {
+        emit(ProfileLoaded(profile));
+      },
+    );
   }
 
   Future<void> _updateProfile(
@@ -47,8 +50,6 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       await updateProfileUsecase(name: event.name);
 
       emit(const ProfileSuccess('Profile updated successfully'));
-
-      add(const LoadProfile());
     } catch (e) {
       emit(ProfileFailure(e.toString()));
     }

@@ -9,3 +9,19 @@ class ServerException implements Exception {
 
   ServerException(this.message);
 }
+
+class ProfileException implements Exception {
+  final String message;
+
+  ProfileException(this.message);
+}
+
+class CategoryException implements Exception {
+  final String message;
+  CategoryException(this.message);
+}
+
+class TypeException implements Exception {
+  final String message;
+  TypeException(this.message);
+}

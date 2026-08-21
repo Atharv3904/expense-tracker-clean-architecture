@@ -1,12 +1,9 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
-import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
-import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FinancialInsightsPage extends StatefulWidget {
@@ -25,40 +22,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
   @override
   void initState() {
     super.initState();
+    context.read<TransactionBloc>().add(const GetTypesTransaction());
 
-    context.read<TransactionBloc>().add(const GetAllTransaction());
-
-    loadTransactionTypes();
-    loadCategories();
-  }
-
-  Future<void> loadTransactionTypes() async {
-    final usecase = sl<TransactionTypesUsecase>();
-
-    final types = await usecase();
-
-    final income = types.firstWhere((type) => type.type == 'income');
-
-    final expense = types.firstWhere((type) => type.type == 'expense');
-
-    if (!mounted) return;
-
-    setState(() {
-      incomeTypeId = income.id;
-      expenseTypeId = expense.id;
-    });
-  }
-
-  Future<void> loadCategories() async {
-    final usecase = sl<TransactionCategoriesUsecase>();
-
-    final result = await usecase();
-
-    if (!mounted) return;
-
-    setState(() {
-      categories = result;
-    });
+    context.read<TransactionBloc>().add(const GetCategoryTransaction());
   }
 
   Map<String, double> _calculateCategoryExpenses(List transactions) {
@@ -93,42 +59,80 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Financial Insights')),
+    return BlocListener<TransactionBloc, TransactionState>(
+      listener: (context, state) {
+        // Transaction types loaded
+        if (state is TypeLoaded) {
+          final income = state.types
+              .where((type) => type.type == 'income')
+              .firstOrNull;
 
-      body: BlocBuilder<TransactionBloc, TransactionState>(
-        builder: (context, state) {
-          if (state is TransactionLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          final expense = state.types
+              .where((type) => type.type == 'expense')
+              .firstOrNull;
 
-          if (state is TransactionFailure) {
-            return Center(child: Text(state.message));
-          }
+          setState(() {
+            incomeTypeId = income?.id;
+            expenseTypeId = expense?.id;
+          });
+        }
 
-          if (state is TransactionLoaded) {
-            double income = 0;
-            double expense = 0;
+        if (state is TypeFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
 
-            for (final transaction in state.transactions) {
-              if (transaction.typeId == incomeTypeId) {
-                income += transaction.amount;
-              }
+        if (state is CategoryLoaded) {
+          setState(() {
+            categories = state.categories;
+          });
+        }
 
-              if (transaction.typeId == expenseTypeId) {
-                expense += transaction.amount;
-              }
+        if (state is CategoryFailure) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
+        }
+      },
+
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Financial Insights')),
+
+        body: BlocBuilder<TransactionBloc, TransactionState>(
+          builder: (context, state) {
+            if (state is TransactionLoading) {
+              return const Center(child: CircularProgressIndicator());
             }
 
-            final categoryExpenses = _calculateCategoryExpenses(
-              state.transactions,
-            );
+            if (state is TransactionFailure) {
+              return Center(child: Text(state.message));
+            }
 
-            return _buildChart(income, expense, categoryExpenses);
-          }
+            if (state is TransactionLoaded) {
+              double income = 0;
+              double expense = 0;
 
-          return const SizedBox();
-        },
+              for (final transaction in state.transactions) {
+                if (transaction.typeId == incomeTypeId) {
+                  income += transaction.amount;
+                }
+
+                if (transaction.typeId == expenseTypeId) {
+                  expense += transaction.amount;
+                }
+              }
+
+              final categoryExpenses = _calculateCategoryExpenses(
+                state.transactions,
+              );
+
+              return _buildChart(income, expense, categoryExpenses);
+            }
+
+            return const SizedBox();
+          },
+        ),
       ),
     );
   }
@@ -143,11 +147,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-
         children: [
-          // -------------------------
-          // INCOME VS EXPENSE
-          // -------------------------
           const Text(
             'Income vs Expense',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
@@ -174,7 +174,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 barGroups: [
                   BarChartGroupData(
                     x: 0,
-                    barRods: [BarChartRodData(toY: income, width: 45)],
+                    barRods: [BarChartRodData(toY: income, width: 40)],
                   ),
 
                   BarChartGroupData(
@@ -231,9 +231,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
           const SizedBox(height: 40),
 
-          // -------------------------
-          // SPENDING BY CATEGORY
-          // -------------------------
           const Text(
             'Spending by Category',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),

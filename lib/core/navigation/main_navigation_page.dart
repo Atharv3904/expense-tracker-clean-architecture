@@ -40,19 +40,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
             currentIndex = index;
           });
           if (index == 0) {
-            // Dashboard
             context.read<TransactionBloc>().add(const LoadTransaction());
 
             context.read<DashboardCubit>().dashboardSummary();
           }
 
           if (index == 2) {
-            // Insights
             context.read<TransactionBloc>().add(const GetAllTransaction());
           }
 
           if (index == 3) {
-            // Insights
             context.read<ProfileBloc>().add(const LoadProfile());
           }
         },

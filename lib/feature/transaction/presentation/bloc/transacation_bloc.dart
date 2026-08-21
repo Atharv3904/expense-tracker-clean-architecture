@@ -3,6 +3,8 @@ import 'package:expense_tracker/feature/transaction/domain/usecases/add_transact
 import 'package:expense_tracker/feature/transaction/domain/usecases/delete_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/get_all_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/get_transaction_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
+import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/update_transaction_usecase.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
@@ -13,6 +15,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   final UpdateTransactionUsecase updateTransactionUsecase;
   final DeleteTransactionUsecase deleteTransactionUsecase;
   final GetAllTransactionUsecase getAllTransactionUsecase;
+  final TransactionTypesUsecase transactionTypesUsecase;
+  final TransactionCategoriesUsecase transactionCategoriesUsecase;
 
   TransactionBloc({
     required this.addTransactionUsecase,
@@ -20,6 +24,8 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     required this.getTransactionUsecase,
     required this.updateTransactionUsecase,
     required this.getAllTransactionUsecase,
+    required this.transactionTypesUsecase,
+    required this.transactionCategoriesUsecase,
   }) : super(const TransactionInitial()) {
     on<LoadTransaction>(_loadTransactions);
 
@@ -30,6 +36,44 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     on<DeleteTransaction>(_deleteTransaction);
 
     on<GetAllTransaction>(_getAllTransaction);
+
+    on<GetTypesTransaction>(_getTypesTransaction);
+
+    on<GetCategoryTransaction>(_getCategoryTransaction);
+  }
+
+  Future<void> _getTypesTransaction(
+    GetTypesTransaction event,
+    Emitter<TransactionState> emit,
+  ) async {
+    emit(TransactionLoading());
+
+    final result = await transactionTypesUsecase();
+
+    result.fold(
+      (failure) {
+        emit(TypeFailure(failure.message));
+      },
+      (types) {
+        emit(TypeLoaded(types));
+      },
+    );
+  }
+
+  Future<void> _getCategoryTransaction(
+    GetCategoryTransaction event,
+    Emitter<TransactionState> emit,
+  ) async {
+    final result = await transactionCategoriesUsecase();
+
+    result.fold(
+      (failure) {
+        emit(CategoryFailure(failure.message));
+      },
+      (category) {
+        emit(CategoryLoaded(category));
+      },
+    );
   }
 
   Future<void> _getAllTransaction(

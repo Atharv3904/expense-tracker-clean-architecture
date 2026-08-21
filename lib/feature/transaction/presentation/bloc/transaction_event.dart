@@ -26,3 +26,11 @@ class DeleteTransaction extends TransactionEvent {
 class GetAllTransaction extends TransactionEvent {
   const GetAllTransaction();
 }
+
+class GetTypesTransaction extends TransactionEvent {
+  const GetTypesTransaction();
+}
+
+class GetCategoryTransaction extends TransactionEvent {
+  const GetCategoryTransaction();
+}

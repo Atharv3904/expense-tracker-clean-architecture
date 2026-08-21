@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_category_model.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
@@ -10,10 +11,14 @@ class TransactionCategoryDatasourceImpl extends TransactionCategoryDatasource {
 
   @override
   Future<List<TransactionCategoryEntity>> getCategory() async {
-    final result = await supabaseClient.from('categories').select();
+    try {
+      final result = await supabaseClient.from('categories').select();
 
-    return (result as List)
-        .map((json) => TransactionCategoryModel.fromJson(json))
-        .toList();
+      return (result as List)
+          .map((json) => TransactionCategoryModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      throw CategoryException("check your Internet connection");
+    }
   }
 }

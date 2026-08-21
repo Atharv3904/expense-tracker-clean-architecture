@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/profile/data/datasource/profile_remote_datasource.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -21,7 +22,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     final user = supabaseClient.auth.currentUser;
 
     if (user == null) {
-      throw Exception('User not logged in');
+      throw ProfileException('User not logged in');
     }
     return user;
   }
