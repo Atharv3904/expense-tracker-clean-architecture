@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
+import 'package:expense_tracker/core/notification/device_token_service.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/splash/splash_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/splash/splash_state.dart';
@@ -15,9 +16,16 @@ class SplashPage extends StatelessWidget {
       create: (context) => sl<SplashCubit>()..checkAuthethication(),
 
       child: BlocListener<SplashCubit, SplashState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is SplashAuthenticated) {
-            context.go(RoutesName.mainNavigationPage);
+            final deviceTokenService = DeviceTokenService();
+
+            await deviceTokenService.saveToken();
+            deviceTokenService.listenForTokenRefresh();
+
+            if (context.mounted) {
+              context.go(RoutesName.mainNavigationPage);
+            }
           }
 
           if (state is SplashUnauthenticated) {

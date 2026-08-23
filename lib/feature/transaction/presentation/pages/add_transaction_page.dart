@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
@@ -136,7 +137,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         .firstOrNull;
 
     return BlocListener<TransactionBloc, TransactionState>(
-      listener: (context, state) {
+      listener: (context, state) async {
         if (state is TypeLoaded) {
           setState(() {
             transactionTypes = state.types;
@@ -163,6 +164,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Transaction added successfully')),
           );
+
+          final userId = Supabase.instance.client.auth.currentUser?.id;
+
+          if (userId != null) {
+            await NotificationService().sendNotification(
+              userId: userId,
+              title: 'Transaction Added 💰',
+              body:
+                  '₹${amountController.text.trim()} transaction is added successfully.',
+            );
+          }
         }
 
         if (state is TransactionFailure) {

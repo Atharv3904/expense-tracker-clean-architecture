@@ -1,5 +1,8 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
+import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
 
@@ -11,7 +14,14 @@ void main() async {
     publishableKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzeWhzb2pxeHNramlwZ2Rxbm5oIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU4NDE2NjEsImV4cCI6MjEwMTQxNzY2MX0.0an7ulZf1oQO-WjXZSLDaMDfyBxCNHrQGoG7vi7dJB8',
   );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Dependency Injection
   await init();
+
+  // Notifications
+  final notificationService = NotificationService();
+  await notificationService.initialize();
 
   runApp(const MyApp());
 }

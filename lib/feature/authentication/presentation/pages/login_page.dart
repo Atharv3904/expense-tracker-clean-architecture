@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
+import 'package:expense_tracker/core/notification/device_token_service.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_state.dart';
@@ -15,13 +16,17 @@ class LoginPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => sl<LoginCubit>(),
       child: BlocListener<LoginCubit, LoginState>(
-        listener: (context, state) {
+        listener: (context, state) async {
           if (state is LoginSuccess) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(content: Text("Login Successful")));
 
-            context.pushReplacement(RoutesName.mainNavigationPage);
+            await DeviceTokenService().saveToken();
+
+            if (context.mounted) {
+              context.pushReplacement(RoutesName.mainNavigationPage);
+            }
           }
 
           if (state is LoginFailure) {
