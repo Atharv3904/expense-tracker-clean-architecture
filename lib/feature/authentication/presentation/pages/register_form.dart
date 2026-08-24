@@ -21,6 +21,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
   final passwordController = TextEditingController();
 
+  bool isPasswordVisible = false;
+
   void _register() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -31,6 +33,8 @@ class _RegisterFormState extends State<RegisterForm> {
 
     context.read<RegisterCubit>().register(params);
   }
+
+  void __showConfirmOrNot() {}
 
   @override
   Widget build(BuildContext context) {
@@ -98,10 +102,22 @@ class _RegisterFormState extends State<RegisterForm> {
 
                   TextFormField(
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText: !isPasswordVisible,
                     decoration: InputDecoration(
                       labelText: "Password",
                       prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -118,8 +134,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       return null;
                     },
                   ),
-
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 20),
 
                   BlocBuilder<RegisterCubit, RegisterState>(
                     builder: (context, state) {

@@ -16,6 +16,9 @@ class LoginForm extends StatefulWidget {
 class _LoginFormState extends State<LoginForm> {
   final _formKey = GlobalKey<FormState>();
 
+  bool isPasswordVisible = false;
+  bool isButtonVisible = false;
+
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -74,6 +77,9 @@ class _LoginFormState extends State<LoginForm> {
                   const SizedBox(height: 30),
 
                   TextFormField(
+                    onChanged: (value) => setState(() {
+                      isButtonVisible = value.isNotEmpty;
+                    }),
                     controller: emailController,
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
@@ -94,11 +100,27 @@ class _LoginFormState extends State<LoginForm> {
                   const SizedBox(height: 20),
 
                   TextFormField(
+                    onChanged: (value) => setState(() {
+                      isButtonVisible = value.isNotEmpty;
+                    }),
                     controller: passwordController,
-                    obscureText: true,
+                    obscureText: !isPasswordVisible,
                     decoration: InputDecoration(
                       labelText: "Password",
                       prefixIcon: const Icon(Icons.lock),
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            isPasswordVisible = !isPasswordVisible;
+                          });
+                        },
+                        icon: Icon(
+                          isPasswordVisible
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                        ),
+                      ),
+
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -124,21 +146,25 @@ class _LoginFormState extends State<LoginForm> {
                         return const CircularProgressIndicator();
                       }
 
-                      return SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _login,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: const Text("Login"),
-                        ),
-                      );
+                      return isButtonVisible == true
+                          ? SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _login,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 15,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                child: const Text("Login"),
+                              ),
+                            )
+                          : const SizedBox.shrink();
                     },
                   ),
                   SizedBox(height: 20),

@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class DeviceTokenService {
@@ -6,6 +7,7 @@ class DeviceTokenService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> saveToken() async {
+    if (kIsWeb) return;
     final user = _supabase.auth.currentUser;
 
     if (user == null) return;
@@ -22,6 +24,7 @@ class DeviceTokenService {
   }
 
   void listenForTokenRefresh() {
+    if (kIsWeb) return;
     _messaging.onTokenRefresh.listen((newToken) async {
       final user = _supabase.auth.currentUser;
 

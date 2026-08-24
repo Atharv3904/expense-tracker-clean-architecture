@@ -10,6 +10,8 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
 
   Future<void> initialize() async {
+    if (kIsWeb) return;
+
     // Ask user for notification permission
     await _firebaseMessaging.requestPermission(
       alert: true,

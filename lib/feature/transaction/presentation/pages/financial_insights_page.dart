@@ -57,6 +57,31 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     return categoryExpenses;
   }
 
+  Color _getCategoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'food':
+        return Colors.orange;
+
+      case 'shopping':
+        return Colors.purple;
+
+      case 'transport':
+        return Colors.blue;
+
+      case 'healthcare':
+        return Colors.green;
+
+      case 'investment':
+        return Colors.indigo;
+
+      case 'bills':
+        return Colors.red;
+
+      default:
+        return Colors.grey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<TransactionBloc, TransactionState>(
@@ -174,12 +199,24 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 barGroups: [
                   BarChartGroupData(
                     x: 0,
-                    barRods: [BarChartRodData(toY: income, width: 40)],
+                    barRods: [
+                      BarChartRodData(
+                        toY: income,
+                        width: 40,
+                        color: Colors.green,
+                      ),
+                    ],
                   ),
 
                   BarChartGroupData(
                     x: 1,
-                    barRods: [BarChartRodData(toY: expense, width: 35)],
+                    barRods: [
+                      BarChartRodData(
+                        toY: expense,
+                        width: 35,
+                        color: Colors.red,
+                      ),
+                    ],
                   ),
                 ],
 
@@ -257,7 +294,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                           value: entry.value,
                           title: entry.key,
                           radius: 100,
-
+                          color: _getCategoryColor(entry.key),
                           titleStyle: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.bold,

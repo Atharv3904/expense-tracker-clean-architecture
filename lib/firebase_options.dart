@@ -17,29 +17,17 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
         return android;
       case TargetPlatform.iOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for ios - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -58,5 +46,42 @@ class DefaultFirebaseOptions {
     messagingSenderId: '994301263812',
     projectId: 'expense-tracker-ab4ec',
     storageBucket: 'expense-tracker-ab4ec.firebasestorage.app',
+  );
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyCralq63UDHShQ6IQFqnVKX3MJcy8KK6G0',
+    appId: '1:994301263812:web:2530b0cae909a55e75ee91',
+    messagingSenderId: '994301263812',
+    projectId: 'expense-tracker-ab4ec',
+    authDomain: 'expense-tracker-ab4ec.firebaseapp.com',
+    storageBucket: 'expense-tracker-ab4ec.firebasestorage.app',
+    measurementId: 'G-JQER51BVR9',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyCBhTxtNLWLxxSpWTX3Ea4WZFVIq81F46U',
+    appId: '1:994301263812:ios:0bff92ca4903c7c175ee91',
+    messagingSenderId: '994301263812',
+    projectId: 'expense-tracker-ab4ec',
+    storageBucket: 'expense-tracker-ab4ec.firebasestorage.app',
+    iosBundleId: 'com.example.expenseTracker',
+  );
+
+  static const FirebaseOptions ios = FirebaseOptions(
+    apiKey: 'AIzaSyCBhTxtNLWLxxSpWTX3Ea4WZFVIq81F46U',
+    appId: '1:994301263812:ios:0bff92ca4903c7c175ee91',
+    messagingSenderId: '994301263812',
+    projectId: 'expense-tracker-ab4ec',
+    storageBucket: 'expense-tracker-ab4ec.firebasestorage.app',
+    iosBundleId: 'com.example.expenseTracker',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyCralq63UDHShQ6IQFqnVKX3MJcy8KK6G0',
+    appId: '1:994301263812:web:87fb3bd8c9f03e4975ee91',
+    messagingSenderId: '994301263812',
+    projectId: 'expense-tracker-ab4ec',
+    authDomain: 'expense-tracker-ab4ec.firebaseapp.com',
+    storageBucket: 'expense-tracker-ab4ec.firebasestorage.app',
+    measurementId: 'G-FR63E1HFCM',
   );
 }
