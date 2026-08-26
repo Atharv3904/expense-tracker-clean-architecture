@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
@@ -8,6 +9,7 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:expense_tracker/feature/transaction/presentation/pages/add_transaction_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/pages/financial_insights_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class MainNavigationPage extends StatefulWidget {
@@ -27,58 +29,294 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     ProfilePage(),
   ];
 
+  void _onNavigationChanged(int index) {
+    setState(() {
+      currentIndex = index;
+    });
+
+    // Dashboard
+    if (index == 0) {
+      context.read<TransactionBloc>().add(const LoadTransaction());
+
+      context.read<DashboardCubit>().dashboardSummary();
+    }
+    if (index == 1) {
+      context.read<TransactionBloc>().add(const GetTypesTransaction());
+
+      context.read<TransactionBloc>().add(const GetCategoryTransaction());
+    }
+
+    // Financial Insights
+    if (index == 2) {
+      context.read<TransactionBloc>().add(const GetAllTransaction());
+    }
+
+    // Profile
+    if (index == 3) {
+      context.read<ProfileBloc>().add(const LoadProfile());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: IndexedStack(index: currentIndex, children: pages),
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+    final isDesktop = Responsive.isDesktop(context);
+    DateTime? lastBackPress;
 
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentIndex,
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
 
-        onDestinationSelected: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-          if (index == 0) {
-            context.read<TransactionBloc>().add(const LoadTransaction());
+        final now = DateTime.now();
 
-            context.read<DashboardCubit>().dashboardSummary();
-          }
+        if (lastBackPress == null ||
+            now.difference(lastBackPress!) > const Duration(seconds: 2)) {
+          lastBackPress = now;
 
-          if (index == 2) {
-            context.read<TransactionBloc>().add(const GetAllTransaction());
-          }
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Press back again to exit'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
 
-          if (index == 3) {
-            context.read<ProfileBloc>().add(const LoadProfile());
-          }
-        },
+        // Second back press
+        SystemNavigator.pop();
+      },
+      child: Scaffold(
+        body: Row(
+          children: [
+            if (isTablet)
+              NavigationRail(
+                selectedIndex: currentIndex,
+                onDestinationSelected: _onNavigationChanged,
 
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+                labelType: NavigationRailLabelType.all,
+
+                destinations: const [
+                  NavigationRailDestination(
+                    icon: Icon(Icons.dashboard_outlined),
+                    selectedIcon: Icon(Icons.dashboard),
+                    label: Text('Dashboard'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.add_circle_outline),
+                    selectedIcon: Icon(Icons.add_circle),
+                    label: Text('Add'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.bar_chart_outlined),
+                    selectedIcon: Icon(Icons.bar_chart),
+                    label: Text('Insights'),
+                  ),
+                  NavigationRailDestination(
+                    icon: Icon(Icons.person_outline),
+                    selectedIcon: Icon(Icons.person),
+                    label: Text('Profile'),
+                  ),
+                ],
+              ),
+
+            if (isDesktop)
+              Container(
+                width: 240,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  border: Border(
+                    right: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 32),
+
+                    // App Logo / Name
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.account_balance_wallet,
+                            size: 32,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Expense Tracker',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 40),
+
+                    // Navigation items
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        children: [
+                          _DesktopNavigationItem(
+                            icon: Icons.dashboard_outlined,
+                            selectedIcon: Icons.dashboard,
+                            label: 'Dashboard',
+                            selected: currentIndex == 0,
+                            onTap: () {
+                              _onNavigationChanged(0);
+                            },
+                          ),
+
+                          _DesktopNavigationItem(
+                            icon: Icons.add_circle_outline,
+                            selectedIcon: Icons.add_circle,
+                            label: 'Add Transaction',
+                            selected: currentIndex == 1,
+                            onTap: () {
+                              _onNavigationChanged(1);
+                            },
+                          ),
+
+                          _DesktopNavigationItem(
+                            icon: Icons.bar_chart_outlined,
+                            selectedIcon: Icons.bar_chart,
+                            label: 'Financial Insights',
+                            selected: currentIndex == 2,
+                            onTap: () {
+                              _onNavigationChanged(2);
+                            },
+                          ),
+
+                          _DesktopNavigationItem(
+                            icon: Icons.person_outline,
+                            selectedIcon: Icons.person,
+                            label: 'Profile',
+                            selected: currentIndex == 3,
+                            onTap: () {
+                              _onNavigationChanged(3);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Bottom section
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Text(
+                        'Expense Tracker',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+            // ==========================================
+            // PAGE CONTENT
+            // ==========================================
+            Expanded(
+              child: IndexedStack(index: currentIndex, children: pages),
+            ),
+          ],
+        ),
+
+        // ==========================================
+        // MOBILE NAVIGATION
+        // ==========================================
+        bottomNavigationBar: isMobile
+            ? NavigationBar(
+                selectedIndex: currentIndex,
+                onDestinationSelected: _onNavigationChanged,
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.dashboard_outlined),
+                    selectedIcon: Icon(Icons.dashboard),
+                    label: 'Dashboard',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.add_circle_outline),
+                    selectedIcon: Icon(Icons.add_circle),
+                    label: 'Add',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.bar_chart_outlined),
+                    selectedIcon: Icon(Icons.bar_chart),
+                    label: 'Insights',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.person_outline),
+                    selectedIcon: Icon(Icons.person),
+                    label: 'Profile',
+                  ),
+                ],
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+// ======================================================
+// DESKTOP NAVIGATION ITEM
+// ======================================================
+
+class _DesktopNavigationItem extends StatelessWidget {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _DesktopNavigationItem({
+    required this.icon,
+    required this.selectedIcon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          onTap: onTap,
+
+          selected: selected,
+
+          selectedTileColor: colorScheme.primaryContainer,
+
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
           ),
 
-          NavigationDestination(
-            icon: Icon(Icons.add_circle_outline),
-            selectedIcon: Icon(Icons.add_circle),
-            label: 'Add',
+          leading: Icon(
+            selected ? selectedIcon : icon,
+            color: selected
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
           ),
 
-          NavigationDestination(
-            icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
-            label: 'Insights',
+          title: Text(
+            label,
+            style: TextStyle(
+              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
+              color: selected ? colorScheme.primary : colorScheme.onSurface,
+            ),
           ),
-
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
+        ),
       ),
     );
   }

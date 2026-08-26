@@ -7,19 +7,27 @@ class DeviceTokenService {
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
 
   Future<void> saveToken() async {
-    if (kIsWeb) return;
     final user = _supabase.auth.currentUser;
 
     if (user == null) return;
 
-    final token = await _messaging.getToken();
+    String? token;
+
+    if (kIsWeb) {
+      token = await _messaging.getToken(
+        vapidKey:
+            'BJrmxmUPd3i4cQik-7i1KwXVmhiEwzKBpZ-hVYGG6Fv76_QPVLjC5-2heLSLhy37pSOumiePR41iNzheAIurxi8',
+      );
+    } else {
+      token = await _messaging.getToken();
+    }
 
     if (token == null) return;
 
     await _supabase.from('device_tokens').upsert({
       'user_id': user.id,
       'fcm_token': token,
-      'platform': 'android',
+      'platform': kIsWeb ? 'web' : 'android',
     }, onConflict: 'user_id,fcm_token');
   }
 

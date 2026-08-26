@@ -1,4 +1,3 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/notification/device_token_service.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
@@ -13,34 +12,31 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<LoginCubit>(),
-      child: BlocListener<LoginCubit, LoginState>(
-        listener: (context, state) async {
-          if (state is LoginSuccess) {
+    return BlocListener<LoginCubit, LoginState>(
+      listener: (context, state) async {
+        if (state is LoginSuccess) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Login Successful")));
+
+          await DeviceTokenService().saveToken();
+
+          if (context.mounted) {
+            context.pushReplacement(RoutesName.mainNavigationPage);
+          }
+        }
+
+        if (state is LoginFailure) {
+          if (context.mounted) {
             ScaffoldMessenger.of(
               context,
-            ).showSnackBar(const SnackBar(content: Text("Login Successful")));
-
-            await DeviceTokenService().saveToken();
-
-            if (context.mounted) {
-              context.pushReplacement(RoutesName.mainNavigationPage);
-            }
+            ).showSnackBar(SnackBar(content: Text(state.message)));
           }
-
-          if (state is LoginFailure) {
-            if (context.mounted) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
-            }
-          }
-        },
-        child: Scaffold(
-          appBar: AppBar(title: const Text("Login page")),
-          body: SafeArea(child: LoginForm()),
-        ),
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(title: const Text("Login page")),
+        body: SafeArea(child: LoginForm()),
       ),
     );
   }

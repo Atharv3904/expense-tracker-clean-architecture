@@ -1,4 +1,4 @@
-import 'package:expense_tracker/core/di/injection_container.dart';
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
@@ -11,12 +11,8 @@ class ForgotPassPage extends StatelessWidget {
   const ForgotPassPage({super.key});
 
   @override
-  @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<ForgotPassCubit>(),
-      child: const ForgotPasswordView(),
-    );
+    return const ForgotPasswordView();
   }
 }
 
@@ -38,6 +34,15 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+
+    final maxWidth = isMobile
+        ? double.infinity
+        : isTablet
+        ? 600.0
+        : 700.0;
+
     return BlocListener<ForgotPassCubit, ForgotPassState>(
       listener: (context, state) {
         if (state is ForgotPassSuccess) {
@@ -56,111 +61,221 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
+
       child: Scaffold(
         appBar: AppBar(title: const Text('Forgot Password')),
-        body: Center(
-          child: SingleChildScrollView(
-            child: Card(
-              elevation: 20,
-              shadowColor: Colors.black26,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : 24,
+                vertical: isMobile ? 20 : 40,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(24),
-                child: BlocBuilder<ForgotPassCubit, ForgotPassState>(
-                  builder: (context, state) {
-                    final isLoading = state is ForgotPassLoading;
 
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(
-                          Icons.account_balance_wallet,
-                          color: Colors.green,
-                          size: 70,
-                        ),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
 
-                        const SizedBox(height: 15),
+                child: Card(
+                  elevation: isMobile ? 8 : 14,
+                  shadowColor: Colors.black26,
 
-                        const Text(
-                          "Expense Tracker",
-                          style: TextStyle(
-                            fontSize: 28,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.green,
-                          ),
-                        ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+                  ),
 
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Reset your password',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w200,
-                          ),
-                        ),
+                  child: Padding(
+                    padding: EdgeInsets.all(isMobile ? 20 : 32),
 
-                        const SizedBox(height: 12),
+                    child: BlocBuilder<ForgotPassCubit, ForgotPassState>(
+                      builder: (context, state) {
+                        final isLoading = state is ForgotPassLoading;
 
-                        const Text(
-                          'Enter your email and we will send you a password reset link.',
-                          textAlign: TextAlign.center,
-                        ),
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: isMobile ? 58 : 70,
+                              height: isMobile ? 58 : 70,
 
-                        const SizedBox(height: 30),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withValues(alpha: 0.10),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
 
-                        TextField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            labelText: 'Email',
-                            border: OutlineInputBorder(),
-                          ),
-                        ),
+                              child: Icon(
+                                Icons.lock_reset,
+                                color: Colors.green,
+                                size: isMobile ? 34 : 42,
+                              ),
+                            ),
 
-                        const SizedBox(height: 20),
+                            const SizedBox(height: 16),
 
-                        ElevatedButton(
-                          onPressed: isLoading
-                              ? null
-                              : () {
-                                  final email = emailController.text.trim();
+                            Text(
+                              'Expense Tracker',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isMobile ? 25 : 30,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.green,
+                              ),
+                            ),
 
-                                  if (email.isEmpty) {
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Enter your email'),
+                            const SizedBox(height: 8),
+
+                            Text(
+                              'Reset your password',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isMobile ? 19 : 22,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+
+                            const SizedBox(height: 10),
+
+                            Text(
+                              'Enter your email and we will send you '
+                              'a password reset link.',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: isMobile ? 13 : 15,
+                                color: Colors.grey[600],
+                                height: 1.4,
+                              ),
+                            ),
+
+                            SizedBox(height: isMobile ? 24 : 30),
+
+                            TextField(
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+
+                              decoration: InputDecoration(
+                                labelText: 'Email',
+                                hintText: 'Enter your email',
+
+                                prefixIcon: const Icon(Icons.email_outlined),
+
+                                filled: true,
+                                fillColor: Colors.grey[50],
+
+                                contentPadding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 16,
+                                ),
+
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  borderSide: const BorderSide(
+                                    color: Colors.green,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 22),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 52,
+
+                              child: ElevatedButton(
+                                onPressed: isLoading
+                                    ? null
+                                    : () {
+                                        final email = emailController.text
+                                            .trim();
+
+                                        if (email.isEmpty) {
+                                          ScaffoldMessenger.of(
+                                            context,
+                                          ).showSnackBar(
+                                            const SnackBar(
+                                              content: Text('Enter your email'),
+                                            ),
+                                          );
+                                          return;
+                                        }
+
+                                        final emailpass = ForgotPasswordParams(
+                                          email: email,
+                                        );
+
+                                        context
+                                            .read<ForgotPassCubit>()
+                                            .forgotPassword(emailpass);
+                                      },
+
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.green,
+                                  foregroundColor: Colors.white,
+                                  elevation: 0,
+
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+
+                                child: isLoading
+                                    ? const SizedBox(
+                                        height: 22,
+                                        width: 22,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: Colors.white,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Send Reset Link',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    );
-                                    return;
-                                  }
-                                  final ForgotPasswordParams emailpass =
-                                      ForgotPasswordParams(email: email);
-                                  context
-                                      .read<ForgotPassCubit>()
-                                      .forgotPassword(emailpass);
-                                },
-                          child: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(),
-                                )
-                              : const Text('Send Reset Link'),
-                        ),
+                              ),
+                            ),
 
-                        const SizedBox(height: 16),
+                            const SizedBox(height: 18),
 
-                        TextButton(
-                          onPressed: () {
-                            context.go(RoutesName.login);
-                          },
-                          child: const Text('Back to Login'),
-                        ),
-                      ],
-                    );
-                  },
+                            TextButton(
+                              onPressed: () {
+                                context.go(RoutesName.login);
+                              },
+
+                              child: const Text(
+                                'Back to Login',
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
                 ),
               ),
             ),

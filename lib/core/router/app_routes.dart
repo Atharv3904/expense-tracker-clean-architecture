@@ -1,6 +1,11 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/navigation/main_navigation_page.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
+import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
+import 'package:expense_tracker/feature/authentication/presentation/cubit/logout/logout_cubit.dart';
+import 'package:expense_tracker/feature/authentication/presentation/cubit/register/register_cubit.dart';
+import 'package:expense_tracker/feature/authentication/presentation/cubit/splash/splash_cubit.dart';
 
 import 'package:expense_tracker/feature/authentication/presentation/pages/logout_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/forgot_pass_page.dart';
@@ -32,22 +37,34 @@ class AppRoutes {
     // ---------------- AUTH ----------------
     GoRoute(
       path: RoutesName.splashscreen,
-      builder: (context, state) => const SplashPage(),
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<SplashCubit>()..checkAuthethication(),
+        child: const SplashPage(),
+      ),
     ),
 
     GoRoute(
       path: RoutesName.register,
-      builder: (context, state) => const RegisterPage(),
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<RegisterCubit>(),
+        child: const RegisterPage(),
+      ),
     ),
 
     GoRoute(
       path: RoutesName.login,
-      builder: (context, state) => const LoginPage(),
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<LoginCubit>(),
+        child: const LoginPage(),
+      ),
     ),
 
     GoRoute(
       path: RoutesName.forgotPage,
-      builder: (context, state) => const ForgotPassPage(),
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<ForgotPassCubit>(),
+        child: const ForgotPassPage(),
+      ),
     ),
 
     // ---------------- MAIN NAVIGATION ----------------
@@ -72,10 +89,13 @@ class AppRoutes {
       },
     ),
 
-    // ---------------- LOGOUT ----------------
+    // ---------------- LOGOUT
     GoRoute(
       path: RoutesName.logout,
-      builder: (context, state) => const LogoutPage(),
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<LogoutCubit>()..logout(),
+        child: const LogoutPage(),
+      ),
     ),
 
     // ---------------- UPDATE TRANSACTION ----------------

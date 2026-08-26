@@ -1,45 +1,64 @@
+import 'package:expense_tracker/core/notification/%20android_notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class NotificationService {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 
-  final FlutterLocalNotificationsPlugin _localNotifications =
-      FlutterLocalNotificationsPlugin();
+  final AndroidNotificationService _androidNotification =
+      AndroidNotificationService();
 
   Future<void> initialize() async {
-    if (kIsWeb) return;
+    debugPrint('🔔 NotificationService.initialize() CALLED');
 
-    // Ask user for notification permission
+    // ==========================================
+    // FIREBASE PERMISSION
+    // ==========================================
+
     await _firebaseMessaging.requestPermission(
       alert: true,
       badge: true,
       sound: true,
     );
 
-    // Local notification initialization
-    const androidSettings = AndroidInitializationSettings(
-      '@mipmap/ic_launcher',
+    // ==========================================
+    // ANDROID
+    // ==========================================
+
+    if (!kIsWeb) {
+      await _androidNotification.initialize();
+    }
+
+    // ==========================================
+    // WEB
+    // ==========================================
+
+    // ==========================================
+    // FCM TOKEN
+    // ==========================================
+
+    final token = await _firebaseMessaging.getToken(
+      vapidKey: kIsWeb
+          ? 'BJrmxmUPd3i4cQik-7i1KwXVmhiEwzKBpZ-hVYGG6Fv76_QPVLjC5-2heLSLhy37pSOumiePR41iNzheAIurxi8'
+          : null,
     );
-
-    const initializationSettings = InitializationSettings(
-      android: androidSettings,
-    );
-
-    await _localNotifications.initialize(settings: initializationSettings);
-
-    // Get Firebase Cloud Messaging token
-    final token = await _firebaseMessaging.getToken();
 
     debugPrint('FCM TOKEN: $token');
 
-    // Receive Firebase notifications while app is open
+    // ==========================================
+    // FOREGROUND MESSAGE
+    // ==========================================
+
+    debugPrint('🔔 Registering Firebase onMessage listener');
+
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
   }
 
-  // Call Supabase Edge Function
+  // ==========================================
+  // SEND NOTIFICATION THROUGH SUPABASE
+  // ==========================================
+
   Future<void> sendNotification({
     required String userId,
     required String title,
@@ -57,26 +76,48 @@ class NotificationService {
     }
   }
 
+  // ==========================================
+  // FOREGROUND FCM MESSAGE
+  // ==========================================
+
   Future<void> _handleForegroundMessage(RemoteMessage message) async {
     final notification = message.notification;
 
-    if (notification == null) return;
+    if (notification == null) {
+      debugPrint('⚠️ FCM message has no notification payload');
+      return;
+    }
 
-    const androidDetails = AndroidNotificationDetails(
-      'expense_tracker_channel',
-      'Expense Tracker Notifications',
-      channelDescription: 'Expense Tracker notifications',
-      importance: Importance.high,
-      priority: Priority.high,
-    );
+    final title = notification.title ?? 'Expense Tracker';
 
-    const details = NotificationDetails(android: androidDetails);
+    final body = notification.body ?? '';
 
-    await _localNotifications.show(
-      id: notification.hashCode,
-      title: notification.title,
-      body: notification.body,
-      notificationDetails: details,
-    );
+    debugPrint('========== FCM MESSAGE ==========');
+
+    debugPrint('TITLE: $title');
+    debugPrint('BODY: $body');
+    debugPrint('DATA: ${message.data}');
+
+    debugPrint('=================================');
+
+    // ==========================================
+    // WEB
+    // ==========================================
+
+    // ==========================================
+    // ANDROID
+    // ==========================================
+
+    try {
+      await _androidNotification.show(
+        id: notification.hashCode,
+        title: title,
+        body: body,
+      );
+
+      debugPrint('✅ ANDROID NOTIFICATION SHOWN');
+    } catch (e) {
+      debugPrint('❌ ANDROID NOTIFICATION ERROR: $e');
+    }
   }
 }

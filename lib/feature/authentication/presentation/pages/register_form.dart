@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +19,6 @@ class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
 
   final emailController = TextEditingController();
-
   final passwordController = TextEditingController();
 
   bool isPasswordVisible = false;
@@ -34,142 +34,307 @@ class _RegisterFormState extends State<RegisterForm> {
     context.read<RegisterCubit>().register(params);
   }
 
-  void __showConfirmOrNot() {}
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Card(
-          elevation: 20,
-          shadowColor: Colors.black26,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+
+    // Responsive horizontal padding
+    final horizontalPadding = isMobile ? 16.0 : 24.0;
+
+    // Maximum form width
+    final maxWidth = isMobile
+        ? double.infinity
+        : isTablet
+        ? 600.0
+        : 700.0;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Center(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: isMobile ? 20 : 40,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(25),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.account_balance_wallet,
-                    color: Colors.green,
-                    size: 70,
-                  ),
 
-                  const SizedBox(height: 15),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxWidth),
 
-                  const Text(
-                    "Expense Tracker",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.green,
-                    ),
-                  ),
+            child: Card(
+              elevation: isMobile ? 8 : 14,
 
-                  const SizedBox(height: 8),
+              shadowColor: Colors.black26,
 
-                  const Text(
-                    "Create your account",
-                    style: TextStyle(color: Colors.grey),
-                  ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(isMobile ? 16 : 20),
+              ),
 
-                  const SizedBox(height: 30),
+              child: Padding(
+                padding: EdgeInsets.all(isMobile ? 20 : 32),
 
-                  TextFormField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: InputDecoration(
-                      labelText: "Email",
-                      prefixIcon: const Icon(Icons.email),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.trim().isEmpty) {
-                        return "Email is required";
-                      }
-                      return null;
-                    },
-                  ),
+                child: Form(
+                  key: _formKey,
 
-                  const SizedBox(height: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
 
-                  TextFormField(
-                    controller: passwordController,
-                    obscureText: !isPasswordVisible,
-                    decoration: InputDecoration(
-                      labelText: "Password",
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            isPasswordVisible = !isPasswordVisible;
-                          });
-                        },
-                        icon: Icon(
-                          isPasswordVisible
-                              ? Icons.visibility_off
-                              : Icons.visibility,
+                    children: [
+                      Container(
+                        width: isMobile ? 58 : 70,
+                        height: isMobile ? 58 : 70,
+
+                        decoration: BoxDecoration(
+                          color: Colors.green.withOpacity(0.10),
+
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+
+                        child: Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.green,
+                          size: isMobile ? 34 : 42,
                         ),
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
+
+                      const SizedBox(height: 16),
+
+                      Text(
+                        'Expense Tracker',
+
+                        textAlign: TextAlign.center,
+
+                        style: TextStyle(
+                          fontSize: isMobile ? 25 : 30,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green,
+                        ),
                       ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Password is required";
-                      }
 
-                      if (value.length < 6) {
-                        return "Password must be at least 6 characters";
-                      }
+                      const SizedBox(height: 8),
 
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
+                      Text(
+                        'Create your account',
 
-                  BlocBuilder<RegisterCubit, RegisterState>(
-                    builder: (context, state) {
-                      if (state is RegisterLoading) {
-                        return const CircularProgressIndicator();
-                      }
+                        textAlign: TextAlign.center,
 
-                      return SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _register,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 15),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                        style: TextStyle(
+                          fontSize: isMobile ? 14 : 15,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+
+                      SizedBox(height: isMobile ? 26 : 34),
+
+                      TextFormField(
+                        controller: emailController,
+
+                        keyboardType: TextInputType.emailAddress,
+
+                        textInputAction: TextInputAction.next,
+
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          hintText: 'Enter your email',
+
+                          prefixIcon: const Icon(Icons.email_outlined),
+
+                          filled: true,
+                          fillColor: Colors.grey[50],
+
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: const BorderSide(
+                              color: Colors.green,
+                              width: 1.5,
                             ),
                           ),
-                          child: const Text("Register"),
                         ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: 20),
-                  Text("Already have an account? Login"),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      context.go(RoutesName.login);
-                    },
 
-                    child: Text("Login"),
+                        validator: (value) {
+                          if (value == null || value.trim().isEmpty) {
+                            return 'Email is required';
+                          }
+
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 18),
+
+                      TextFormField(
+                        controller: passwordController,
+
+                        obscureText: !isPasswordVisible,
+
+                        textInputAction: TextInputAction.done,
+
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          hintText: 'Enter your password',
+
+                          prefixIcon: const Icon(Icons.lock_outline),
+
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isPasswordVisible = !isPasswordVisible;
+                              });
+                            },
+
+                            icon: Icon(
+                              isPasswordVisible
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.visibility_outlined,
+                            ),
+                          ),
+
+                          filled: true,
+                          fillColor: Colors.grey[50],
+
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 16,
+                          ),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: BorderSide(color: Colors.grey.shade300),
+                          ),
+
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+
+                            borderSide: const BorderSide(
+                              color: Colors.green,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
+
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Password is required';
+                          }
+
+                          if (value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+
+                          return null;
+                        },
+                      ),
+
+                      const SizedBox(height: 24),
+
+                      BlocBuilder<RegisterCubit, RegisterState>(
+                        builder: (context, state) {
+                          if (state is RegisterLoading) {
+                            return const SizedBox(
+                              height: 52,
+
+                              child: Center(child: CircularProgressIndicator()),
+                            );
+                          }
+
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 52,
+
+                            child: ElevatedButton(
+                              onPressed: _register,
+
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green,
+
+                                foregroundColor: Colors.white,
+
+                                elevation: 0,
+
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+
+                              child: const Text(
+                                'Register',
+
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 22),
+
+                      RichText(
+                        text: TextSpan(
+                          text: 'Already have an account? ',
+                          style: TextStyle(
+                            color: Colors.grey[700],
+                            fontSize: 14,
+                          ),
+                          children: [
+                            WidgetSpan(
+                              child: TextButton(
+                                onPressed: () {
+                                  context.go(RoutesName.login);
+                                },
+
+                                child: const Text(
+                                  'Login',
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

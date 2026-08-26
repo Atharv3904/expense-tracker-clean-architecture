@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
@@ -22,6 +23,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
   @override
   void initState() {
     super.initState();
+
     context.read<TransactionBloc>().add(const GetTypesTransaction());
 
     context.read<TransactionBloc>().add(const GetCategoryTransaction());
@@ -31,7 +33,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     final Map<String, double> categoryExpenses = {};
 
     for (final transaction in transactions) {
-      // Only expenses
       if (transaction.typeId != expenseTypeId) {
         continue;
       }
@@ -45,7 +46,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         }
       }
 
-      // Category not found
       if (category == null) {
         continue;
       }
@@ -84,9 +84,19 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+    final isTablet = Responsive.isTablet(context);
+
+    final horizontalPadding = isMobile ? 16.0 : 24.0;
+
+    final maxWidth = isMobile
+        ? double.infinity
+        : isTablet
+        ? 900.0
+        : 1400.0;
+
     return BlocListener<TransactionBloc, TransactionState>(
       listener: (context, state) {
-        // Transaction types loaded
         if (state is TypeLoaded) {
           final income = state.types
               .where((type) => type.type == 'income')
@@ -122,7 +132,16 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: const Text('Financial Insights')),
+        backgroundColor: const Color(0xFFF7F7FA),
+
+        appBar: AppBar(
+          title: const Text(
+            'Financial Insights',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          backgroundColor: const Color(0xFFF7F7FA),
+          elevation: 0,
+        ),
 
         body: BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
@@ -152,7 +171,26 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 state.transactions,
               );
 
-              return _buildChart(income, expense, categoryExpenses);
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 20,
+                ),
+
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxWidth),
+
+                    child: _buildResponsiveCharts(
+                      context,
+                      income,
+                      expense,
+                      categoryExpenses,
+                      isMobile,
+                    ),
+                  ),
+                ),
+              );
             }
 
             return const SizedBox();
@@ -162,150 +200,285 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     );
   }
 
-  Widget _buildChart(
+  Widget _buildResponsiveCharts(
+    BuildContext context,
     double income,
     double expense,
     Map<String, double> categoryExpenses,
+    bool isMobile,
   ) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(20),
-
-      child: Column(
+    // MOBILE / TABLET
+    if (isMobile || Responsive.isTablet(context)) {
+      return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Income vs Expense',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          _buildIncomeExpenseChart(income, expense, isMobile),
+
+          const SizedBox(height: 28),
+
+          _buildCategoryChart(categoryExpenses, isMobile),
+        ],
+      );
+    }
+
+    // DESKTOP
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(child: _buildIncomeExpenseChart(income, expense, false)),
+
+        const SizedBox(width: 24),
+
+        Expanded(child: _buildCategoryChart(categoryExpenses, false)),
+      ],
+    );
+  }
+
+  Widget _buildIncomeExpenseChart(
+    double income,
+    double expense,
+    bool isMobile,
+  ) {
+    final maxValue = income > expense ? income : expense;
+
+    final maxY = maxValue == 0 ? 100.0 : maxValue * 1.2;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Income vs Expense',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
+
+        const SizedBox(height: 16),
+
+        Container(
+          width: double.infinity,
+
+          height: isMobile ? 300 : 360,
+
+          padding: EdgeInsets.all(isMobile ? 12 : 20),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius: BorderRadius.circular(18),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 20),
+          child: BarChart(
+            BarChartData(
+              alignment: BarChartAlignment.spaceAround,
 
-          Container(
-            height: 300,
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
+              maxY: maxY,
 
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
+              minY: 0,
 
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
+              gridData: FlGridData(
+                show: true,
 
-                maxY: (income > expense ? income : expense) + 20000,
+                drawVerticalLine: false,
 
-                barGroups: [
-                  BarChartGroupData(
-                    x: 0,
-                    barRods: [
-                      BarChartRodData(
-                        toY: income,
-                        width: 40,
-                        color: Colors.green,
-                      ),
-                    ],
-                  ),
+                horizontalInterval: maxY / 5,
+              ),
 
-                  BarChartGroupData(
-                    x: 1,
-                    barRods: [
-                      BarChartRodData(
-                        toY: expense,
-                        width: 35,
-                        color: Colors.red,
-                      ),
-                    ],
-                  ),
-                ],
+              borderData: FlBorderData(show: false),
 
-                titlesData: FlTitlesData(
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
+              barGroups: [
+                BarChartGroupData(
+                  x: 0,
 
-                      getTitlesWidget: (value, meta) {
-                        switch (value.toInt()) {
-                          case 0:
-                            return const Text('Income');
+                  barRods: [
+                    BarChartRodData(
+                      toY: income,
 
-                          case 1:
-                            return const Text('Expense');
+                      width: isMobile ? 35 : 45,
 
-                          default:
-                            return const SizedBox();
-                        }
-                      },
+                      color: Colors.green,
+
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                  ),
+                  ],
+                ),
 
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 55,
+                BarChartGroupData(
+                  x: 1,
 
-                      getTitlesWidget: (value, meta) {
-                        return Text(
-                          '${value.toInt()}',
-                          style: const TextStyle(fontSize: 12),
-                        );
-                      },
+                  barRods: [
+                    BarChartRodData(
+                      toY: expense,
+
+                      width: isMobile ? 35 : 45,
+
+                      color: Colors.red,
+
+                      borderRadius: BorderRadius.circular(6),
                     ),
-                  ),
+                  ],
+                ),
+              ],
 
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
+              titlesData: FlTitlesData(
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
 
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
+                    reservedSize: 35,
+
+                    getTitlesWidget: (value, meta) {
+                      switch (value.toInt()) {
+                        case 0:
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Income',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          );
+
+                        case 1:
+                          return const Padding(
+                            padding: EdgeInsets.only(top: 8),
+                            child: Text(
+                              'Expense',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                          );
+
+                        default:
+                          return const SizedBox();
+                      }
+                    },
                   ),
+                ),
+
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+
+                    reservedSize: 55,
+
+                    getTitlesWidget: (value, meta) {
+                      return Text(
+                        value.toInt().toString(),
+
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: Colors.black54,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                topTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
+                ),
+
+                rightTitles: const AxisTitles(
+                  sideTitles: SideTitles(showTitles: false),
                 ),
               ),
             ),
           ),
+        ),
+      ],
+    );
+  }
 
-          const SizedBox(height: 40),
+  Widget _buildCategoryChart(
+    Map<String, double> categoryExpenses,
+    bool isMobile,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Spending by Category',
+          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        ),
 
-          const Text(
-            'Spending by Category',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+        const SizedBox(height: 16),
+
+        Container(
+          width: double.infinity,
+
+          height: isMobile ? 330 : 360,
+
+          padding: EdgeInsets.all(isMobile ? 12 : 20),
+
+          decoration: BoxDecoration(
+            color: Colors.white,
+
+            borderRadius: BorderRadius.circular(18),
+
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.04),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
 
-          const SizedBox(height: 20),
+          child: categoryExpenses.isEmpty
+              ? const Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
 
-          Container(
-            height: 300,
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
+                    children: [
+                      Icon(
+                        Icons.pie_chart_outline,
+                        size: 50,
+                        color: Colors.grey,
+                      ),
 
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
+                      SizedBox(height: 12),
 
-            child: categoryExpenses.isEmpty
-                ? const Center(child: Text('No expense data available'))
-                : PieChart(
-                    PieChartData(
-                      sections: categoryExpenses.entries.map((entry) {
-                        return PieChartSectionData(
-                          value: entry.value,
-                          title: entry.key,
-                          radius: 100,
-                          color: _getCategoryColor(entry.key),
-                          titleStyle: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        );
-                      }).toList(),
-                    ),
+                      Text(
+                        'No expense data available',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ],
                   ),
-          ),
-        ],
-      ),
+                )
+              : PieChart(
+                  PieChartData(
+                    sectionsSpace: 3,
+
+                    centerSpaceRadius: isMobile ? 35 : 45,
+
+                    sections: categoryExpenses.entries.map((entry) {
+                      return PieChartSectionData(
+                        value: entry.value,
+
+                        title: entry.key,
+
+                        radius: isMobile ? 85 : 100,
+
+                        color: _getCategoryColor(entry.key),
+
+                        titleStyle: TextStyle(
+                          fontSize: isMobile ? 10 : 12,
+
+                          fontWeight: FontWeight.bold,
+
+                          color: Colors.white,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+        ),
+      ],
     );
   }
 }

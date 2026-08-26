@@ -1,8 +1,12 @@
-// ignore_for_file: unrelated_type_equality_checks
-
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_states.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/widget/balance_card.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/widget/empty_transaction.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/widget/summary_card.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/widget/transaction_card.dart';
+import 'package:expense_tracker/feature/dashboard/Presentation/widget/transaction_error.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
@@ -18,283 +22,271 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+  String _getGrettings() {
+    final hour = DateTime.now().hour;
+
+    if (hour >= 5 && hour < 12) {
+      return 'Good morning';
+    } else if (hour >= 12 && hour < 17) {
+      return 'Good afternoon';
+    } else if (hour >= 17 && hour < 21) {
+      return 'Good evening';
+    } else {
+      return 'Good night';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF7F8FA),
 
       appBar: AppBar(
-        title: Row(
-          children: [
-            const Icon(
-              Icons.account_balance_wallet,
-              color: Colors.green,
-              size: 30,
-            ),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        backgroundColor: Colors.transparent,
 
-            const SizedBox(width: 10),
-
-            const Text("Expense Tracker"),
-          ],
+        title: Text(
+          'Expense Tracker',
+          style: theme.textTheme.titleLarge?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
 
       body: BlocBuilder<DashboardCubit, DashboardStates>(
         builder: (context, state) {
-          // Loading
           if (state is DashboardLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
-          // Failure
           if (state is DashboardFailure) {
-            return Center(child: Text(state.message));
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: colorScheme.error,
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    Text(
+                      state.message,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyLarge,
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
-          // Success
           if (state is DashboardLoaded) {
             final summary = state.summary;
 
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    "Good morning 👋",
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = Responsive.isMobile(context);
+                final isTablet = Responsive.isTablet(context);
+                final isDesktop = Responsive.isDesktop(context);
+
+                final horizontalPadding = isMobile
+                    ? 16.0
+                    : isTablet
+                    ? 28.0
+                    : 32.0;
+
+                final maxContentWidth = isDesktop ? 1400.0 : double.infinity;
+
+                return SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: isMobile ? 20 : 28,
                   ),
 
-                  const SizedBox(height: 5),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxContentWidth),
 
-                  const Text(
-                    "Here's your financial summary",
-                    style: TextStyle(color: Colors.grey),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(22),
-                    decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          "Total Balance",
-                          style: TextStyle(color: Colors.white70),
-                        ),
-
-                        const SizedBox(height: 8),
-
-                        Text(
-                          "₹${summary.balance.toStringAsFixed(2)}",
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 30,
-                            fontWeight: FontWeight.bold,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_getGrettings()} 👋',
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              fontSize: isMobile ? 24 : 28,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
 
-                  const SizedBox(height: 18),
+                          const SizedBox(height: 6),
 
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
+                          Text(
+                            "Here's your financial summary",
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: colorScheme.onSurfaceVariant,
+                            ),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(
-                                Icons.arrow_downward,
-                                color: Colors.green,
-                              ),
 
-                              const SizedBox(height: 10),
-
-                              const Text(
-                                "Income",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-
-                              const SizedBox(height: 5),
-
-                              Text(
-                                "₹${summary.totalIncome.toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: 24),
+                          BalanceCard(
+                            balance: summary.balance,
+                            isMobile: isMobile,
                           ),
-                        ),
-                      ),
 
-                      const SizedBox(width: 14),
+                          const SizedBox(height: 16),
 
-                      Expanded(
-                        child: Container(
-                          padding: const EdgeInsets.all(18),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Icon(Icons.arrow_upward, color: Colors.red),
-
-                              const SizedBox(height: 10),
-
-                              const Text(
-                                "Expense",
-                                style: TextStyle(color: Colors.grey),
-                              ),
-
-                              const SizedBox(height: 5),
-
-                              Text(
-                                "₹${summary.totalExpense.toStringAsFixed(2)}",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  const Text(
-                    "Recent Transactions",
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.bold),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  BlocBuilder<TransactionBloc, TransactionState>(
-                    builder: (context, state) {
-                      if (state is TransactionLoading) {
-                        return Center(child: const CircularProgressIndicator());
-                      }
-                      if (state is TransactionLoaded) {
-                        if (state.transactions.isEmpty) {
-                          return Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(30),
-                            color: Colors.white,
-                            child: const Column(
+                          if (isMobile)
+                            Column(
                               children: [
-                                Icon(
-                                  Icons.receipt_long,
-                                  size: 40,
-                                  color: Colors.grey,
+                                SummaryCard(
+                                  title: 'Income',
+                                  amount: summary.totalIncome,
+                                  icon: Icons.arrow_downward_rounded,
+                                  color: Colors.green,
                                 ),
 
-                                SizedBox(height: 10),
+                                const SizedBox(height: 12),
 
-                                Text(
-                                  "No transactions yet",
-                                  style: TextStyle(color: Colors.grey),
+                                SummaryCard(
+                                  title: 'Expense',
+                                  amount: summary.totalExpense,
+                                  icon: Icons.arrow_upward_rounded,
+                                  color: Colors.redAccent,
+                                ),
+                              ],
+                            )
+                          else
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: SummaryCard(
+                                    title: 'Income',
+                                    amount: summary.totalIncome,
+                                    icon: Icons.arrow_downward_rounded,
+                                    color: Colors.green,
+                                  ),
+                                ),
+
+                                const SizedBox(width: 16),
+
+                                Expanded(
+                                  child: SummaryCard(
+                                    title: 'Expense',
+                                    amount: summary.totalExpense,
+                                    icon: Icons.arrow_upward_rounded,
+                                    color: Colors.redAccent,
+                                  ),
                                 ),
                               ],
                             ),
-                          );
-                        }
-                        return Column(
-                          children: [
-                            ...state.transactions.take(3).map((transaction) {
-                              return Card(
-                                child: ListTile(
-                                  title: Text(transaction.description),
-                                  subtitle: Text('₹${transaction.amount}'),
-                                  trailing: const Icon(
-                                    Icons.arrow_forward_ios,
-                                    size: 16,
-                                  ),
-                                  onTap: () async {
-                                    final result = await context.push(
-                                      RoutesName.updateTransactionpage,
-                                      extra: transaction,
-                                    );
 
-                                    if (result == true && context.mounted) {
-                                      context.read<TransactionBloc>().add(
-                                        const LoadTransaction(),
-                                      );
-                                    }
-                                  },
+                          const SizedBox(height: 28),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Recent Transactions',
+                                style: theme.textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w700,
                                 ),
-                              );
-                            }),
+                              ),
 
-                            Align(
-                              alignment: Alignment.bottomLeft,
-                              child: TextButton(
-                                onPressed: () {
-                                  final result = context.push(
+                              TextButton(
+                                onPressed: () async {
+                                  final result = await context.push(
                                     RoutesName.allTransactionpage,
                                   );
 
                                   if (result == true && context.mounted) {
                                     context.read<TransactionBloc>().add(
-                                      LoadTransaction(),
+                                      const LoadTransaction(),
                                     );
                                   }
                                 },
-
-                                child: const Text('See More'),
+                                child: const Text('See All'),
                               ),
-                            ),
-                          ],
-                        );
-                      }
+                            ],
+                          ),
 
-                      if (state is TransactionFailure) {
-                        return Text(state.message);
-                      }
-                      return Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(30),
-                        color: Colors.white,
-                        child: const Column(
-                          children: [
-                            Icon(
-                              Icons.receipt_long,
-                              size: 40,
-                              color: Colors.grey,
-                            ),
+                          const SizedBox(height: 10),
 
-                            SizedBox(height: 10),
+                          BlocBuilder<TransactionBloc, TransactionState>(
+                            builder: (context, transactionState) {
+                              if (transactionState is TransactionLoading) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(40),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                                );
+                              }
 
-                            Text(
-                              "No transactions yet",
-                              style: TextStyle(color: Colors.grey),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                              if (transactionState is TransactionLoaded) {
+                                if (transactionState.transactions.isEmpty) {
+                                  return const EmptyTransactions();
+                                }
+
+                                return Column(
+                                  children: [
+                                    ...transactionState.transactions.take(3).map(
+                                      (transaction) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            bottom: 10,
+                                          ),
+                                          child: TransactionCard(
+                                            description:
+                                                transaction.description,
+                                            amount: transaction.amount,
+                                            onTap: () async {
+                                              final result = await context.push(
+                                                RoutesName
+                                                    .updateTransactionpage,
+                                                extra: transaction,
+                                              );
+
+                                              if (result == true &&
+                                                  context.mounted) {
+                                                context
+                                                    .read<TransactionBloc>()
+                                                    .add(
+                                                      const LoadTransaction(),
+                                                    );
+                                              }
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
+
+                              if (transactionState is TransactionFailure) {
+                                return TransactionError(
+                                  message: transactionState.message,
+                                );
+                              }
+
+                              return const EmptyTransactions();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ],
-              ),
+                );
+              },
             );
           }
 
