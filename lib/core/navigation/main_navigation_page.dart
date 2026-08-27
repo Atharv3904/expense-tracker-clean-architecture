@@ -21,6 +21,7 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int currentIndex = 0;
+  final List<int> NavigationHistory = [0];
 
   final List<Widget> pages = const [
     DashboardPage(),
@@ -29,17 +30,15 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     ProfilePage(),
   ];
 
-  void _onNavigationChanged(int index) {
-    setState(() {
-      currentIndex = index;
-    });
-
+  void _loadPageData(int index) {
     // Dashboard
     if (index == 0) {
       context.read<TransactionBloc>().add(const LoadTransaction());
 
       context.read<DashboardCubit>().dashboardSummary();
     }
+
+    // Add Transaction
     if (index == 1) {
       context.read<TransactionBloc>().add(const GetTypesTransaction());
 
@@ -57,35 +56,68 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
   }
 
+  void _onNavigationChanged(int index) {
+    if (index == currentIndex) _loadPageData(currentIndex);
+
+    setState(() {
+      NavigationHistory.add(index);
+      currentIndex = index;
+    });
+
+    // Dashboard
+    _loadPageData(currentIndex);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
-    DateTime? lastBackPress;
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, result) {
+
+      onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        final now = DateTime.now();
-
-        if (lastBackPress == null ||
-            now.difference(lastBackPress!) > const Duration(seconds: 2)) {
-          lastBackPress = now;
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Press back again to exit'),
-              duration: Duration(seconds: 2),
-            ),
-          );
+        if (NavigationHistory.length > 1) {
+          setState(() {
+            NavigationHistory.removeLast();
+            currentIndex = NavigationHistory.last;
+          });
+          return;
         }
 
-        // Second back press
-        SystemNavigator.pop();
+        final shouldExit = await showDialog<bool>(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Exit App'),
+              content: const Text('Are you sure you want to exit?'),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, false);
+                  },
+                  child: const Text('Cancel'),
+                ),
+
+                TextButton(
+                  onPressed: () {
+                    Navigator.pop(context, true);
+                  },
+                  child: const Text('Exit'),
+                ),
+              ],
+            );
+          },
+        );
+        if (shouldExit == true) {
+          SystemNavigator.pop();
+        }
+        // We'll write the actual exit handling next.
       },
+
       child: Scaffold(
         body: Row(
           children: [
