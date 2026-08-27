@@ -95,7 +95,7 @@ class _RegisterFormState extends State<RegisterForm> {
                         height: isMobile ? 58 : 70,
 
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.10),
+                          color: Colors.green.withValues(alpha: 0.10),
 
                           borderRadius: BorderRadius.circular(16),
                         ),

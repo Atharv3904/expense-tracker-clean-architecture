@@ -4,6 +4,8 @@ import 'package:expense_tracker/feature/profile/domain/entites/profile_entity.da
 
 abstract class ProfileRepository {
   Future<Either<ProfileFailure, ProfileEntity>> getProfile();
-  Future<void> updateProfile({required String name});
-  Future<void> changePassword({required String password});
+  Future<Either<ProfileFailure, void>> updateProfile({required String name});
+  Future<Either<ProfileFailure, void>> changePassword({
+    required String password,
+  });
 }

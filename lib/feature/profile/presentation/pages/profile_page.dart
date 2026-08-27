@@ -170,7 +170,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             // Email
                             Text(
-                              profile.email,
+                              profile.email ?? 'abc123@gmail.com',
 
                               textAlign: TextAlign.center,
 

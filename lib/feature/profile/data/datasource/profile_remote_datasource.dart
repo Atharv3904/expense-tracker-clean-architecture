@@ -1,8 +1,8 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:expense_tracker/feature/profile/domain/entites/profile_entity.dart';
 
 abstract class ProfileRemoteDatasource {
   Future<void> updateProfile(String name);
   Future<void> changePassword(String password);
 
-  Future<User> getProfile();
+  Future<ProfileEntity> getProfile();
 }

@@ -46,13 +46,16 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
 
-    try {
-      await updateProfileUsecase(name: event.name);
+    final result = await updateProfileUsecase(name: event.name);
 
-      emit(const ProfileSuccess('Profile updated successfully'));
-    } catch (e) {
-      emit(ProfileFailure(e.toString()));
-    }
+    result.fold(
+      (failure) {
+        emit(ProfileFailure(failure.message));
+      },
+      (_) {
+        emit(ProfileSuccess("Profile Updated SuccessFully"));
+      },
+    );
   }
 
   Future<void> _changePassword(
@@ -61,12 +64,15 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
 
-    try {
-      await changePasswordUsecase(password: event.password);
+    final result = await changePasswordUsecase(password: event.password);
 
-      emit(const ProfileSuccess('Password changed successfully'));
-    } catch (e) {
-      emit(ProfileFailure(e.toString()));
-    }
+    result.fold(
+      (failure) {
+        emit(ProfileFailure(failure.message));
+      },
+      (_) {
+        emit(const ProfileSuccess('Password changed successfully'));
+      },
+    );
   }
 }

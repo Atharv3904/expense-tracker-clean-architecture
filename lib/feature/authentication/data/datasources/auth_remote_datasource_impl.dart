@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: unused_catch_clause, non_constant_identifier_names
 
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
@@ -26,7 +26,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       return UserModel.fromSupabaseUser(response.user!);
     } on AuthException catch (exception) {
-      throw AppException(exception.message);
+      throw AppException("server is not available");
     } catch (_) {
       throw const AppException("something went wrong");
     }
@@ -48,7 +48,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       return UserModel.fromSupabaseUser(user);
     } on AuthException catch (exception) {
-      throw AppException(exception.message);
+      throw AppException("server is not available");
     } catch (_) {
       throw const AppException("something went wrong");
     }
@@ -81,7 +81,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     try {
       await supabaseClient.auth.resetPasswordForEmail(Email.email);
     } on AuthException catch (e) {
-      throw AppException(e.message);
+      throw AppException("server is not available");
     } catch (_) {
       throw AppException("try Again");
     }

@@ -132,12 +132,12 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         borderRadius: BorderRadius.circular(18),
 
                         border: Border.all(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                         ),
 
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.035),
+                            color: Colors.black.withValues(alpha: 0.035),
                             blurRadius: 12,
                             offset: const Offset(0, 4),
                           ),
@@ -251,7 +251,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                           ),
                         ),
 
@@ -320,7 +320,7 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
                           borderSide: BorderSide(
-                            color: Colors.black.withOpacity(0.06),
+                            color: Colors.black.withValues(alpha: 0.06),
                           ),
                         ),
 

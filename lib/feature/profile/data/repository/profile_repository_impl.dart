@@ -13,27 +13,44 @@ class ProfileRepositoryImpl implements ProfileRepository {
   @override
   Future<Either<ProfileFailure, ProfileEntity>> getProfile() async {
     try {
-      final user = await remoteDatasource.getProfile();
+      final profile = await remoteDatasource.getProfile();
 
       return Right(
-        ProfileEntity(
-          id: user.id,
-          email: user.email ?? '',
-          name: user.userMetadata?['name'],
-        ),
+        ProfileEntity(id: profile.id, email: profile.email, name: profile.name),
       );
     } on ProfileException catch (e) {
       return Left(ProfileFailure(e.message));
+    } catch (_) {
+      return Left(ProfileFailure("check your Internet..."));
     }
   }
 
   @override
-  Future<void> updateProfile({required String name}) async {
-    await remoteDatasource.updateProfile(name);
+  Future<Either<ProfileFailure, void>> updateProfile({
+    required String name,
+  }) async {
+    try {
+      await remoteDatasource.updateProfile(name);
+
+      return const Right(null);
+    } on ProfileException catch (e) {
+      return Left(ProfileFailure(e.message));
+    } catch (_) {
+      return Left(ProfileFailure("check your Internet..."));
+    }
   }
 
   @override
-  Future<void> changePassword({required String password}) async {
-    await remoteDatasource.changePassword(password);
+  Future<Either<ProfileFailure, void>> changePassword({
+    required String password,
+  }) async {
+    try {
+      await remoteDatasource.changePassword(password);
+      return Right(null);
+    } on ProfileException catch (e) {
+      return Left(ProfileFailure(e.message));
+    } catch (_) {
+      return Left(ProfileFailure("check your Internet..."));
+    }
   }
 }
