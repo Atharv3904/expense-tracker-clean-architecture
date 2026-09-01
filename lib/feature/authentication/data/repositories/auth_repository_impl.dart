@@ -21,7 +21,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.registerUser(params);
       return Right(user);
     } on AppException catch (exception) {
-      return Left(AppFailure(exception.message));
+      return Left(AppFailure("wrong email and password please check , again"));
+    } catch (_) {
+      return Left(AppFailure("check your net"));
     }
   }
 
@@ -33,7 +35,9 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = await remoteDataSource.loginUser(params);
       return right(user);
     } on AppException catch (exception) {
-      return left(AppFailure(exception.message));
+      return Left(AppFailure("wrong email and password please check , again"));
+    } catch (_) {
+      return Left(AppFailure("check your net"));
     }
   }
 
@@ -42,8 +46,10 @@ class AuthRepositoryImpl implements AuthRepository {
     try {
       final user = remoteDataSource.getCurrentUser();
       return Right(user);
-    } catch (_) {
+    } on AppException catch (e) {
       return const Left(AuthFailure("we are unable to fetch user"));
+    } catch (_) {
+      return Left(AppFailure("check your net"));
     }
   }
 

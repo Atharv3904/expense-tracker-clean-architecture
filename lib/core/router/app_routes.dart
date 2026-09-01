@@ -11,6 +11,7 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/logout
 import 'package:expense_tracker/feature/authentication/presentation/pages/forgot_pass_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/login_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
+
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
 
 import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';

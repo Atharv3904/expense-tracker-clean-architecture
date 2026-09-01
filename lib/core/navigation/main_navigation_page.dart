@@ -21,7 +21,7 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int currentIndex = 0;
-  final List<int> NavigationHistory = [0];
+  final List<int> navigationHistory = [0];
 
   final List<Widget> pages = const [
     DashboardPage(),
@@ -60,7 +60,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     if (index == currentIndex) _loadPageData(currentIndex);
 
     setState(() {
-      NavigationHistory.add(index);
+      navigationHistory.add(index);
       currentIndex = index;
     });
 
@@ -80,10 +80,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
-        if (NavigationHistory.length > 1) {
+        if (navigationHistory.length > 1) {
           setState(() {
-            NavigationHistory.removeLast();
-            currentIndex = NavigationHistory.last;
+            navigationHistory.removeLast();
+            currentIndex = navigationHistory.last;
           });
           return;
         }
@@ -251,18 +251,12 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                 ),
               ),
 
-            // ==========================================
-            // PAGE CONTENT
-            // ==========================================
             Expanded(
               child: IndexedStack(index: currentIndex, children: pages),
             ),
           ],
         ),
 
-        // ==========================================
-        // MOBILE NAVIGATION
-        // ==========================================
         bottomNavigationBar: isMobile
             ? NavigationBar(
                 selectedIndex: currentIndex,
@@ -295,10 +289,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     );
   }
 }
-
-// ======================================================
-// DESKTOP NAVIGATION ITEM
-// ======================================================
 
 class _DesktopNavigationItem extends StatelessWidget {
   final IconData icon;

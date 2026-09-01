@@ -26,7 +26,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       return UserModel.fromSupabaseUser(response.user!);
     } on AuthException catch (exception) {
-      throw AppException("server is not available");
+      throw AppException(exception.message.trim());
     } catch (_) {
       throw const AppException("something went wrong");
     }
@@ -48,7 +48,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
       return UserModel.fromSupabaseUser(user);
     } on AuthException catch (exception) {
-      throw AppException("server is not available");
+      throw AppException(exception.message.trim());
     } catch (_) {
       throw const AppException("something went wrong");
     }
@@ -70,7 +70,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     try {
       await supabaseClient.auth.signOut();
     } on AuthException catch (e) {
-      throw AppException(e.message);
+      throw AppException(e.message.trim());
     } catch (_) {
       throw AppException("Unable to logout");
     }
@@ -81,7 +81,7 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
     try {
       await supabaseClient.auth.resetPasswordForEmail(Email.email);
     } on AuthException catch (e) {
-      throw AppException("server is not available");
+      throw AppException(e.message.trim());
     } catch (_) {
       throw AppException("try Again");
     }
