@@ -2,9 +2,13 @@ import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -47,11 +51,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
   // UI -> Bloc
   // No UseCase is called directly from UI.
-  void loadTransactionData() {
-    context.read<TransactionBloc>().add(const GetTypesTransaction());
-
-    context.read<TransactionBloc>().add(const GetCategoryTransaction());
-  }
+  void loadTransactionData() {}
 
   Future<void> selectDate() async {
     final date = await showDatePicker(
@@ -190,55 +190,70 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
         ? 750.0
         : 900.0;
 
-    return BlocListener<TransactionBloc, TransactionState>(
-      listener: (context, state) {
-        if (state is TypeLoaded) {
-          setState(() {
-            transactionTypes = state.types;
-          });
-        }
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<TypeBloc, TypeStates>(
+          listener: (context, state) {
+            if (state is TypeLoaded) {
+              setState(() {
+                transactionTypes = state.types;
+              });
+            }
 
-        if (state is TypeFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
+            if (state is TypeFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
 
-        if (state is CategoryLoaded) {
-          setState(() {
-            categories = state.categories;
-          });
-        }
+        BlocListener<CategoryBloc, CategoryStates>(
+          listener: (context, state) {
+            if (state is CategoryLoaded) {
+              setState(() {
+                categories = state.categories;
+              });
+            }
 
-        if (state is CategoryFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
+            if (state is CategoryFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
 
-        if (state is TransactionSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transaction updated successfully')),
-          );
+        BlocListener<TransactionBloc, TransactionState>(
+          listener: (context, state) {
+            if (state is TransactionSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Transaction updated successfully'),
+                ),
+              );
 
-          context.pop(true);
-        }
+              context.pop(true);
+            }
 
-        if (state is TransactionDeleteSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transaction deleted successfully')),
-          );
+            if (state is TransactionDeleteSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Transaction deleted successfully'),
+                ),
+              );
 
-          context.pop(true);
-        }
+              context.pop(true);
+            }
 
-        if (state is TransactionFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
-
+            if (state is TransactionFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7FA),
 
@@ -264,9 +279,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // ==================================================
-                  // HEADER CARD
-                  // ==================================================
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.all(isMobile ? 16 : 20),
@@ -301,9 +313,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 25),
 
-                  // ==================================================
-                  // TYPE
-                  // ==================================================
                   const Text(
                     'Type',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -411,9 +420,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 20),
 
-                  // ==================================================
-                  // AMOUNT
-                  // ==================================================
                   const Text(
                     'Amount',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -449,9 +455,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 20),
 
-                  // ==================================================
-                  // CATEGORY
-                  // ==================================================
                   const Text(
                     'Category',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -500,9 +503,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 20),
 
-                  // ==================================================
-                  // DESCRIPTION
-                  // ==================================================
                   const Text(
                     'Description',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -532,9 +532,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 20),
 
-                  // ==================================================
-                  // DATE
-                  // ==================================================
                   const Text(
                     'Date',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -565,7 +562,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                           Expanded(
                             child: Text(
-                              '${selectedDate.day}/'
+                              '//${selectedDate.day}/'
                               '${selectedDate.month}/'
                               '${selectedDate.year}',
                             ),
@@ -579,9 +576,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 30),
 
-                  // ==================================================
-                  // UPDATE BUTTON
-                  // ==================================================
                   BlocBuilder<TransactionBloc, TransactionState>(
                     builder: (context, state) {
                       if (state is TransactionLoading) {
@@ -620,9 +614,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
 
                   const SizedBox(height: 16),
 
-                  // ==================================================
-                  // DELETE BUTTON
-                  // ==================================================
                   SizedBox(
                     width: double.infinity,
                     height: 52,

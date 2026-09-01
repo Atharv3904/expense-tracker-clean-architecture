@@ -1,6 +1,4 @@
-import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
-import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
 
 abstract class TransactionState {
   const TransactionState();
@@ -32,28 +30,4 @@ class TransactionFailure extends TransactionState {
 
 class TransactionDeleteSuccess extends TransactionState {
   const TransactionDeleteSuccess();
-}
-
-class TypeLoaded extends TransactionState {
-  final List<TransactionTypeEntity> types;
-
-  const TypeLoaded(this.types);
-}
-
-class CategoryLoaded extends TransactionState {
-  final List<TransactionCategoryEntity> categories;
-
-  const CategoryLoaded(this.categories);
-}
-
-class TypeFailure extends TransactionState {
-  final String message;
-
-  const TypeFailure(this.message);
-}
-
-class CategoryFailure extends TransactionState {
-  final String message;
-
-  const CategoryFailure(this.message);
 }

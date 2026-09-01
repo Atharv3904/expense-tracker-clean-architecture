@@ -1,3 +1,5 @@
+// ignore_for_file: unused_catch_clause
+
 import 'package:dartz/dartz.dart';
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';

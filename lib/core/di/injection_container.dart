@@ -45,7 +45,9 @@ import 'package:expense_tracker/feature/transaction/domain/usecases/get_transact
 import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_categories_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/transaction_types_usecase.dart';
 import 'package:expense_tracker/feature/transaction/domain/usecases/update_transaction_usecase.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -102,8 +104,6 @@ Future<void> init() async {
       getTransactionUsecase: sl(),
       updateTransactionUsecase: sl(),
       getAllTransactionUsecase: sl(),
-      transactionTypesUsecase: sl(),
-      transactionCategoriesUsecase: sl(),
     ),
   );
 
@@ -126,6 +126,16 @@ Future<void> init() async {
   sl.registerLazySingleton(() => TransactionTypesUsecase(sl()));
   sl.registerLazySingleton(() => TransactionCategoriesUsecase(sl()));
   sl.registerLazySingleton(() => GetAllTransactionUsecase(sl()));
+
+  // Type BLoC
+  sl.registerFactory(
+    () => TypeBloc(transactionTypesUsecase: sl<TransactionTypesUsecase>()),
+  );
+  sl.registerFactory(
+    () => CategoryBloc(
+      transactionCategoriesUsecase: sl<TransactionCategoriesUsecase>(),
+    ),
+  );
 
   //profile
 

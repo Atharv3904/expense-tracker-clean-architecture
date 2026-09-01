@@ -4,8 +4,12 @@ import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_p
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/pages/add_transaction_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/pages/financial_insights_page.dart';
 import 'package:flutter/material.dart';
@@ -40,14 +44,17 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     // Add Transaction
     if (index == 1) {
-      context.read<TransactionBloc>().add(const GetTypesTransaction());
+      context.read<TypeBloc>().add(const GetTypesTransaction());
 
-      context.read<TransactionBloc>().add(const GetCategoryTransaction());
+      context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
     // Financial Insights
     if (index == 2) {
       context.read<TransactionBloc>().add(const GetAllTransaction());
+      context.read<TypeBloc>().add(const GetTypesTransaction());
+
+      context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
     // Profile

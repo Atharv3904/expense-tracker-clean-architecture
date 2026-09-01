@@ -21,8 +21,12 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.
 import 'package:expense_tracker/feature/profile/presentation/pages/change_password_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/edit_profile_page.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_event.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/pages/all_transaction_page.dart';
 
@@ -84,6 +88,13 @@ class AppRoutes {
             BlocProvider(
               create: (_) => sl<ProfileBloc>()..add(const LoadProfile()),
             ),
+            BlocProvider(
+              create: (_) =>
+                  sl<CategoryBloc>()..add(const GetCategoryTransaction()),
+            ),
+            BlocProvider(
+              create: (_) => sl<TypeBloc>()..add(const GetTypesTransaction()),
+            ),
           ],
           child: const MainNavigationPage(),
         );
@@ -105,8 +116,17 @@ class AppRoutes {
       builder: (context, state) {
         final transaction = state.extra as TransactionEntity;
 
-        return BlocProvider(
-          create: (_) => sl<TransactionBloc>(),
+        return MultiBlocProvider(
+          providers: [
+            BlocProvider(create: (_) => sl<TransactionBloc>()),
+            BlocProvider(
+              create: (context) => sl<TypeBloc>()..add(GetTypesTransaction()),
+            ),
+            BlocProvider(
+              create: (context) =>
+                  sl<CategoryBloc>()..add(GetCategoryTransaction()),
+            ),
+          ],
           child: UpdateTransactionPage(transaction: transaction),
         );
       },

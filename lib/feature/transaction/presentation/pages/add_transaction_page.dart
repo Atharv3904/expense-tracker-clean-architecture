@@ -6,9 +6,13 @@ import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -140,56 +144,66 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
         ? 700.0
         : 900.0;
 
-    return BlocListener<TransactionBloc, TransactionState>(
-      listener: (context, state) async {
-        if (state is TypeLoaded) {
-          setState(() {
-            transactionTypes = state.types;
-          });
-        }
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<TypeBloc, TypeStates>(
+          listener: (context, state) async {
+            if (state is TypeLoaded) {
+              setState(() {
+                transactionTypes = state.types;
+              });
+            }
 
-        if (state is TypeFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
+            if (state is TypeFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
+        BlocListener<CategoryBloc, CategoryStates>(
+          listener: (context, state) {
+            if (state is CategoryLoaded) {
+              setState(() {
+                categories = state.categories;
+              });
+            }
 
-        if (state is CategoryLoaded) {
-          setState(() {
-            categories = state.categories;
-          });
-        }
+            if (state is CategoryFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
 
-        if (state is CategoryFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
+        BlocListener<TransactionBloc, TransactionState>(
+          listener: (context, state) async {
+            if (state is TransactionSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Transaction added successfully')),
+              );
 
-        if (state is TransactionSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Transaction added successfully')),
-          );
+              final userId = Supabase.instance.client.auth.currentUser?.id;
 
-          final userId = Supabase.instance.client.auth.currentUser?.id;
+              if (userId != null) {
+                await NotificationService().sendNotification(
+                  userId: userId,
+                  title: 'Transaction Added 💰',
+                  body:
+                      '₹${amountController.text.trim()} transaction is added successfully.',
+                );
+              }
+            }
 
-          if (userId != null) {
-            await NotificationService().sendNotification(
-              userId: userId,
-              title: 'Transaction Added 💰',
-              body:
-                  '₹${amountController.text.trim()} transaction is added successfully.',
-            );
-          }
-        }
-
-        if (state is TransactionFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
-
+            if (state is TransactionFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7FA),
 

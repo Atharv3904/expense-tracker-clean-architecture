@@ -1,8 +1,11 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_bloc.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transacation_states.dart';
-import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_event.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,15 +22,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
   String? expenseTypeId;
 
   List<TransactionCategoryEntity> categories = [];
-
-  @override
-  void initState() {
-    super.initState();
-
-    context.read<TransactionBloc>().add(const GetTypesTransaction());
-
-    context.read<TransactionBloc>().add(const GetCategoryTransaction());
-  }
 
   Map<String, double> _calculateCategoryExpenses(List transactions) {
     final Map<String, double> categoryExpenses = {};
@@ -95,42 +89,48 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         ? 900.0
         : 1400.0;
 
-    return BlocListener<TransactionBloc, TransactionState>(
-      listener: (context, state) {
-        if (state is TypeLoaded) {
-          final income = state.types
-              .where((type) => type.type == 'income')
-              .firstOrNull;
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<TypeBloc, TypeStates>(
+          listener: (context, state) {
+            if (state is TypeLoaded) {
+              final income = state.types
+                  .where((type) => type.type == 'income')
+                  .firstOrNull;
 
-          final expense = state.types
-              .where((type) => type.type == 'expense')
-              .firstOrNull;
+              final expense = state.types
+                  .where((type) => type.type == 'expense')
+                  .firstOrNull;
 
-          setState(() {
-            incomeTypeId = income?.id;
-            expenseTypeId = expense?.id;
-          });
-        }
+              setState(() {
+                incomeTypeId = income?.id;
+                expenseTypeId = expense?.id;
+              });
+            }
 
-        if (state is TypeFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
+            if (state is TypeFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
+        BlocListener<CategoryBloc, CategoryStates>(
+          listener: (context, state) {
+            if (state is CategoryLoaded) {
+              setState(() {
+                categories = state.categories;
+              });
+            }
 
-        if (state is CategoryLoaded) {
-          setState(() {
-            categories = state.categories;
-          });
-        }
-
-        if (state is CategoryFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
-        }
-      },
-
+            if (state is CategoryFailure) {
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text(state.message)));
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         backgroundColor: const Color(0xFFF7F7FA),
 
