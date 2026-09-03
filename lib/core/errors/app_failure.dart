@@ -18,3 +18,7 @@ class CategoryFailure extends AppFailure {
 class TypeFailure extends AppFailure {
   const TypeFailure(super.message);
 }
+
+class ReminderFailure extends AppFailure {
+  const ReminderFailure(super.message);
+}

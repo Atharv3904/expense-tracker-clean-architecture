@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/config/app_config.dart';
 import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/di/injection_container.dart';
+import 'package:expense_tracker/core/notification/%20android_notification_service.dart';
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/router/app_router.dart';
 import 'package:expense_tracker/firebase_options.dart';
@@ -23,6 +24,7 @@ void main() async {
   // Notifications
   final notificationService = NotificationService();
   await notificationService.initialize();
+  await AndroidNotificationService().testScheduledNotification();
 
   runApp(const MyApp());
 }

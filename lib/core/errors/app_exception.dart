@@ -4,24 +4,34 @@ class AppException implements Exception {
   const AppException(this.message);
 }
 
-class ServerException implements Exception {
+class ServerException implements AppException {
+  @override
   final String message;
 
   ServerException(this.message);
 }
 
-class ProfileException implements Exception {
+class ProfileException implements AppException {
+  @override
   final String message;
 
   ProfileException(this.message);
 }
 
-class CategoryException implements Exception {
+class CategoryException implements AppException {
+  @override
   final String message;
   CategoryException(this.message);
 }
 
-class TypeException implements Exception {
+class TypeException implements AppException {
+  @override
   final String message;
   TypeException(this.message);
+}
+
+class ReminderException implements AppException {
+  @override
+  final String message;
+  ReminderException(this.message);
 }

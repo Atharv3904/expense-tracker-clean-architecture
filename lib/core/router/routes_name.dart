@@ -12,4 +12,5 @@ class RoutesName {
   static const String editProfile = '/edit-profile';
   static const String changePassword = '/change-password';
   static const String mainNavigationPage = '/mainNavigationPage';
+  static const String reminderPage = '/reminderPage';
 }

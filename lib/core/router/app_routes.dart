@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/navigation/main_navigation_page.dart';
+// import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
@@ -20,6 +21,8 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.d
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/change_password_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/edit_profile_page.dart';
+import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
+import 'package:expense_tracker/feature/reminder/presentation/pages/reminder_page.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
@@ -164,6 +167,14 @@ class AppRoutes {
           child: EditProfilePage(currentName: name),
         );
       },
+    ),
+
+    GoRoute(
+      path: RoutesName.reminderPage,
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<ReminderBloc>(),
+        child: const ReminderPage(),
+      ),
     ),
   ];
 }

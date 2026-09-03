@@ -230,6 +230,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           await context.push(RoutesName.changePassword);
                         },
                       ),
+                      const SizedBox(height: 12),
+
+                      ProfileOption(
+                        icon: Icons.remember_me_rounded,
+                        title: 'Reminder',
+                        subtitle: 'create your reminder for daily expenses',
+
+                        onTap: () async {
+                          await context.push(RoutesName.reminderPage);
+                        },
+                      ),
 
                       const SizedBox(height: 12),
 
@@ -245,6 +256,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           context.push(RoutesName.logout);
                         },
                       ),
+
                       SizedBox(height: 50),
                       Card(
                         child: ListTile(

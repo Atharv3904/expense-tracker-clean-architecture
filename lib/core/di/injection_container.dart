@@ -1,3 +1,5 @@
+import 'package:expense_tracker/core/notification/%20android_notification_service.dart';
+// import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource_impl.dart';
 import 'package:expense_tracker/feature/authentication/data/repositories/auth_repository_impl.dart';
@@ -26,6 +28,13 @@ import 'package:expense_tracker/feature/profile/domain/usecases/change_password_
 import 'package:expense_tracker/feature/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:expense_tracker/feature/profile/domain/usecases/update_profile_usecase.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource_impl.dart';
+import 'package:expense_tracker/feature/reminder/data/repository/reminder_repository_impl.dart';
+import 'package:expense_tracker/feature/reminder/domain/repository/reminder_repository.dart';
+import 'package:expense_tracker/feature/reminder/domain/usecases/cancel_daily_reminder_usecase.dart';
+import 'package:expense_tracker/feature/reminder/domain/usecases/schedule_daily_reminder_usecase.dart';
+import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource_impl.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
@@ -158,6 +167,37 @@ Future<void> init() async {
       getProfileUsecase: sl<GetProfileUsecase>(),
       updateProfileUsecase: sl<UpdateProfileUsecase>(),
       changePasswordUsecase: sl<ChangePasswordUsecase>(),
+    ),
+  );
+
+  // ============================================================
+  // REMINDER
+  // ============================================================
+
+  sl.registerLazySingleton<AndroidNotificationService>(
+    () => AndroidNotificationService(),
+  );
+
+  // sl.registerLazySingleton<NotificationService>(
+  //   () => NotificationService(sl()),
+  // );
+
+  sl.registerLazySingleton<ReminderDatasource>(
+    () => ReminderDatasourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ReminderRepository>(
+    () => ReminderRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => ScheduleDailyReminderUsecase(sl()));
+
+  sl.registerLazySingleton(() => CancelDailyReminderUsecase(sl()));
+
+  sl.registerFactory(
+    () => ReminderBloc(
+      scheduleDailyReminderUsecase: sl(),
+      cancelDailyReminderUsecase: sl(),
     ),
   );
 }
