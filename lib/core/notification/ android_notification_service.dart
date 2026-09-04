@@ -16,7 +16,6 @@ class AndroidNotificationService {
     tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
 
     debugPrint('LOCAL TIMEZONE: ${tz.local.name}');
-    debugPrint('CURRENT TIME: ${tz.TZDateTime.now(tz.local)}');
 
     // Android notification settings.
     const androidSettings = AndroidInitializationSettings(
@@ -29,53 +28,14 @@ class AndroidNotificationService {
 
     await _notifications.initialize(settings: initializationSettings);
 
+    // Request notification and exact alarm permissions.
     final androidPlugin = _notifications
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
 
-    final notificationPermission = await androidPlugin
-        ?.requestNotificationsPermission();
-
-    debugPrint('NOTIFICATION PERMISSION: $notificationPermission');
-
-    final exactAlarmPermission = await androidPlugin
-        ?.requestExactAlarmsPermission();
-
-    debugPrint('EXACT ALARM PERMISSION: $exactAlarmPermission');
-
-    // Initialize notification plugin.
-    await _notifications.initialize(settings: initializationSettings);
-  }
-
-  Future<void> testScheduledNotification() async {
-    final now = tz.TZDateTime.now(tz.local);
-
-    final scheduledDate = now.add(const Duration(seconds: 30));
-
-    debugPrint('TEST NOW: $now');
-    debugPrint('TEST SCHEDULED: $scheduledDate');
-
-    const androidDetails = AndroidNotificationDetails(
-      'daily_reminder_channel',
-      'Daily Reminders',
-      channelDescription: 'Expense Tracker daily reminders',
-      importance: Importance.max,
-      priority: Priority.high,
-    );
-
-    const details = NotificationDetails(android: androidDetails);
-
-    await _notifications.zonedSchedule(
-      id: 9999,
-      title: 'Expense Tracker',
-      body: 'This is a test reminder.',
-      scheduledDate: scheduledDate,
-      notificationDetails: details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
-    );
-
-    debugPrint('TEST NOTIFICATION SCHEDULED');
+    await androidPlugin?.requestNotificationsPermission();
+    await androidPlugin?.requestExactAlarmsPermission();
   }
 
   // Show notification immediately.
@@ -127,15 +87,11 @@ class AndroidNotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
-    debugPrint('REMINDER REQUESTED: $hour:$minute');
-
-    debugPrint('REMINDER SCHEDULED: $scheduledDate');
-
     const androidDetails = AndroidNotificationDetails(
       'daily_reminder_channel',
       'Daily Reminders',
       channelDescription: 'Expense Tracker daily reminders',
-      importance: Importance.high,
+      importance: Importance.max,
       priority: Priority.high,
     );
 
@@ -150,14 +106,6 @@ class AndroidNotificationService {
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
       matchDateTimeComponents: DateTimeComponents.time,
     );
-
-    debugPrint('LOCAL TIMEZONE: ${tz.local.name}');
-
-    debugPrint('CURRENT TIME: ${tz.TZDateTime.now(tz.local)}');
-
-    debugPrint('REMINDER SCHEDULED: $scheduledDate');
-
-    debugPrint('REMINDER SCHEDULED SUCCESSFULLY');
   }
 
   // Cancel a scheduled notification.

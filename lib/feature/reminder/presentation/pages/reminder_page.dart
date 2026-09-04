@@ -17,6 +17,14 @@ class _ReminderPageState extends State<ReminderPage> {
 
   TimeOfDay selectedTime = const TimeOfDay(hour: 20, minute: 0);
 
+  @override
+  void initState() {
+    super.initState();
+
+    // Load previously saved reminder from SharedPreferences.
+    context.read<ReminderBloc>().add(const LoadReminder());
+  }
+
   Future<void> selectTime() async {
     final time = await showTimePicker(
       context: context,
@@ -48,6 +56,18 @@ class _ReminderPageState extends State<ReminderPage> {
   Widget build(BuildContext context) {
     return BlocListener<ReminderBloc, ReminderState>(
       listener: (context, state) {
+        // Load saved reminder from SharedPreferences.
+        if (state is ReminderLoaded) {
+          setState(() {
+            dailyEnabled = state.reminder.dailyEnabled;
+
+            selectedTime = TimeOfDay(
+              hour: state.reminder.hour,
+              minute: state.reminder.minute,
+            );
+          });
+        }
+
         if (state is ReminderSuccess) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Reminder added successfully')),
@@ -61,29 +81,23 @@ class _ReminderPageState extends State<ReminderPage> {
         }
 
         if (state is ReminderCancel) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text("🔕 Reminder cancelled")));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('🔕 Reminder cancelled')),
+          );
         }
       },
-
       child: Scaffold(
         appBar: AppBar(title: const Text('Reminders')),
-
         body: Padding(
           padding: const EdgeInsets.all(16),
-
           child: Column(
             children: [
               SwitchListTile(
                 title: const Text('Daily Reminder'),
-
                 subtitle: Text(
                   dailyEnabled ? 'Reminder is enabled' : 'Reminder is disabled',
                 ),
-
                 value: dailyEnabled,
-
                 onChanged: (value) {
                   setState(() {
                     dailyEnabled = value;
@@ -95,11 +109,8 @@ class _ReminderPageState extends State<ReminderPage> {
 
               ListTile(
                 title: const Text('Reminder Time'),
-
                 subtitle: Text(selectedTime.format(context)),
-
                 trailing: const Icon(Icons.access_time),
-
                 onTap: dailyEnabled ? selectTime : null,
               ),
 
@@ -107,10 +118,8 @@ class _ReminderPageState extends State<ReminderPage> {
 
               SizedBox(
                 width: double.infinity,
-
                 child: ElevatedButton(
                   onPressed: saveReminder,
-
                   child: const Text('Save Reminder'),
                 ),
               ),

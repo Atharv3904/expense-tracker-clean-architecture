@@ -35,3 +35,9 @@ class ReminderException implements AppException {
   final String message;
   ReminderException(this.message);
 }
+
+class SharedPrefException implements AppException {
+  @override
+  final String message;
+  SharedPrefException(this.message);
+}

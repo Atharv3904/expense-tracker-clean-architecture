@@ -30,9 +30,16 @@ import 'package:expense_tracker/feature/profile/domain/usecases/update_profile_u
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource_impl.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_local_datasource.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_local_datasource_impl.dart';
+import 'package:expense_tracker/feature/reminder/data/repository/reminder_local_repository_impl.dart';
 import 'package:expense_tracker/feature/reminder/data/repository/reminder_repository_impl.dart';
+import 'package:expense_tracker/feature/reminder/domain/repository/reminder_local_repository.dart';
 import 'package:expense_tracker/feature/reminder/domain/repository/reminder_repository.dart';
 import 'package:expense_tracker/feature/reminder/domain/usecases/cancel_daily_reminder_usecase.dart';
+import 'package:expense_tracker/feature/reminder/domain/usecases/clear_reminder_usecase.dart';
+import 'package:expense_tracker/feature/reminder/domain/usecases/get_reminder_usecase.dart';
+import 'package:expense_tracker/feature/reminder/domain/usecases/save_reminder_usecase.dart';
 import 'package:expense_tracker/feature/reminder/domain/usecases/schedule_daily_reminder_usecase.dart';
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource.dart';
@@ -58,11 +65,14 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/category_b
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final sl = GetIt.instance;
 
 Future<void> init() async {
+  final preferences = await SharedPreferences.getInstance();
+
   sl.registerLazySingleton<SupabaseClient>(() => Supabase.instance.client);
   sl.registerLazySingleton<AuthRemoteDatasource>(
     () => AuthRemoteDatasourceImpl(sl()),
@@ -194,10 +204,32 @@ Future<void> init() async {
 
   sl.registerLazySingleton(() => CancelDailyReminderUsecase(sl()));
 
+  // reminder Local Storage Shared preference
+  sl.registerLazySingleton<ReminderLocalDatasource>(
+    () => ReminderLocalDatasourceImpl(sl<SharedPreferences>()),
+  );
+
+  sl.registerLazySingleton<ReminderLocalRepository>(
+    () => ReminderLocalRepositoryImpl(sl<ReminderLocalDatasource>()),
+  );
+
+  sl.registerLazySingleton(() => SaveReminderUsecase(sl()));
+
+  sl.registerLazySingleton(() => GetReminderUsecase(sl()));
+
+  sl.registerLazySingleton(() => ClearReminderUsecase(sl()));
+
+  sl.registerLazySingleton<SharedPreferences>(() => preferences);
+
+  // -------------------- Bloc --------------------
+
   sl.registerFactory(
     () => ReminderBloc(
       scheduleDailyReminderUsecase: sl(),
       cancelDailyReminderUsecase: sl(),
+      saveReminderUsecase: sl(),
+      getReminderUsecase: sl(),
+      clearReminderUsecase: sl(),
     ),
   );
 }
