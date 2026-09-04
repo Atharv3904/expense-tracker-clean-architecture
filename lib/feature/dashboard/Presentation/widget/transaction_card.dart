@@ -1,5 +1,3 @@
-// ignore_for_file: use_key_in_widget_constructors
-
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 
@@ -9,6 +7,7 @@ class TransactionCard extends StatelessWidget {
   final VoidCallback onTap;
 
   const TransactionCard({
+    super.key,
     required this.description,
     required this.amount,
     required this.onTap,
@@ -18,78 +17,91 @@ class TransactionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
+    const ink = Color(0xFF07091D);
+    const accentColor = Color(0xFF22C55E);
 
-      elevation: 0,
-
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: Colors.grey.shade200),
-      ),
-
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: isMobile ? 14 : 18,
-          vertical: isMobile ? 6 : 8,
-        ),
-
-        // Transaction icon
-        leading: Container(
-          width: isMobile ? 42 : 46,
-          height: isMobile ? 42 : 46,
-
-          decoration: BoxDecoration(
-            color: Colors.green.withValues(alpha: 0.10),
-            borderRadius: BorderRadius.circular(12),
-          ),
-
-          child: const Icon(Icons.receipt_long_outlined, color: Colors.green),
-        ),
-
-        // Description
-        title: Text(
-          description,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-
-          style: TextStyle(
-            fontSize: isMobile ? 14 : 15,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-
-        // Subtitle
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 5),
-
-          child: Text(
-            'Transaction amount',
-            style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          ),
-        ),
-
-        // Amount + arrow
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              '₹$amount',
-
-              style: TextStyle(
-                fontSize: isMobile ? 14 : 15,
-                fontWeight: FontWeight.bold,
-                color: Colors.green,
-              ),
-            ),
-
-            const SizedBox(width: 10),
-
-            const Icon(Icons.arrow_forward_ios, size: 14, color: Colors.grey),
-          ],
-        ),
-
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 14 : 18,
+            vertical: isMobile ? 12 : 14,
+          ),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.96),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: ink.withValues(alpha: 0.055)),
+            boxShadow: [
+              BoxShadow(
+                color: ink.withValues(alpha: 0.045),
+                blurRadius: 18,
+                offset: const Offset(0, 9),
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: isMobile ? 48 : 52,
+                height: isMobile ? 48 : 52,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFB8F4F1).withValues(alpha: 0.45),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  color: ink,
+                  size: 21,
+                ),
+              ),
+              const SizedBox(width: 13),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      description,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: ink,
+                        fontSize: isMobile ? 14 : 15,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Transaction amount',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: ink.withValues(alpha: 0.45),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '+₹$amount',
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 15,
+                  fontWeight: FontWeight.w900,
+                  color: accentColor,
+                ),
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.arrow_upward_rounded,
+                size: 18,
+                color: accentColor.withValues(alpha: 0.9),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

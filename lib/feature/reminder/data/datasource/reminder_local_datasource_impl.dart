@@ -21,7 +21,7 @@ class ReminderLocalDatasourceImpl implements ReminderLocalDatasource {
 
       await _preferences.setInt(_minuteKey, reminder.minute);
     } catch (e) {
-      throw SharedPrefException(e.toString().trim());
+      throw SharedPrefException("your reminder is not saved");
     }
   }
 
@@ -39,7 +39,7 @@ class ReminderLocalDatasourceImpl implements ReminderLocalDatasource {
 
       return ReminderEntity(dailyEnabled: enable, hour: hour, minute: minute);
     } catch (e) {
-      throw SharedPrefException(e.toString().trim());
+      throw SharedPrefException("this time... can't get your reminder");
     }
   }
 
@@ -50,7 +50,7 @@ class ReminderLocalDatasourceImpl implements ReminderLocalDatasource {
       await _preferences.remove(_hourKey);
       await _preferences.remove(_minuteKey);
     } catch (e) {
-      throw SharedPrefException(e.toString().trim());
+      throw SharedPrefException("reminder is not cleared");
     }
   }
 }

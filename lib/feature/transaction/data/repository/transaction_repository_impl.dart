@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
+import 'package:expense_tracker/core/types/app_result.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
@@ -12,8 +13,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   TransactionRepositoryImpl(this.datasource);
 
   @override
-  Future<Either<AppFailure, List<TransactionEntity>>>
-  getAllTransactionData() async {
+  AppResult<List<TransactionEntity>> getAllTransactionData() async {
     try {
       final result = await datasource.getAllTransactionData();
       return Right(result);
@@ -23,7 +23,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<AppFailure, List<TransactionEntity>>> getTransaction() async {
+  AppResult<List<TransactionEntity>> getTransaction() async {
     try {
       final result = await datasource.getTransaction();
       return Right(result);
@@ -33,7 +33,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<AppFailure, TransactionEntity>> addTransaction(
+  AppResult<TransactionEntity> addTransaction(
     TransactionEntity transaction,
   ) async {
     try {
@@ -55,7 +55,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<AppFailure, TransactionEntity>> updateTransaction(
+  AppResult<TransactionEntity> updateTransaction(
     TransactionEntity transaction,
   ) async {
     try {
@@ -77,9 +77,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> deleteTransaction(
-    String transactionid,
-  ) async {
+  AppResult<void> deleteTransaction(String transactionid) async {
     try {
       await datasource.deleteTransaction(transactionid);
       return Right(null);

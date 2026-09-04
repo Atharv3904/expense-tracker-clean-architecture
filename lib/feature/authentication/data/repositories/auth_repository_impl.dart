@@ -3,6 +3,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
+import 'package:expense_tracker/core/types/app_result.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/domain/entities/auth_user_entity.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
@@ -16,9 +17,7 @@ class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl(this.remoteDataSource);
 
   @override
-  Future<Either<AppFailure, AuthUserEntity>> registerUser(
-    RegisterParams params,
-  ) async {
+  AppResult<AuthUserEntity> registerUser(RegisterParams params) async {
     try {
       final user = await remoteDataSource.registerUser(params);
       return Right(user);
@@ -30,9 +29,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AppFailure, AuthUserEntity>> loginUser(
-    LoginParams params,
-  ) async {
+  AppResult<AuthUserEntity> loginUser(LoginParams params) async {
     try {
       final user = await remoteDataSource.loginUser(params);
       return right(user);
@@ -44,7 +41,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AppFailure, AuthUserEntity?>> getCurrentUser() async {
+  AppResult<AuthUserEntity?> getCurrentUser() async {
     try {
       final user = remoteDataSource.getCurrentUser();
       return Right(user);
@@ -56,7 +53,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> logout() async {
+  AppResult<void> logout() async {
     try {
       await remoteDataSource.logout();
       return const Right(null);
@@ -68,9 +65,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<AppFailure, void>> forgotPassword(
-    ForgotPasswordParams email,
-  ) async {
+  AppResult<void> forgotPassword(ForgotPasswordParams email) async {
     try {
       await remoteDataSource.forgotPassword(email);
       return Right(null);

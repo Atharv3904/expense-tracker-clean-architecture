@@ -7,6 +7,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
+class _LoginPagePalette {
+  static const bg = Color(0xFFF3F6F4);
+}
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -35,7 +39,7 @@ class LoginPage extends StatelessWidget {
         }
       },
       child: Scaffold(
-        appBar: AppBar(title: const Text("Login page")),
+        backgroundColor: _LoginPagePalette.bg,
         body: SafeArea(child: LoginForm()),
       ),
     );

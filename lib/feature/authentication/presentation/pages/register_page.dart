@@ -28,7 +28,14 @@ class RegisterPage extends StatelessWidget {
           ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
-      child: Scaffold(body: SafeArea(child: const RegisterForm())),
+      child: const Scaffold(
+        backgroundColor: _RegisterPalette.bg,
+        body: SafeArea(child: RegisterForm()),
+      ),
     );
   }
+}
+
+class _RegisterPalette {
+  static const bg = Color(0xFFF3F6F4);
 }

@@ -22,80 +22,75 @@ class ProfileOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+    const ink = Color(0xFF07091D);
+    const teal = Color(0xFF2B8F84);
+    const muted = Color(0xFF89918F);
+    const border = Color(0xFFE8EEEB);
 
-    final effectiveIconColor = iconColor ?? colorScheme.primary;
+    final effectiveIconColor = iconColor ?? teal;
 
     return Material(
-      color: Colors.white,
-
-      borderRadius: BorderRadius.circular(16),
-
+      color: Colors.white.withValues(alpha: 0.96),
+      borderRadius: BorderRadius.circular(24),
       child: InkWell(
         onTap: onTap,
-
-        borderRadius: BorderRadius.circular(16),
-
+        borderRadius: BorderRadius.circular(24),
         child: Container(
           width: double.infinity,
-
-          padding: const EdgeInsets.all(16),
-
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-
-            border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: border),
+            boxShadow: [
+              BoxShadow(
+                color: ink.withValues(alpha: 0.035),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-
           child: Row(
             children: [
               Container(
-                height: 44,
-                width: 44,
-
+                height: 48,
+                width: 48,
                 decoration: BoxDecoration(
                   color: effectiveIconColor.withValues(alpha: 0.10),
-
-                  borderRadius: BorderRadius.circular(12),
+                  shape: BoxShape.circle,
                 ),
-
                 child: Icon(icon, color: effectiveIconColor, size: 22),
               ),
-
               const SizedBox(width: 14),
-
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-
                   children: [
                     Text(
                       title,
-
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: titleColor,
-                      ),
-                    ),
-
-                    const SizedBox(height: 3),
-
-                    Text(
-                      subtitle,
-
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-
-                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w900,
+                        color: titleColor ?? ink,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: muted,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(width: 8),
-
-              Icon(Icons.chevron_right_rounded, color: Colors.grey[500]),
+              const Icon(Icons.chevron_right_rounded, color: muted, size: 24),
             ],
           ),
         ),

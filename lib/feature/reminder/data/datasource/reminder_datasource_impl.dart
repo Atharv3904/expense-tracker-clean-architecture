@@ -22,7 +22,7 @@ class ReminderDatasourceImpl implements ReminderDatasource {
         minute: reminder.minute,
       );
     } catch (e) {
-      throw ReminderException(e.toString().trim());
+      throw ReminderException("your reminder is not scheduled...");
     }
   }
 
@@ -31,7 +31,7 @@ class ReminderDatasourceImpl implements ReminderDatasource {
     try {
       await _androidNotificationService.cancel(id: 1001);
     } catch (e) {
-      throw ReminderException(e.toString().trim());
+      throw ReminderException("your reminder is not cancled...");
     }
   }
 }

@@ -22,6 +22,7 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.
 import 'package:expense_tracker/feature/profile/presentation/pages/change_password_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/edit_profile_page.dart';
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
+import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_event.dart';
 import 'package:expense_tracker/feature/reminder/presentation/pages/reminder_page.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
@@ -172,7 +173,7 @@ class AppRoutes {
     GoRoute(
       path: RoutesName.reminderPage,
       builder: (context, state) => BlocProvider(
-        create: (context) => sl<ReminderBloc>(),
+        create: (context) => sl<ReminderBloc>()..add(LoadReminder()),
         child: const ReminderPage(),
       ),
     ),

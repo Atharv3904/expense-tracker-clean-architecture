@@ -16,6 +16,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+class _MainNavPalette {
+  static const bg = Color(0xFFF3F6F4);
+  static const teal = Color(0xFF2B8F84);
+  static const ink = Color(0xFF07091D);
+  static const muted = Color(0xFF89918F);
+  static const border = Color(0xFFE8EEEB);
+  static const softMint = Color(0xFFEAF8F5);
+}
+
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
 
@@ -35,29 +44,22 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   ];
 
   void _loadPageData(int index) {
-    // Dashboard
     if (index == 0) {
       context.read<TransactionBloc>().add(const LoadTransaction());
-
       context.read<DashboardCubit>().dashboardSummary();
     }
 
-    // Add Transaction
     if (index == 1) {
       context.read<TypeBloc>().add(const GetTypesTransaction());
-
       context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
-    // Financial Insights
     if (index == 2) {
       context.read<TransactionBloc>().add(const GetAllTransaction());
       context.read<TypeBloc>().add(const GetTypesTransaction());
-
       context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
-    // Profile
     if (index == 3) {
       context.read<ProfileBloc>().add(const LoadProfile());
     }
@@ -71,7 +73,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
       currentIndex = index;
     });
 
-    // Dashboard
     _loadPageData(currentIndex);
   }
 
@@ -83,7 +84,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     return PopScope(
       canPop: false,
-
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) return;
 
@@ -99,8 +99,24 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
           context: context,
           builder: (context) {
             return AlertDialog(
-              title: const Text('Exit App'),
-              content: const Text('Are you sure you want to exit?'),
+              backgroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(26),
+              ),
+              title: const Text(
+                'Exit App',
+                style: TextStyle(
+                  color: _MainNavPalette.ink,
+                  fontWeight: FontWeight.w900,
+                ),
+              ),
+              content: const Text(
+                'Are you sure you want to exit?',
+                style: TextStyle(
+                  color: _MainNavPalette.muted,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
               actions: [
                 TextButton(
                   onPressed: () {
@@ -108,190 +124,327 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                   },
                   child: const Text('Cancel'),
                 ),
-
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context, true);
                   },
-                  child: const Text('Exit'),
+                  child: const Text(
+                    'Exit',
+                    style: TextStyle(
+                      color: _MainNavPalette.teal,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
                 ),
               ],
             );
           },
         );
+
         if (shouldExit == true) {
           SystemNavigator.pop();
         }
-        // We'll write the actual exit handling next.
       },
-
       child: Scaffold(
+        backgroundColor: _MainNavPalette.bg,
+        extendBody: isMobile,
         body: Row(
           children: [
-            if (isTablet)
-              NavigationRail(
-                selectedIndex: currentIndex,
-                onDestinationSelected: _onNavigationChanged,
-
-                labelType: NavigationRailLabelType.all,
-
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.dashboard_outlined),
-                    selectedIcon: Icon(Icons.dashboard),
-                    label: Text('Dashboard'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.add_circle_outline),
-                    selectedIcon: Icon(Icons.add_circle),
-                    label: Text('Add'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.bar_chart_outlined),
-                    selectedIcon: Icon(Icons.bar_chart),
-                    label: Text('Insights'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.person_outline),
-                    selectedIcon: Icon(Icons.person),
-                    label: Text('Profile'),
-                  ),
-                ],
+            if (isTablet && !isDesktop)
+              _TabletNavigationRail(
+                currentIndex: currentIndex,
+                onChanged: _onNavigationChanged,
               ),
-
             if (isDesktop)
-              Container(
-                width: 240,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  border: Border(
-                    right: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 32),
-
-                    // App Logo / Name
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.account_balance_wallet,
-                            size: 32,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Expense Tracker',
-                            style: Theme.of(context).textTheme.titleMedium
-                                ?.copyWith(fontWeight: FontWeight.bold),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 40),
-
-                    // Navigation items
-                    Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 12),
-                        children: [
-                          _DesktopNavigationItem(
-                            icon: Icons.dashboard_outlined,
-                            selectedIcon: Icons.dashboard,
-                            label: 'Dashboard',
-                            selected: currentIndex == 0,
-                            onTap: () {
-                              _onNavigationChanged(0);
-                            },
-                          ),
-
-                          _DesktopNavigationItem(
-                            icon: Icons.add_circle_outline,
-                            selectedIcon: Icons.add_circle,
-                            label: 'Add Transaction',
-                            selected: currentIndex == 1,
-                            onTap: () {
-                              _onNavigationChanged(1);
-                            },
-                          ),
-
-                          _DesktopNavigationItem(
-                            icon: Icons.bar_chart_outlined,
-                            selectedIcon: Icons.bar_chart,
-                            label: 'Financial Insights',
-                            selected: currentIndex == 2,
-                            onTap: () {
-                              _onNavigationChanged(2);
-                            },
-                          ),
-
-                          _DesktopNavigationItem(
-                            icon: Icons.person_outline,
-                            selectedIcon: Icons.person,
-                            label: 'Profile',
-                            selected: currentIndex == 3,
-                            onTap: () {
-                              _onNavigationChanged(3);
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Bottom section
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        'Expense Tracker',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+              _DesktopNavigationSidebar(
+                currentIndex: currentIndex,
+                onChanged: _onNavigationChanged,
               ),
-
             Expanded(
               child: IndexedStack(index: currentIndex, children: pages),
             ),
           ],
         ),
-
         bottomNavigationBar: isMobile
-            ? NavigationBar(
-                selectedIndex: currentIndex,
-                onDestinationSelected: _onNavigationChanged,
-                destinations: const [
-                  NavigationDestination(
-                    icon: Icon(Icons.dashboard_outlined),
-                    selectedIcon: Icon(Icons.dashboard),
-                    label: 'Dashboard',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.add_circle_outline),
-                    selectedIcon: Icon(Icons.add_circle),
-                    label: 'Add',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.bar_chart_outlined),
-                    selectedIcon: Icon(Icons.bar_chart),
-                    label: 'Insights',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.person_outline),
-                    selectedIcon: Icon(Icons.person),
-                    label: 'Profile',
-                  ),
-                ],
+            ? _FloatingBottomNavigation(
+                currentIndex: currentIndex,
+                onChanged: _onNavigationChanged,
               )
             : null,
+      ),
+    );
+  }
+}
+
+class _FloatingBottomNavigation extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onChanged;
+
+  const _FloatingBottomNavigation({
+    required this.currentIndex,
+    required this.onChanged,
+  });
+
+  static const items = [
+    _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, 'Dashboard'),
+    _NavItem(Icons.add_circle_outline_rounded, Icons.add_circle_rounded, 'Add'),
+    _NavItem(Icons.bar_chart_outlined, Icons.bar_chart_rounded, 'Insights'),
+    _NavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      minimum: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Container(
+        height: 72,
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.96),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.86)),
+          boxShadow: [
+            BoxShadow(
+              color: _MainNavPalette.ink.withValues(alpha: 0.12),
+              blurRadius: 28,
+              offset: const Offset(0, 14),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            for (int index = 0; index < items.length; index++)
+              Expanded(
+                child: _BottomNavButton(
+                  item: items[index],
+                  selected: currentIndex == index,
+                  onTap: () => onChanged(index),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BottomNavButton extends StatelessWidget {
+  final _NavItem item;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _BottomNavButton({
+    required this.item,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = selected ? _MainNavPalette.teal : _MainNavPalette.muted;
+
+    return Material(
+      color: selected ? _MainNavPalette.softMint : Colors.transparent,
+      borderRadius: BorderRadius.circular(22),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(22),
+        child: SizedBox(
+          height: 56,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                selected ? item.selectedIcon : item.icon,
+                color: color,
+                size: 23,
+              ),
+              const SizedBox(height: 4),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  item.label,
+                  maxLines: 1,
+                  style: TextStyle(
+                    color: color,
+                    fontSize: 11,
+                    fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TabletNavigationRail extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onChanged;
+
+  const _TabletNavigationRail({
+    required this.currentIndex,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white.withValues(alpha: 0.96),
+      child: NavigationRail(
+        backgroundColor: Colors.transparent,
+        selectedIndex: currentIndex,
+        onDestinationSelected: onChanged,
+        labelType: NavigationRailLabelType.all,
+        indicatorColor: _MainNavPalette.softMint,
+        selectedIconTheme: const IconThemeData(color: _MainNavPalette.teal),
+        unselectedIconTheme: const IconThemeData(color: _MainNavPalette.muted),
+        selectedLabelTextStyle: const TextStyle(
+          color: _MainNavPalette.teal,
+          fontWeight: FontWeight.w900,
+        ),
+        unselectedLabelTextStyle: const TextStyle(
+          color: _MainNavPalette.muted,
+          fontWeight: FontWeight.w700,
+        ),
+        destinations: const [
+          NavigationRailDestination(
+            icon: Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard_rounded),
+            label: Text('Dashboard'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.add_circle_outline_rounded),
+            selectedIcon: Icon(Icons.add_circle_rounded),
+            label: Text('Add'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart_rounded),
+            label: Text('Insights'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.person_outline_rounded),
+            selectedIcon: Icon(Icons.person_rounded),
+            label: Text('Profile'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopNavigationSidebar extends StatelessWidget {
+  final int currentIndex;
+  final ValueChanged<int> onChanged;
+
+  const _DesktopNavigationSidebar({
+    required this.currentIndex,
+    required this.onChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 260,
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        border: Border(right: BorderSide(color: _MainNavPalette.border)),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: [
+            const SizedBox(height: 26),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22),
+              child: Row(
+                children: [
+                  Container(
+                    width: 46,
+                    height: 46,
+                    decoration: const BoxDecoration(
+                      color: _MainNavPalette.softMint,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.account_balance_wallet_rounded,
+                      color: _MainNavPalette.teal,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Text(
+                      'Expense Tracker',
+                      style: TextStyle(
+                        color: _MainNavPalette.ink,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 17,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 34),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                children: [
+                  _DesktopNavigationItem(
+                    icon: Icons.dashboard_outlined,
+                    selectedIcon: Icons.dashboard_rounded,
+                    label: 'Dashboard',
+                    selected: currentIndex == 0,
+                    onTap: () => onChanged(0),
+                  ),
+                  _DesktopNavigationItem(
+                    icon: Icons.add_circle_outline_rounded,
+                    selectedIcon: Icons.add_circle_rounded,
+                    label: 'Add Transaction',
+                    selected: currentIndex == 1,
+                    onTap: () => onChanged(1),
+                  ),
+                  _DesktopNavigationItem(
+                    icon: Icons.bar_chart_outlined,
+                    selectedIcon: Icons.bar_chart_rounded,
+                    label: 'Financial Insights',
+                    selected: currentIndex == 2,
+                    onTap: () => onChanged(2),
+                  ),
+                  _DesktopNavigationItem(
+                    icon: Icons.person_outline_rounded,
+                    selectedIcon: Icons.person_rounded,
+                    label: 'Profile',
+                    selected: currentIndex == 3,
+                    onTap: () => onChanged(3),
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: _MainNavPalette.softMint,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+                child: const Text(
+                  'Your money, in perspective.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: _MainNavPalette.teal,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -314,39 +467,50 @@ class _DesktopNavigationItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return Padding(
-      padding: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Material(
-        color: Colors.transparent,
-        child: ListTile(
+        color: selected ? _MainNavPalette.softMint : Colors.transparent,
+        borderRadius: BorderRadius.circular(22),
+        child: InkWell(
           onTap: onTap,
-
-          selected: selected,
-
-          selectedTileColor: colorScheme.primaryContainer,
-
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-
-          leading: Icon(
-            selected ? selectedIcon : icon,
-            color: selected
-                ? colorScheme.primary
-                : colorScheme.onSurfaceVariant,
-          ),
-
-          title: Text(
-            label,
-            style: TextStyle(
-              fontWeight: selected ? FontWeight.w600 : FontWeight.normal,
-              color: selected ? colorScheme.primary : colorScheme.onSurface,
+          borderRadius: BorderRadius.circular(22),
+          child: Container(
+            height: 54,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            child: Row(
+              children: [
+                Icon(
+                  selected ? selectedIcon : icon,
+                  color: selected
+                      ? _MainNavPalette.teal
+                      : _MainNavPalette.muted,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: TextStyle(
+                      color: selected
+                          ? _MainNavPalette.teal
+                          : _MainNavPalette.ink,
+                      fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class _NavItem {
+  final IconData icon;
+  final IconData selectedIcon;
+  final String label;
+
+  const _NavItem(this.icon, this.selectedIcon, this.label);
 }

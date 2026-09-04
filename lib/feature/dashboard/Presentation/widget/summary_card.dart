@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class SummaryCard extends StatelessWidget {
@@ -7,6 +9,7 @@ class SummaryCard extends StatelessWidget {
   final Color color;
 
   const SummaryCard({
+    super.key,
     required this.title,
     required this.amount,
     required this.icon,
@@ -16,41 +19,35 @@ class SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    const ink = Color(0xFF07091D);
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
-
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
-
-        border: Border.all(color: Colors.black.withValues(alpha: 0.05)),
-
+        color: Colors.white.withValues(alpha: 0.94),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: ink.withValues(alpha: 0.055)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.035),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
+            color: ink.withValues(alpha: 0.055),
+            blurRadius: 22,
+            offset: const Offset(0, 12),
           ),
         ],
       ),
-
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(10),
-
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
+              color: color.withValues(alpha: 0.12),
               shape: BoxShape.circle,
             ),
-
-            child: Icon(icon, color: color, size: 22),
+            child: Icon(icon, color: color, size: 23),
           ),
-
           const SizedBox(width: 14),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -58,19 +55,21 @@ class SummaryCard extends StatelessWidget {
                 Text(
                   title,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: ink.withValues(alpha: 0.52),
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-
                 const SizedBox(height: 5),
-
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   alignment: Alignment.centerLeft,
                   child: Text(
                     '₹${amount.toStringAsFixed(2)}',
                     style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      color: ink,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0,
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ),
