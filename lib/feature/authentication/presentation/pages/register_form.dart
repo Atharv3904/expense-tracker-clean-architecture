@@ -1,5 +1,7 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/auth_background.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/field_icon.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -11,7 +13,6 @@ import '../cubit/register/register_state.dart';
 class _RegisterPalette {
   static const bg = Color(0xFFF3F6F4);
   static const teal = Color(0xFF2B8F84);
-  static const tealDark = Color(0xFF19766E);
   static const ink = Color(0xFF07091D);
   static const muted = Color(0xFF89918F);
   static const border = Color(0xFFE8EEEB);
@@ -73,7 +74,7 @@ class _RegisterFormState extends State<RegisterForm> {
         color: _RegisterPalette.bg,
         child: Stack(
           children: [
-            const _AuthBackground(),
+            const AuthBackground(),
             Center(
               child: SingleChildScrollView(
                 padding: EdgeInsets.symmetric(
@@ -302,7 +303,7 @@ class _RegisterFormState extends State<RegisterForm> {
       ),
       prefixIcon: Padding(
         padding: const EdgeInsets.only(left: 12, right: 10),
-        child: _FieldIcon(icon: icon),
+        child: FieldIcon(icon: icon),
       ),
       prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
       suffixIcon: suffixIcon,
@@ -321,76 +322,6 @@ class _RegisterFormState extends State<RegisterForm> {
         borderRadius: BorderRadius.circular(20),
         borderSide: const BorderSide(color: _RegisterPalette.teal, width: 1.4),
       ),
-    );
-  }
-}
-
-class _AuthBackground extends StatelessWidget {
-  const _AuthBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 260,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              colors: [_RegisterPalette.teal, _RegisterPalette.tealDark],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.only(
-              bottomLeft: Radius.circular(38),
-              bottomRight: Radius.circular(38),
-            ),
-          ),
-          child: Stack(
-            children: [
-              Positioned(top: -42, left: -34, child: _HeaderRing(size: 132)),
-              Positioned(top: 44, right: -40, child: _HeaderRing(size: 128)),
-              Positioned(top: 92, left: 96, child: _HeaderRing(size: 64)),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HeaderRing extends StatelessWidget {
-  final double size;
-
-  const _HeaderRing({required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-    );
-  }
-}
-
-class _FieldIcon extends StatelessWidget {
-  final IconData icon;
-
-  const _FieldIcon({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: _RegisterPalette.teal.withValues(alpha: 0.11),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, color: _RegisterPalette.teal, size: 18),
     );
   }
 }

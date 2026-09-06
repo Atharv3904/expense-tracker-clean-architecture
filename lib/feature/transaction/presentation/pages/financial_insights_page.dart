@@ -1,27 +1,21 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
+
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
+
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
-class _InsightsPalette {
-  static const bg = Color(0xFFF3F6F4);
-  static const teal = Color(0xFF2B8F84);
-  static const tealDark = Color(0xFF19766E);
-  static const ink = Color(0xFF07091D);
-  static const muted = Color(0xFF89918F);
-  static const border = Color(0xFFE8EEEB);
-  static const income = Color(0xFF22B573);
-  static const expense = Color(0xFFE8524A);
-  static const softMint = Color(0xFFEAF8F5);
-}
 
 class FinancialInsightsPage extends StatefulWidget {
   const FinancialInsightsPage({super.key});
@@ -68,18 +62,25 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     switch (category.toLowerCase()) {
       case 'food':
         return const Color(0xFFFFA24C);
+
       case 'shopping':
         return const Color(0xFF8B5CF6);
+
       case 'transport':
         return const Color(0xFF3B82F6);
+
       case 'healthcare':
         return const Color(0xFF22B573);
+
       case 'investment':
         return const Color.fromARGB(255, 45, 65, 2);
+
       case 'bills':
         return const Color(0xFFE8524A);
+
       case 'salary':
         return const Color.fromARGB(255, 221, 35, 238);
+
       default:
         return const Color(0xFF8A9693);
     }
@@ -146,15 +147,20 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: _InsightsPalette.bg,
+        backgroundColor: TransactionWidgetPalette.bg,
         body: BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
             if (state is TransactionLoading) {
-              return const _InsightsSkeleton();
+              return _InsightsLoading();
             }
 
             if (state is TransactionFailure) {
-              return _InsightsErrorState(message: state.message);
+              return Center(
+                child: Text(
+                  state.message,
+                  style: const TextStyle(color: TransactionWidgetPalette.muted),
+                ),
+              );
             }
 
             if (state is TransactionLoaded) {
@@ -179,7 +185,10 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Stack(
                   children: [
-                    const _InsightsTopBackground(),
+                    const TransactionTopBackground(
+                      height: 245,
+                      bottomRadius: 34,
+                    ),
                     SafeArea(
                       child: Center(
                         child: ConstrainedBox(
@@ -194,7 +203,10 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _InsightsHeader(isMobile: isMobile),
+                                TransactionHeader(
+                                  title: 'Financial Insights',
+                                  isMobile: isMobile,
+                                ),
                                 SizedBox(height: isMobile ? 26 : 32),
                                 _OverviewPanel(
                                   income: income,
@@ -261,12 +273,13 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     bool isMobile,
   ) {
     final maxValue = income > expense ? income : expense;
+
     final maxY = maxValue == 0 ? 100.0 : maxValue * 1.2;
 
     return _ChartCard(
       title: 'Income vs Expense',
       trailing: const _PeriodPill(text: 'Total'),
-      height: isMobile ? 460 : 460,
+      height: 460,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
@@ -278,7 +291,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
             horizontalInterval: maxY / 4,
             getDrawingHorizontalLine: (value) {
               return FlLine(
-                color: _InsightsPalette.border,
+                color: TransactionWidgetPalette.border,
                 strokeWidth: 1,
                 dashArray: [6, 6],
               );
@@ -287,10 +300,11 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
           borderData: FlBorderData(show: false),
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (_) => _InsightsPalette.ink,
+              getTooltipColor: (_) => TransactionWidgetPalette.ink,
               tooltipRoundedRadius: 14,
               getTooltipItem: (group, groupIndex, rod, rodIndex) {
                 final label = group.x == 0 ? 'Income' : 'Expense';
+
                 return BarTooltipItem(
                   '$label\n₹${rod.toY.toStringAsFixed(2)}',
                   const TextStyle(
@@ -308,12 +322,12 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 BarChartRodData(
                   toY: income,
                   width: isMobile ? 44 : 56,
-                  color: _InsightsPalette.income,
+                  color: TransactionWidgetPalette.income,
                   borderRadius: BorderRadius.circular(18),
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: maxY,
-                    color: _InsightsPalette.softMint,
+                    color: TransactionWidgetPalette.softMint,
                   ),
                 ),
               ],
@@ -324,12 +338,12 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 BarChartRodData(
                   toY: expense,
                   width: isMobile ? 44 : 56,
-                  color: _InsightsPalette.expense,
+                  color: TransactionWidgetPalette.expense,
                   borderRadius: BorderRadius.circular(18),
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: maxY,
-                    color: const Color(0xFFFFEEEE),
+                    color: TransactionWidgetPalette.softRed,
                   ),
                 ),
               ],
@@ -348,7 +362,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     child: Text(
                       text,
                       style: const TextStyle(
-                        color: _InsightsPalette.muted,
+                        color: TransactionWidgetPalette.muted,
                         fontWeight: FontWeight.w800,
                         fontSize: 12,
                       ),
@@ -367,7 +381,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     value.toInt().toString(),
                     style: const TextStyle(
                       fontSize: 10,
-                      color: _InsightsPalette.muted,
+                      color: TransactionWidgetPalette.muted,
                       fontWeight: FontWeight.w600,
                     ),
                   );
@@ -399,12 +413,11 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       title: 'Spending by Category',
       trailing: const Icon(
         Icons.pie_chart_rounded,
-        color: _InsightsPalette.teal,
-        size: 22,
+        color: TransactionWidgetPalette.teal,
       ),
-      height: isMobile ? 460 : 460,
+      height: 460,
       child: categoryExpenses.isEmpty
-          ? const _EmptyChartState()
+          ? const Center(child: Text('No expense data available'))
           : Column(
               children: [
                 Expanded(
@@ -413,7 +426,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                       sectionsSpace: 4,
                       centerSpaceRadius: isMobile ? 48 : 58,
                       startDegreeOffset: -90,
-                      pieTouchData: PieTouchData(enabled: true),
                       sections: categoryExpenses.entries.map((entry) {
                         final percent = total == 0
                             ? 0
@@ -452,96 +464,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
   }
 }
 
-class _InsightsTopBackground extends StatelessWidget {
-  const _InsightsTopBackground();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 245,
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [_InsightsPalette.teal, _InsightsPalette.tealDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(34),
-          bottomRight: Radius.circular(34),
-        ),
-      ),
-      child: Stack(
-        children: [
-          Positioned(top: -44, left: -34, child: _HeaderRing(size: 132)),
-          Positioned(top: 42, right: -38, child: _HeaderRing(size: 126)),
-          Positioned(top: 82, left: 86, child: _HeaderRing(size: 64)),
-        ],
-      ),
-    );
-  }
-}
-
-class _HeaderRing extends StatelessWidget {
-  final double size;
-
-  const _HeaderRing({required this.size});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-    );
-  }
-}
-
-class _InsightsHeader extends StatelessWidget {
-  final bool isMobile;
-
-  const _InsightsHeader({required this.isMobile});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Material(
-          color: Colors.white.withValues(alpha: 0.14),
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: () => Navigator.maybePop(context),
-            customBorder: const CircleBorder(),
-            child: const SizedBox(
-              width: 20,
-              height: 42,
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-          ),
-        ),
-
-        Expanded(
-          child: Text(
-            'Financial Insights',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 18 : 22,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
 class _OverviewPanel extends StatelessWidget {
   final double income;
   final double expense;
@@ -566,7 +488,7 @@ class _OverviewPanel extends StatelessWidget {
         border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
         boxShadow: [
           BoxShadow(
-            color: _InsightsPalette.ink.withValues(alpha: 0.08),
+            color: TransactionWidgetPalette.ink.withValues(alpha: 0.08),
             blurRadius: 30,
             offset: const Offset(0, 16),
           ),
@@ -578,7 +500,7 @@ class _OverviewPanel extends StatelessWidget {
           const Text(
             'Overview',
             style: TextStyle(
-              color: _InsightsPalette.muted,
+              color: TransactionWidgetPalette.muted,
               fontWeight: FontWeight.w700,
             ),
           ),
@@ -586,7 +508,7 @@ class _OverviewPanel extends StatelessWidget {
           Text(
             '₹${balance.toStringAsFixed(2)}',
             style: TextStyle(
-              color: _InsightsPalette.ink,
+              color: TransactionWidgetPalette.ink,
               fontSize: isMobile ? 34 : 42,
               fontWeight: FontWeight.w900,
               height: 1,
@@ -600,14 +522,14 @@ class _OverviewPanel extends StatelessWidget {
                   title: 'Income',
                   amount: income,
                   icon: Icons.arrow_downward_rounded,
-                  color: _InsightsPalette.income,
+                  color: TransactionWidgetPalette.income,
                 ),
                 const SizedBox(height: 10),
                 _MetricTile(
                   title: 'Expense',
                   amount: expense,
                   icon: Icons.arrow_upward_rounded,
-                  color: _InsightsPalette.expense,
+                  color: TransactionWidgetPalette.expense,
                 ),
               ],
             )
@@ -619,7 +541,7 @@ class _OverviewPanel extends StatelessWidget {
                     title: 'Income',
                     amount: income,
                     icon: Icons.arrow_downward_rounded,
-                    color: _InsightsPalette.income,
+                    color: TransactionWidgetPalette.income,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -628,7 +550,7 @@ class _OverviewPanel extends StatelessWidget {
                     title: 'Expense',
                     amount: expense,
                     icon: Icons.arrow_upward_rounded,
-                    color: _InsightsPalette.expense,
+                    color: TransactionWidgetPalette.expense,
                   ),
                 ),
               ],
@@ -676,7 +598,7 @@ class _MetricTile extends StatelessWidget {
             child: Text(
               title,
               style: const TextStyle(
-                color: _InsightsPalette.ink,
+                color: TransactionWidgetPalette.ink,
                 fontWeight: FontWeight.w800,
               ),
             ),
@@ -713,10 +635,10 @@ class _ChartCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: _InsightsPalette.border),
+        border: Border.all(color: TransactionWidgetPalette.border),
         boxShadow: [
           BoxShadow(
-            color: _InsightsPalette.ink.withValues(alpha: 0.055),
+            color: TransactionWidgetPalette.ink.withValues(alpha: 0.055),
             blurRadius: 26,
             offset: const Offset(0, 14),
           ),
@@ -730,7 +652,7 @@ class _ChartCard extends StatelessWidget {
                 child: Text(
                   title,
                   style: const TextStyle(
-                    color: _InsightsPalette.ink,
+                    color: TransactionWidgetPalette.ink,
                     fontSize: 18,
                     fontWeight: FontWeight.w900,
                   ),
@@ -757,13 +679,13 @@ class _PeriodPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
       decoration: BoxDecoration(
-        color: _InsightsPalette.softMint,
+        color: TransactionWidgetPalette.softMint,
         borderRadius: BorderRadius.circular(18),
       ),
       child: Text(
         text,
         style: const TextStyle(
-          color: _InsightsPalette.teal,
+          color: TransactionWidgetPalette.teal,
           fontSize: 12,
           fontWeight: FontWeight.w900,
         ),
@@ -803,45 +725,18 @@ class _LegendChip extends StatelessWidget {
           Text(
             label,
             style: const TextStyle(
-              color: _InsightsPalette.ink,
+              color: TransactionWidgetPalette.ink,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _EmptyChartState extends StatelessWidget {
-  const _EmptyChartState();
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 72,
-            height: 72,
-            decoration: const BoxDecoration(
-              color: _InsightsPalette.softMint,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.pie_chart_outline_rounded,
-              size: 34,
-              color: _InsightsPalette.teal,
-            ),
-          ),
-          const SizedBox(height: 14),
-          const Text(
-            'No expense data available',
+          const SizedBox(width: 5),
+          Text(
+            '₹${amount.toStringAsFixed(0)}',
             style: TextStyle(
-              color: _InsightsPalette.muted,
-              fontWeight: FontWeight.w700,
+              color: color,
+              fontSize: 12,
+              fontWeight: FontWeight.w900,
             ),
           ),
         ],
@@ -850,103 +745,40 @@ class _EmptyChartState extends StatelessWidget {
   }
 }
 
-class _InsightsSkeleton extends StatelessWidget {
-  const _InsightsSkeleton();
-
+class _InsightsLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        const _InsightsTopBackground(),
+        const TransactionTopBackground(height: 245, bottomRadius: 34),
         SafeArea(
           child: ListView(
             padding: const EdgeInsets.all(18),
-            children: const [
-              _SkeletonBlock(height: 42, radius: 22),
-              SizedBox(height: 26),
-              _SkeletonBlock(height: 190, radius: 30),
-              SizedBox(height: 20),
-              _SkeletonBlock(height: 330, radius: 30),
-              SizedBox(height: 18),
-              _SkeletonBlock(height: 380, radius: 30),
+            children: [
+              Container(
+                height: 42,
+                decoration: BoxDecoration(
+                  color: TransactionWidgetPalette.border,
+                  borderRadius: BorderRadius.circular(22),
+                ),
+              ),
+              const SizedBox(height: 26),
+              Container(
+                height: 190,
+                decoration: BoxDecoration(
+                  color: TransactionWidgetPalette.border,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Container(
+                height: 330,
+                decoration: BoxDecoration(
+                  color: TransactionWidgetPalette.border,
+                  borderRadius: BorderRadius.circular(30),
+                ),
+              ),
             ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _SkeletonBlock extends StatelessWidget {
-  final double height;
-  final double radius;
-
-  const _SkeletonBlock({required this.height, required this.radius});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      decoration: BoxDecoration(
-        color: _InsightsPalette.border,
-        borderRadius: BorderRadius.circular(radius),
-      ),
-    );
-  }
-}
-
-class _InsightsErrorState extends StatelessWidget {
-  final String message;
-
-  const _InsightsErrorState({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const _InsightsTopBackground(),
-        Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Container(
-              width: double.infinity,
-              constraints: const BoxConstraints(maxWidth: 420),
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(color: _InsightsPalette.border),
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(
-                    Icons.error_outline_rounded,
-                    color: _InsightsPalette.expense,
-                    size: 42,
-                  ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Unable to load insights',
-                    style: TextStyle(
-                      color: _InsightsPalette.ink,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    message,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: _InsightsPalette.muted,
-                      fontWeight: FontWeight.w600,
-                      height: 1.35,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ),
       ],

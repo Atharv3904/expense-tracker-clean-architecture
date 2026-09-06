@@ -130,6 +130,7 @@ class AppRoutes {
               create: (context) =>
                   sl<CategoryBloc>()..add(GetCategoryTransaction()),
             ),
+            BlocProvider(create: (_) => sl<ProfileBloc>()..add(LoadProfile())),
           ],
           child: UpdateTransactionPage(transaction: transaction),
         );
