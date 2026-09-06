@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 
 class TransactionHeader extends StatelessWidget {
   final String title;
@@ -17,43 +16,30 @@ class TransactionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Material(
-          color: Colors.white.withValues(alpha: 0.14),
-          shape: const CircleBorder(),
-          child: InkWell(
-            onTap: onBack ?? () => context.pop(),
-            customBorder: const CircleBorder(),
-            child: const SizedBox(
-              width: 42,
-              height: 42,
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
+    return SizedBox(
+      height: 42,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Center title
+          Center(
+            child: Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
                 color: Colors.white,
-                size: 18,
+                fontSize: isMobile ? 18 : 22,
+                fontWeight: FontWeight.w900,
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: isMobile ? 18 : 22,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ),
-        if (trailing != null) ...[
-          const SizedBox(width: 14),
-          trailing!,
-        ] else
-          const SizedBox(width: 42),
-      ],
+
+          // Right-side widget
+          if (trailing != null) Positioned(right: 0, child: trailing!),
+
+          // Back button, if you decide to use i
+        ],
+      ),
     );
   }
 }

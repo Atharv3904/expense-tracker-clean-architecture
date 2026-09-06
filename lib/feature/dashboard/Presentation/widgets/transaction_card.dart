@@ -94,11 +94,6 @@ class TransactionCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 8),
-              Icon(
-                Icons.arrow_upward_rounded,
-                size: 18,
-                color: accentColor.withValues(alpha: 0.9),
-              ),
             ],
           ),
         ),
