@@ -2,8 +2,6 @@
 
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
-import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
-import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
@@ -64,6 +62,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
     selectedTypeId = widget.transaction.typeId;
     selectedCategoryId = widget.transaction.categoryId;
     selectedDate = widget.transaction.date;
+    userId = widget.transaction.userId;
   }
 
   @override
@@ -295,220 +294,200 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
           },
         ),
       ],
-      child: BlocBuilder<ProfileBloc, ProfileState>(
-        builder: (context, state) {
-          if (state is ProfileLoaded) {
-            userId = state.profile.id;
-          }
-          return Scaffold(
-            backgroundColor: TransactionWidgetPalette.bg,
-            body: GestureDetector(
-              behavior: HitTestBehavior.translucent,
-              onTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Stack(
-                  children: [
-                    const TransactionTopBackground(
-                      height: 245,
-                      bottomRadius: 38,
-                    ),
-                    SafeArea(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: maxWidth),
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              horizontalPadding,
-                              isMobile ? 16 : 24,
-                              horizontalPadding,
-                              28,
+      child: Scaffold(
+        backgroundColor: TransactionWidgetPalette.bg,
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Stack(
+              children: [
+                const TransactionTopBackground(height: 245, bottomRadius: 38),
+                SafeArea(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxWidth),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          horizontalPadding,
+                          isMobile ? 16 : 24,
+                          horizontalPadding,
+                          28,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TransactionHeader(
+                              title: 'Update Transaction',
+                              isMobile: isMobile,
+                              trailing: Material(
+                                color: Colors.white.withValues(alpha: 0.14),
+                                shape: const CircleBorder(),
+                              ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TransactionHeader(
-                                  title: 'Update Transaction',
-                                  isMobile: isMobile,
-                                  trailing: Material(
-                                    color: Colors.white.withValues(alpha: 0.14),
-                                    shape: const CircleBorder(),
+                            SizedBox(height: isMobile ? 28 : 34),
+                            TransactionFormPanel(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const TransactionInfoCard(
+                                    title: 'Update your transaction',
+                                    icon: Icons.edit_note_rounded,
                                   ),
-                                ),
-                                SizedBox(height: isMobile ? 28 : 34),
-                                TransactionFormPanel(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                  const SizedBox(height: 26),
+                                  const TransactionSectionLabel('Type'),
+                                  const SizedBox(height: 12),
+                                  Row(
                                     children: [
-                                      const TransactionInfoCard(
-                                        title: 'Update your transaction',
-                                        icon: Icons.edit_note_rounded,
-                                      ),
-                                      const SizedBox(height: 26),
-                                      const TransactionSectionLabel('Type'),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TransactionTypeButton(
-                                              label: 'Income',
-                                              icon:
-                                                  Icons.arrow_downward_rounded,
-                                              color: TransactionWidgetPalette
-                                                  .income,
-                                              selected: incomeSelected,
-                                              disabled:
-                                                  transactionTypes.isEmpty,
-                                              onTap: transactionTypes.isEmpty
-                                                  ? null
-                                                  : () {
-                                                      final income =
-                                                          transactionTypes
-                                                              .firstWhere(
-                                                                (type) =>
-                                                                    type.type ==
-                                                                    'income',
-                                                              );
+                                      Expanded(
+                                        child: TransactionTypeButton(
+                                          label: 'Income',
+                                          icon: Icons.arrow_downward_rounded,
+                                          color:
+                                              TransactionWidgetPalette.income,
+                                          selected: incomeSelected,
+                                          disabled: transactionTypes.isEmpty,
+                                          onTap: transactionTypes.isEmpty
+                                              ? null
+                                              : () {
+                                                  final income =
+                                                      transactionTypes
+                                                          .firstWhere(
+                                                            (type) =>
+                                                                type.type ==
+                                                                'income',
+                                                          );
 
-                                                      setState(() {
-                                                        selectedTypeId =
-                                                            income.id;
-                                                      });
-                                                    },
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: TransactionTypeButton(
-                                              label: 'Expense',
-                                              icon: Icons.arrow_upward_rounded,
-                                              color: TransactionWidgetPalette
-                                                  .expense,
-                                              selected: expenseSelected,
-                                              disabled:
-                                                  transactionTypes.isEmpty,
-                                              onTap: transactionTypes.isEmpty
-                                                  ? null
-                                                  : () {
-                                                      final expense =
-                                                          transactionTypes
-                                                              .firstWhere(
-                                                                (type) =>
-                                                                    type.type ==
-                                                                    'expense',
-                                                              );
-
-                                                      setState(() {
-                                                        selectedTypeId =
-                                                            expense.id;
-                                                      });
-                                                    },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 22),
-                                      if (!isMobile)
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(child: _amountField()),
-                                            const SizedBox(width: 16),
-                                            Expanded(child: _categoryField()),
-                                          ],
-                                        )
-                                      else
-                                        Column(
-                                          children: [
-                                            _amountField(),
-                                            const SizedBox(height: 20),
-                                            _categoryField(),
-                                          ],
+                                                  setState(() {
+                                                    selectedTypeId = income.id;
+                                                  });
+                                                },
                                         ),
-                                      const SizedBox(height: 20),
-                                      const TransactionSectionLabel(
-                                        'Description',
                                       ),
-                                      const SizedBox(height: 10),
-                                      TransactionTextField(
-                                        controller: descriptionController,
-                                        hintText:
-                                            'What was this transaction for?',
-                                        icon: Icons.notes_rounded,
-                                        maxLines: 3,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const TransactionSectionLabel('Date'),
-                                      const SizedBox(height: 10),
-                                      TransactionDateField(
-                                        selectedDate: selectedDate,
-                                        onTap: selectDate,
-                                      ),
-                                      const SizedBox(height: 30),
-                                      BlocBuilder<
-                                        TransactionBloc,
-                                        TransactionState
-                                      >(
-                                        builder: (context, state) {
-                                          return TransactionPrimaryButton(
-                                            label: 'Update Transaction',
-                                            icon: Icons
-                                                .check_circle_outline_rounded,
-                                            isLoading:
-                                                state is TransactionLoading,
-                                            onPressed: updateTransaction,
-                                          );
-                                        },
-                                      ),
-                                      const SizedBox(height: 14),
-                                      SizedBox(
-                                        width: double.infinity,
-                                        height: 56,
-                                        child: OutlinedButton(
-                                          onPressed: () {
-                                            _showDeleteConfirmation(context);
-                                          },
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor:
-                                                TransactionWidgetPalette
-                                                    .expense,
-                                            side: const BorderSide(
-                                              color: TransactionWidgetPalette
-                                                  .expense,
-                                            ),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(20),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'Delete Transaction',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.w900,
-                                            ),
-                                          ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: TransactionTypeButton(
+                                          label: 'Expense',
+                                          icon: Icons.arrow_upward_rounded,
+                                          color:
+                                              TransactionWidgetPalette.expense,
+                                          selected: expenseSelected,
+                                          disabled: transactionTypes.isEmpty,
+                                          onTap: transactionTypes.isEmpty
+                                              ? null
+                                              : () {
+                                                  final expense =
+                                                      transactionTypes
+                                                          .firstWhere(
+                                                            (type) =>
+                                                                type.type ==
+                                                                'expense',
+                                                          );
+
+                                                  setState(() {
+                                                    selectedTypeId = expense.id;
+                                                  });
+                                                },
                                         ),
                                       ),
                                     ],
                                   ),
-                                ),
-                              ],
+                                  const SizedBox(height: 22),
+                                  if (!isMobile)
+                                    Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(child: _amountField()),
+                                        const SizedBox(width: 16),
+                                        Expanded(child: _categoryField()),
+                                      ],
+                                    )
+                                  else
+                                    Column(
+                                      children: [
+                                        _amountField(),
+                                        const SizedBox(height: 20),
+                                        _categoryField(),
+                                      ],
+                                    ),
+                                  const SizedBox(height: 20),
+                                  const TransactionSectionLabel('Description'),
+                                  const SizedBox(height: 10),
+                                  TransactionTextField(
+                                    controller: descriptionController,
+                                    hintText: 'What was this transaction for?',
+                                    icon: Icons.notes_rounded,
+                                    maxLines: 3,
+                                  ),
+                                  const SizedBox(height: 20),
+                                  const TransactionSectionLabel('Date'),
+                                  const SizedBox(height: 10),
+                                  TransactionDateField(
+                                    selectedDate: selectedDate,
+                                    onTap: selectDate,
+                                  ),
+                                  const SizedBox(height: 30),
+                                  BlocBuilder<
+                                    TransactionBloc,
+                                    TransactionState
+                                  >(
+                                    builder: (context, state) {
+                                      return TransactionPrimaryButton(
+                                        label: 'Update Transaction',
+                                        icon:
+                                            Icons.check_circle_outline_rounded,
+                                        isLoading: state is TransactionLoading,
+                                        onPressed: updateTransaction,
+                                      );
+                                    },
+                                  ),
+                                  const SizedBox(height: 14),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 56,
+                                    child: OutlinedButton(
+                                      onPressed: () {
+                                        _showDeleteConfirmation(context);
+                                      },
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor:
+                                            TransactionWidgetPalette.expense,
+                                        side: const BorderSide(
+                                          color:
+                                              TransactionWidgetPalette.expense,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
+                                        ),
+                                      ),
+                                      child: const Text(
+                                        'Delete Transaction',
+                                        style: TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w900,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
-          );
-        },
+          ),
+        ),
       ),
     );
   }

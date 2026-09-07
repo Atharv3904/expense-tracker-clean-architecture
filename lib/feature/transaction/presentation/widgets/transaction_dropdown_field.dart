@@ -24,6 +24,9 @@ class TransactionDropdownField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Check whether selected ID exists in the items.
+    final validValue = items.containsValue(value) ? value : null;
+
     return Row(
       children: [
         // Icon
@@ -46,9 +49,9 @@ class TransactionDropdownField extends StatelessWidget {
             // Dropdown items
             items: items,
 
-            // Selected value + onChanged
+            // Selected value
             control: FSelectControl.managed(
-              initial: value,
+              initial: validValue,
               onChange: onChanged,
             ),
           ),
