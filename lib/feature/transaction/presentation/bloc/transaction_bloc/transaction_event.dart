@@ -24,5 +24,6 @@ class DeleteTransaction extends TransactionEvent {
 }
 
 class GetAllTransaction extends TransactionEvent {
-  const GetAllTransaction();
+  final String? searchQuery;
+  const GetAllTransaction({this.searchQuery});
 }

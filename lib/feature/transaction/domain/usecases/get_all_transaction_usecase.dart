@@ -4,9 +4,10 @@ import 'package:expense_tracker/feature/transaction/domain/repository/transactio
 
 class GetAllTransactionUsecase {
   final TransactionRepository repository;
+
   GetAllTransactionUsecase(this.repository);
 
-  AppResult<List<TransactionEntity>> call() async {
-    return repository.getAllTransactionData();
+  AppResult<List<TransactionEntity>> call({String? searchQuery}) {
+    return repository.getAllTransactionData(searchQuery: searchQuery);
   }
 }

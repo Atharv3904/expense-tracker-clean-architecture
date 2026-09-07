@@ -27,8 +27,6 @@ class AllTransactionPage extends StatefulWidget {
 class _AllTransactionPageState extends State<AllTransactionPage> {
   final TextEditingController searchController = TextEditingController();
 
-  String searchQuery = '';
-
   @override
   void dispose() {
     searchController.dispose();
@@ -78,18 +76,22 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                       ),
                       child: TransactionSearchField(
                         controller: searchController,
-                        searchQuery: searchQuery,
+                        searchQuery: searchController.text,
                         onChanged: (value) {
                           setState(() {
-                            searchQuery = value.toLowerCase();
+                            context.read<TransactionBloc>().add(
+                              GetAllTransaction(searchQuery: value),
+                            );
                           });
                         },
                         onClear: () {
                           searchController.clear();
 
-                          setState(() {
-                            searchQuery = '';
-                          });
+                          context.read<TransactionBloc>().add(
+                            const GetAllTransaction(),
+                          );
+
+                          setState(() {});
                         },
                       ),
                     ),
@@ -108,15 +110,7 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                           }
 
                           if (state is TransactionLoaded) {
-                            final filteredTransactions = state.transactions
-                                .where((transaction) {
-                                  return transaction.description
-                                      .toLowerCase()
-                                      .contains(searchQuery);
-                                })
-                                .toList();
-
-                            if (filteredTransactions.isEmpty) {
+                            if (state.transactions.isEmpty) {
                               return const TransactionEmptyState();
                             }
 
@@ -127,9 +121,9 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                                 horizontalPadding,
                                 24,
                               ),
-                              itemCount: filteredTransactions.length,
+                              itemCount: state.transactions.length,
                               itemBuilder: (context, index) {
-                                final transaction = filteredTransactions[index];
+                                final transaction = state.transactions[index];
 
                                 return Padding(
                                   padding: const EdgeInsets.only(bottom: 12),

@@ -4,7 +4,9 @@ import 'package:expense_tracker/feature/transaction/domain/entities/transaction_
 abstract class TransactionRepository {
   //curd
 
-  AppResult<List<TransactionEntity>> getAllTransactionData();
+  AppResult<List<TransactionEntity>> getAllTransactionData({
+    String? searchQuery,
+  });
 
   AppResult<List<TransactionEntity>> getTransaction();
 

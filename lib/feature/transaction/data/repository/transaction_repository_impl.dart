@@ -13,9 +13,13 @@ class TransactionRepositoryImpl implements TransactionRepository {
   TransactionRepositoryImpl(this.datasource);
 
   @override
-  AppResult<List<TransactionEntity>> getAllTransactionData() async {
+  AppResult<List<TransactionEntity>> getAllTransactionData({
+    String? searchQuery,
+  }) async {
     try {
-      final result = await datasource.getAllTransactionData();
+      final result = await datasource.getAllTransactionData(
+        searchQuery: searchQuery,
+      );
       return Right(result);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));

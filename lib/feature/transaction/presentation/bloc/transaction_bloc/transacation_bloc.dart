@@ -37,7 +37,9 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
     Emitter<TransactionState> emit,
   ) async {
     emit(const TransactionLoading());
-    final result = await getAllTransactionUsecase();
+    final result = await getAllTransactionUsecase(
+      searchQuery: event.searchQuery,
+    );
 
     result.fold(
       (failure) {
@@ -117,7 +119,6 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
       },
       (_) {
         emit(const TransactionDeleteSuccess());
-        add(const GetAllTransaction());
       },
     );
   }

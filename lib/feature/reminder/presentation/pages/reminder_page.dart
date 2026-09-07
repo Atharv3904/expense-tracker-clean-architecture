@@ -207,19 +207,6 @@ class _ReminderHeader extends StatelessWidget {
         Material(
           color: Colors.white.withValues(alpha: 0.14),
           shape: const CircleBorder(),
-          child: InkWell(
-            onTap: () => Navigator.maybePop(context),
-            customBorder: const CircleBorder(),
-            child: const SizedBox(
-              width: 42,
-              height: 42,
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.white,
-                size: 18,
-              ),
-            ),
-          ),
         ),
         const SizedBox(width: 14),
         const Expanded(

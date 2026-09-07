@@ -9,14 +9,22 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   TransactionRemoteDatasourceImpl(this.supabaseClient);
 
   @override
-  Future<List<TransactionModel>> getAllTransactionData() async {
+  Future<List<TransactionModel>> getAllTransactionData({
+    String? searchQuery,
+  }) async {
     final userId = supabaseClient.auth.currentUser!.id;
+
     try {
-      final response = await supabaseClient
+      var query = supabaseClient
           .from('transactions')
           .select()
-          .eq('user_id', userId)
-          .order('updated_at', ascending: false);
+          .eq('user_id', userId);
+
+      if (searchQuery != null && searchQuery.trim().isNotEmpty) {
+        query = query.ilike('description', '%${searchQuery.trim()}%');
+      }
+
+      final response = await query.order('updated_at', ascending: false);
 
       return (response as List)
           .map((json) => TransactionModel.fromJson(json))

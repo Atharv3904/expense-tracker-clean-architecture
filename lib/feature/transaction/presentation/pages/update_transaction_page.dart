@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
@@ -333,14 +335,6 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                   trailing: Material(
                                     color: Colors.white.withValues(alpha: 0.14),
                                     shape: const CircleBorder(),
-                                    child: const SizedBox(
-                                      width: 42,
-                                      height: 42,
-                                      child: Icon(
-                                        Icons.more_horiz_rounded,
-                                        color: Colors.white,
-                                      ),
-                                    ),
                                   ),
                                 ),
                                 SizedBox(height: isMobile ? 28 : 34),
