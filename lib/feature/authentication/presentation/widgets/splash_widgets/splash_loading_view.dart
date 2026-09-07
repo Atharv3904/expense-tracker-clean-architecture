@@ -3,7 +3,7 @@ import 'package:expense_tracker/feature/authentication/presentation/widgets/spla
 import 'package:flutter/material.dart';
 
 class SplashLoadingView extends StatelessWidget {
-  const SplashLoadingView();
+  const SplashLoadingView({super.key});
 
   @override
   Widget build(BuildContext context) {

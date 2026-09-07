@@ -451,7 +451,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 14),
+                const SizedBox(height: 20),
                 Wrap(
                   spacing: 10,
                   runSpacing: 10,

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class SplashRing extends StatelessWidget {
   final double size;
 
-  const SplashRing({required this.size});
+  const SplashRing({super.key, required this.size});
 
   @override
   Widget build(BuildContext context) {

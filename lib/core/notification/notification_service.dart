@@ -1,4 +1,4 @@
-import 'package:expense_tracker/core/notification/%20android_notification_service.dart';
+import 'package:expense_tracker/core/notification/android_notification_service.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
