@@ -46,117 +46,133 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
 
     final horizontalPadding = isMobile ? 18.0 : 28.0;
 
-    return Scaffold(
-      backgroundColor: TransactionWidgetPalette.bg,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxWidth),
-          child: Stack(
-            children: [
-              const TransactionTopBackground(height: 235, bottomRadius: 38),
-              SafeArea(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontalPadding,
-                        isMobile ? 16 : 24,
-                        horizontalPadding,
-                        0,
-                      ),
-                      child: TransactionHeader(
-                        title: 'All Transactions',
-                        isMobile: isMobile,
-                      ),
-                    ),
-                    SizedBox(height: isMobile ? 24 : 30),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: horizontalPadding,
-                      ),
-                      child: TransactionSearchField(
-                        controller: searchController,
-                        searchQuery: searchController.text,
-                        onChanged: (value) {
-                          setState(() {
-                            context.read<TransactionBloc>().add(
-                              GetAllTransaction(searchQuery: value),
-                            );
-                          });
-                        },
-                        onClear: () {
-                          searchController.clear();
-
-                          context.read<TransactionBloc>().add(
-                            const GetAllTransaction(),
-                          );
-
-                          setState(() {});
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Expanded(
-                      child: BlocBuilder<TransactionBloc, TransactionState>(
-                        builder: (context, state) {
-                          if (state is TransactionLoading) {
-                            return const TransactionLoadingList();
-                          }
-
-                          if (state is TransactionFailure) {
-                            return TransactionErrorState(
-                              message: state.message,
-                            );
-                          }
-
-                          if (state is TransactionLoaded) {
-                            if (state.transactions.isEmpty) {
-                              return const TransactionEmptyState();
-                            }
-
-                            return ListView.builder(
-                              padding: EdgeInsets.fromLTRB(
-                                horizontalPadding,
-                                0,
-                                horizontalPadding,
-                                24,
-                              ),
-                              itemCount: state.transactions.length,
-                              itemBuilder: (context, index) {
-                                final transaction = state.transactions[index];
-
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: TransactionTile(
-                                    description: transaction.description,
-                                    amount: transaction.amount,
-                                    isMobile: isMobile,
-                                    onTap: () async {
-                                      final result = await context.push(
-                                        RoutesName.updateTransactionpage,
-                                        extra: transaction,
-                                      );
-
-                                      if (result == true && context.mounted) {
-                                        context.read<TransactionBloc>().add(
-                                          const GetAllTransaction(),
-                                        );
-                                      }
-                                    },
-                                  ),
+    return RefreshIndicator(
+      color: TransactionWidgetPalette.teal,
+      onRefresh: () async {
+        context.read<TransactionBloc>().add(GetAllTransaction());
+      },
+      child: Scaffold(
+        backgroundColor: TransactionWidgetPalette.bg,
+        body: GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            FocusManager.instance.primaryFocus?.unfocus();
+          },
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: maxWidth),
+              child: Stack(
+                children: [
+                  const TransactionTopBackground(height: 235, bottomRadius: 38),
+                  SafeArea(
+                    child: Column(
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            isMobile ? 16 : 24,
+                            horizontalPadding,
+                            0,
+                          ),
+                          child: TransactionHeader(
+                            title: 'All Transactions',
+                            isMobile: isMobile,
+                          ),
+                        ),
+                        SizedBox(height: isMobile ? 24 : 30),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: horizontalPadding,
+                          ),
+                          child: TransactionSearchField(
+                            controller: searchController,
+                            searchQuery: searchController.text,
+                            onChanged: (value) {
+                              setState(() {
+                                context.read<TransactionBloc>().add(
+                                  GetAllTransaction(searchQuery: value),
                                 );
-                              },
-                            );
-                          }
+                              });
+                            },
+                            onClear: () {
+                              searchController.clear();
 
-                          return const SizedBox();
-                        },
-                      ),
+                              context.read<TransactionBloc>().add(
+                                const GetAllTransaction(),
+                              );
+
+                              setState(() {});
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 18),
+                        Expanded(
+                          child: BlocBuilder<TransactionBloc, TransactionState>(
+                            builder: (context, state) {
+                              if (state is TransactionLoading) {
+                                return const TransactionLoadingList();
+                              }
+
+                              if (state is TransactionFailure) {
+                                return TransactionErrorState(
+                                  message: state.message,
+                                );
+                              }
+
+                              if (state is TransactionLoaded) {
+                                if (state.transactions.isEmpty) {
+                                  return const TransactionEmptyState();
+                                }
+
+                                return ListView.builder(
+                                  padding: EdgeInsets.fromLTRB(
+                                    horizontalPadding,
+                                    0,
+                                    horizontalPadding,
+                                    24,
+                                  ),
+                                  itemCount: state.transactions.length,
+                                  itemBuilder: (context, index) {
+                                    final transaction =
+                                        state.transactions[index];
+
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 12,
+                                      ),
+                                      child: TransactionTile(
+                                        description: transaction.description,
+                                        amount: transaction.amount,
+                                        isMobile: isMobile,
+                                        onTap: () async {
+                                          final result = await context.push(
+                                            RoutesName.updateTransactionpage,
+                                            extra: transaction,
+                                          );
+
+                                          if (result == true &&
+                                              context.mounted) {
+                                            context.read<TransactionBloc>().add(
+                                              const GetAllTransaction(),
+                                            );
+                                          }
+                                        },
+                                      ),
+                                    );
+                                  },
+                                );
+                              }
+
+                              return const SizedBox();
+                            },
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
