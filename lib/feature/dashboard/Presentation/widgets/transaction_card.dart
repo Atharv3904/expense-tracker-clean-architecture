@@ -86,7 +86,7 @@ class TransactionCard extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               Text(
-                '+₹$amount',
+                '₹$amount',
                 style: TextStyle(
                   fontSize: isMobile ? 14 : 15,
                   fontWeight: FontWeight.w900,

@@ -9,6 +9,11 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/chart_card.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/insights_loading.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/legend_chip.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/overview_panel.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/period_pill.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
@@ -151,7 +156,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         body: BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
             if (state is TransactionLoading) {
-              return _InsightsLoading();
+              return InsightsLoading();
             }
 
             if (state is TransactionFailure) {
@@ -208,7 +213,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                                   isMobile: isMobile,
                                 ),
                                 SizedBox(height: isMobile ? 26 : 32),
-                                _OverviewPanel(
+                                OverviewPanel(
                                   income: income,
                                   expense: expense,
                                   isMobile: isMobile,
@@ -276,9 +281,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
     final maxY = maxValue == 0 ? 100.0 : maxValue * 1.2;
 
-    return _ChartCard(
+    return ChartCard(
       title: 'Income vs Expense',
-      trailing: const _PeriodPill(text: 'Total'),
+      trailing: const PeriodPill(text: 'Total'),
       height: 460,
       child: BarChart(
         BarChartData(
@@ -409,7 +414,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       (previous, amount) => previous + amount,
     );
 
-    return _ChartCard(
+    return ChartCard(
       title: 'Spending by Category',
       trailing: const Icon(
         Icons.pie_chart_rounded,
@@ -451,7 +456,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                   spacing: 10,
                   runSpacing: 10,
                   children: categoryExpenses.entries.map((entry) {
-                    return _LegendChip(
+                    return LegendChip(
                       label: entry.key,
                       amount: entry.value,
                       color: _getCategoryColor(entry.key),
@@ -460,328 +465,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 ),
               ],
             ),
-    );
-  }
-}
-
-class _OverviewPanel extends StatelessWidget {
-  final double income;
-  final double expense;
-  final bool isMobile;
-
-  const _OverviewPanel({
-    required this.income,
-    required this.expense,
-    required this.isMobile,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final balance = income - expense;
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
-        boxShadow: [
-          BoxShadow(
-            color: TransactionWidgetPalette.ink.withValues(alpha: 0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Overview',
-            style: TextStyle(
-              color: TransactionWidgetPalette.muted,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '₹${balance.toStringAsFixed(2)}',
-            style: TextStyle(
-              color: TransactionWidgetPalette.ink,
-              fontSize: isMobile ? 34 : 42,
-              fontWeight: FontWeight.w900,
-              height: 1,
-            ),
-          ),
-          const SizedBox(height: 16),
-          if (isMobile)
-            Column(
-              children: [
-                _MetricTile(
-                  title: 'Income',
-                  amount: income,
-                  icon: Icons.arrow_downward_rounded,
-                  color: TransactionWidgetPalette.income,
-                ),
-                const SizedBox(height: 10),
-                _MetricTile(
-                  title: 'Expense',
-                  amount: expense,
-                  icon: Icons.arrow_upward_rounded,
-                  color: TransactionWidgetPalette.expense,
-                ),
-              ],
-            )
-          else
-            Row(
-              children: [
-                Expanded(
-                  child: _MetricTile(
-                    title: 'Income',
-                    amount: income,
-                    icon: Icons.arrow_downward_rounded,
-                    color: TransactionWidgetPalette.income,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _MetricTile(
-                    title: 'Expense',
-                    amount: expense,
-                    icon: Icons.arrow_upward_rounded,
-                    color: TransactionWidgetPalette.expense,
-                  ),
-                ),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MetricTile extends StatelessWidget {
-  final String title;
-  final double amount;
-  final IconData icon;
-  final Color color;
-
-  const _MetricTile({
-    required this.title,
-    required this.amount,
-    required this.icon,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.09),
-        borderRadius: BorderRadius.circular(22),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.9),
-              shape: BoxShape.circle,
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              style: const TextStyle(
-                color: TransactionWidgetPalette.ink,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          Text(
-            '₹${amount.toStringAsFixed(2)}',
-            style: TextStyle(color: color, fontWeight: FontWeight.w900),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChartCard extends StatelessWidget {
-  final String title;
-  final Widget trailing;
-  final double height;
-  final Widget child;
-
-  const _ChartCard({
-    required this.title,
-    required this.trailing,
-    required this.height,
-    required this.child,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: height,
-      width: double.infinity,
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: TransactionWidgetPalette.border),
-        boxShadow: [
-          BoxShadow(
-            color: TransactionWidgetPalette.ink.withValues(alpha: 0.055),
-            blurRadius: 26,
-            offset: const Offset(0, 14),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: TransactionWidgetPalette.ink,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
-              trailing,
-            ],
-          ),
-          const SizedBox(height: 18),
-          Expanded(child: child),
-        ],
-      ),
-    );
-  }
-}
-
-class _PeriodPill extends StatelessWidget {
-  final String text;
-
-  const _PeriodPill({required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
-      decoration: BoxDecoration(
-        color: TransactionWidgetPalette.softMint,
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          color: TransactionWidgetPalette.teal,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-        ),
-      ),
-    );
-  }
-}
-
-class _LegendChip extends StatelessWidget {
-  final String label;
-  final double amount;
-  final Color color;
-
-  const _LegendChip({
-    required this.label,
-    required this.amount,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 8,
-            height: 8,
-            decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-          ),
-          const SizedBox(width: 7),
-          Text(
-            label,
-            style: const TextStyle(
-              color: TransactionWidgetPalette.ink,
-              fontSize: 12,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(width: 5),
-          Text(
-            '₹${amount.toStringAsFixed(0)}',
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _InsightsLoading extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        const TransactionTopBackground(height: 245, bottomRadius: 34),
-        SafeArea(
-          child: ListView(
-            padding: const EdgeInsets.all(18),
-            children: [
-              Container(
-                height: 42,
-                decoration: BoxDecoration(
-                  color: TransactionWidgetPalette.border,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-              ),
-              const SizedBox(height: 26),
-              Container(
-                height: 190,
-                decoration: BoxDecoration(
-                  color: TransactionWidgetPalette.border,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Container(
-                height: 330,
-                decoration: BoxDecoration(
-                  color: TransactionWidgetPalette.border,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

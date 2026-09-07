@@ -391,22 +391,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       children: [
         const TransactionSectionLabel('Category'),
         const SizedBox(height: 10),
+
         TransactionDropdownField(
           value: selectedCategoryId,
           hintText: 'Select category',
           icon: Icons.category_rounded,
-          items: categories.map((category) {
-            return DropdownMenuItem<String>(
-              value: category.id,
-              child: Text(
-                category.name,
-                style: const TextStyle(
-                  color: TransactionWidgetPalette.ink,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-            );
-          }).toList(),
+
+          items: {
+            for (final category in categories) category.name: category.id,
+          },
+
           onChanged: (value) {
             setState(() {
               selectedCategoryId = value;

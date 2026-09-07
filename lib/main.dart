@@ -7,6 +7,7 @@ import 'package:expense_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'package:flutter/material.dart';
+import 'package:forui/forui.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -39,6 +40,10 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: AppRouter.router,
+
+      builder: (context, child) {
+        return FTheme(data: FTheme.neutral.light.touch, child: child!);
+      },
     );
   }
 }
