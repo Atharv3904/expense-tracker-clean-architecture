@@ -51,7 +51,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     try {
       final data = transaction.toJson();
       data['user_id'] = userId;
-      data['updated_at'] = DateTime.now().toIso8601String();
+
       final response = await supabaseClient
           .from('transactions')
           .insert(data)
@@ -69,7 +69,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     TransactionModel transaction,
   ) async {
     final data = transaction.toJson();
-    data['updated_at'] = DateTime.now().toIso8601String();
+
     try {
       final response = await supabaseClient
           .from('transactions')
