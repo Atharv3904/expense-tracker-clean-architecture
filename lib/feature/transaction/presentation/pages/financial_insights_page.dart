@@ -284,7 +284,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     return ChartCard(
       title: 'Income vs Expense',
       trailing: const PeriodPill(text: 'Total'),
-      height: 460,
+      height: 520,
       child: BarChart(
         BarChartData(
           alignment: BarChartAlignment.spaceAround,
