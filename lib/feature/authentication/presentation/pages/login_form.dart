@@ -189,6 +189,15 @@ class _LoginFormState extends State<LoginForm> {
                                 height: 54,
                                 child: ElevatedButton(
                                   onPressed: _login,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.teal,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    shadowColor: Colors.transparent,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                  ),
                                   child: const Text(
                                     'Login',
                                     style: TextStyle(
