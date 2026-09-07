@@ -29,16 +29,17 @@ class LegendChip extends StatelessWidget {
             height: 8,
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
-          const SizedBox(width: 7),
+          const SizedBox(width: 15),
           Text(
             label,
+
             style: const TextStyle(
               color: TransactionWidgetPalette.ink,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(width: 5),
+          const SizedBox(width: 10),
           Text(
             '₹${amount.toStringAsFixed(0)}',
             style: TextStyle(

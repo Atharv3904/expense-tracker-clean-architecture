@@ -420,7 +420,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         Icons.pie_chart_rounded,
         color: TransactionWidgetPalette.teal,
       ),
-      height: 460,
+      height: 520,
       child: categoryExpenses.isEmpty
           ? const Center(child: Text('No expense data available'))
           : Column(
@@ -451,9 +451,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 Wrap(
-                  spacing: 10,
+                  spacing: 25,
                   runSpacing: 10,
                   children: categoryExpenses.entries.map((entry) {
                     return LegendChip(
