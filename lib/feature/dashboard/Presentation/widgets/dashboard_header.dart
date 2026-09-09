@@ -26,8 +26,10 @@ class DashboardHeader extends StatelessWidget {
               BlocBuilder<ProfileBloc, ProfileState>(
                 builder: (context, state) {
                   if (state is ProfileLoaded) {
+                    final name = state.profile.name ?? 'User';
+
                     return Text(
-                      ' 👋🏻 hii ${state.profile.name}... $greeting',
+                      ' 👋🏻 hii $name... $greeting',
                       style: theme.textTheme.bodySmall?.copyWith(
                         color: Colors.white.withValues(alpha: 0.82),
                         fontWeight: FontWeight.w600,

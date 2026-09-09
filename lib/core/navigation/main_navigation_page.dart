@@ -50,6 +50,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     }
 
     if (index == 1) {
+      context.read<TransactionBloc>().add(const GetAllTransaction());
       context.read<TypeBloc>().add(const GetTypesTransaction());
       context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }

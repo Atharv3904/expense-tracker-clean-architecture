@@ -31,8 +31,10 @@ class _RegisterFormState extends State<RegisterForm> {
 
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
   bool isPasswordVisible = false;
+  bool isConfirmPasswordVisible = false;
 
   void _register() {
     if (!_formKey.currentState!.validate()) return;
@@ -156,7 +158,12 @@ class _RegisterFormState extends State<RegisterForm> {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Email is required';
                               }
-
+                              final emailRegex = RegExp(
+                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                              );
+                              if (!emailRegex.hasMatch(value)) {
+                                return 'Enter a valid email address';
+                              }
                               return null;
                             },
                           ),
@@ -194,6 +201,47 @@ class _RegisterFormState extends State<RegisterForm> {
 
                               if (value.length < 6) {
                                 return 'Password must be at least 6 characters';
+                              }
+
+                              return null;
+                            },
+                          ),
+
+                          const SizedBox(height: 18),
+                          TextFormField(
+                            controller: confirmPasswordController,
+                            obscureText: !isConfirmPasswordVisible,
+                            textInputAction: TextInputAction.done,
+                            style: const TextStyle(
+                              color: _RegisterPalette.ink,
+                              fontWeight: FontWeight.w700,
+                            ),
+                            decoration: _inputDecoration(
+                              labelText: 'Confirm Password',
+                              hintText: 'Enter your password',
+                              icon: Icons.lock_outline_rounded,
+                              suffixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isConfirmPasswordVisible =
+                                        !isConfirmPasswordVisible;
+                                  });
+                                },
+                                icon: Icon(
+                                  isConfirmPasswordVisible
+                                      ? Icons.visibility_off_outlined
+                                      : Icons.visibility_outlined,
+                                  color: _RegisterPalette.muted,
+                                ),
+                              ),
+                            ),
+
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Confirm Password is Required';
+                              }
+                              if (value != passwordController.text) {
+                                return 'Passwords do not match';
                               }
 
                               return null;

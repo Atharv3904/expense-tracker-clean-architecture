@@ -18,7 +18,7 @@ class ForgotPasswordInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       keyboardType: TextInputType.emailAddress,
       style: TextStyle(color: ink, fontWeight: FontWeight.w700),
@@ -63,6 +63,16 @@ class ForgotPasswordInput extends StatelessWidget {
           borderSide: BorderSide(color: teal, width: 1.4),
         ),
       ),
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return 'Email is required';
+        }
+        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+        if (!emailRegex.hasMatch(value)) {
+          return 'Enter a valid email address';
+        }
+        return null;
+      },
     );
   }
 }

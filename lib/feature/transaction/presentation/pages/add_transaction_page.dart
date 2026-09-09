@@ -154,6 +154,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final expense = transactionTypes
         .where((type) => type.type == 'expense')
         .firstOrNull;
+    setState(() {
+      selectedTypeId = expense?.id;
+    });
 
     return MultiBlocListener(
       listeners: [

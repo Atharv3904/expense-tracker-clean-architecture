@@ -42,7 +42,7 @@ class SplashLoadingView extends StatelessWidget {
                 ),
                 const SizedBox(height: 22),
                 const Text(
-                  'Expense Tracker',
+                  'Spendly',
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 28,
@@ -60,6 +60,7 @@ class SplashLoadingView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 30),
+
                 SizedBox(
                   width: 34,
                   height: 34,

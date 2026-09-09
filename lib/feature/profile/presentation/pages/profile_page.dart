@@ -175,9 +175,43 @@ class _ProfilePageState extends State<ProfilePage> {
                                 subtitle: 'Sign out from your account',
                                 iconColor: AppColors.danger,
                                 titleColor: AppColors.danger,
-                                onTap: () {
-                                  context.push(RoutesName.logout);
-                                },
+                                onTap: () async {
+                                  final shouldLogout = await showDialog<bool>(
+                                    context: context,
+                                    builder: (dialogContext) {
+                                      return AlertDialog(
+                                        title: const Text('Logout'),
+                                        content: const Text(
+                                          'Are you sure you want to logout?',
+                                        ),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(
+                                                dialogContext,
+                                                false,
+                                              );
+                                            },
+                                            child: const Text('No'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(
+                                                dialogContext,
+                                                true,
+                                              );
+                                            },
+                                            child: const Text('Yes'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
+
+                                  if (shouldLogout == true) {
+                                    context.push(RoutesName.logout);
+                                  }
+                                }, // context.push(RoutesName.logout);
                               ),
 
                               const SizedBox(height: 28),

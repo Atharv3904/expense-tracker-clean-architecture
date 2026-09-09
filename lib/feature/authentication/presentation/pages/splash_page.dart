@@ -38,18 +38,8 @@ class SplashPage extends StatelessWidget {
           context.go(RoutesName.login);
         }
       },
-      child: Scaffold(
-        backgroundColor: SplashPalette.teal,
-        body: BlocBuilder<SplashCubit, SplashState>(
-          builder: (context, state) {
-            if (state is SplashLoading) {
-              return SplashLoadingView();
-            }
 
-            return const SizedBox.shrink();
-          },
-        ),
-      ),
+      child: const Scaffold(body: SplashLoadingView()),
     );
   }
 }

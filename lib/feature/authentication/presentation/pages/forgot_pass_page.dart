@@ -38,6 +38,7 @@ class ForgotPasswordView extends StatefulWidget {
 
 class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   final emailController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
@@ -46,6 +47,9 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
   }
 
   void _sendResetLink() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
     final email = emailController.text.trim();
 
     if (email.isEmpty) {
@@ -133,49 +137,54 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                         builder: (context, state) {
                           final isLoading = state is ForgotPassLoading;
 
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              ForgotPasswordHeader(
-                                isMobile: isMobile,
-                                teal: _ForgotPalette.teal,
-                                ink: _ForgotPalette.ink,
-                                muted: _ForgotPalette.muted,
-                              ),
-
-                              SizedBox(height: isMobile ? 24 : 30),
-
-                              ForgotPasswordInput(
-                                controller: emailController,
-                                ink: _ForgotPalette.ink,
-                                muted: _ForgotPalette.muted,
-                                border: _ForgotPalette.border,
-                                teal: _ForgotPalette.teal,
-                              ),
-
-                              const SizedBox(height: 22),
-
-                              ForgotPasswordButton(
-                                isLoading: isLoading,
-                                onPressed: _sendResetLink,
-                                teal: _ForgotPalette.teal,
-                              ),
-
-                              const SizedBox(height: 18),
-
-                              TextButton(
-                                onPressed: () {
-                                  context.go(RoutesName.login);
-                                },
-                                style: TextButton.styleFrom(
-                                  foregroundColor: _ForgotPalette.teal,
+                          return Form(
+                            key: _formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ForgotPasswordHeader(
+                                  isMobile: isMobile,
+                                  teal: _ForgotPalette.teal,
+                                  ink: _ForgotPalette.ink,
+                                  muted: _ForgotPalette.muted,
                                 ),
-                                child: const Text(
-                                  'Back to Login',
-                                  style: TextStyle(fontWeight: FontWeight.w900),
+
+                                SizedBox(height: isMobile ? 24 : 30),
+
+                                ForgotPasswordInput(
+                                  controller: emailController,
+                                  ink: _ForgotPalette.ink,
+                                  muted: _ForgotPalette.muted,
+                                  border: _ForgotPalette.border,
+                                  teal: _ForgotPalette.teal,
                                 ),
-                              ),
-                            ],
+
+                                const SizedBox(height: 22),
+
+                                ForgotPasswordButton(
+                                  isLoading: isLoading,
+                                  onPressed: _sendResetLink,
+                                  teal: _ForgotPalette.teal,
+                                ),
+
+                                const SizedBox(height: 18),
+
+                                TextButton(
+                                  onPressed: () {
+                                    context.go(RoutesName.login);
+                                  },
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: _ForgotPalette.teal,
+                                  ),
+                                  child: const Text(
+                                    'Back to Login',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           );
                         },
                       ),
