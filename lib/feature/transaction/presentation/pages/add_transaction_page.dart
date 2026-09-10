@@ -43,6 +43,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String? selectedTypeId;
   String? selectedCategoryId;
   String? userId;
+  final formKey = GlobalKey<FormState>();
 
   List<TransactionTypeEntity> transactionTypes = [];
   List<TransactionCategoryEntity> categories = [];
@@ -116,7 +117,17 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   void saveTransaction() {
-    if (!validateTransaction()) {
+    if (!formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (selectedTypeId == null) {
+      _showMessage('Please select transaction type');
+      return;
+    }
+
+    if (selectedCategoryId == null) {
+      _showMessage('Please select category');
       return;
     }
 
@@ -245,112 +256,141 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   isMobile: isMobile,
                                 ),
                                 SizedBox(height: isMobile ? 26 : 32),
-                                TransactionFormPanel(
+                                Form(
+                                  key: formKey,
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
                                     children: [
-                                      const TransactionInfoCard(
-                                        title: 'Add your transaction',
-                                        subtitle:
-                                            'Track your income and expenses',
-                                      ),
-                                      const SizedBox(height: 26),
-                                      const TransactionSectionLabel(
-                                        'Transaction Type',
-                                      ),
-                                      const SizedBox(height: 12),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TransactionTypeButton(
-                                              label: 'Income',
-                                              icon:
-                                                  Icons.arrow_downward_rounded,
-                                              color: TransactionWidgetPalette
-                                                  .income,
-                                              selected:
-                                                  selectedTypeId == income?.id,
-                                              disabled:
-                                                  transactionTypes.isEmpty,
-                                              onTap: transactionTypes.isEmpty
-                                                  ? null
-                                                  : () {
-                                                      setState(() {
-                                                        selectedTypeId =
-                                                            income?.id;
-                                                      });
-                                                    },
-                                            ),
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: TransactionTypeButton(
-                                              label: 'Expense',
-                                              icon: Icons.arrow_upward_rounded,
-                                              color: TransactionWidgetPalette
-                                                  .expense,
-                                              selected:
-                                                  selectedTypeId == expense?.id,
-                                              disabled:
-                                                  transactionTypes.isEmpty,
-                                              onTap: transactionTypes.isEmpty
-                                                  ? null
-                                                  : () {
-                                                      setState(() {
-                                                        selectedTypeId =
-                                                            expense?.id;
-                                                      });
-                                                    },
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 24),
-                                      if (!isMobile)
-                                        Row(
+                                      TransactionFormPanel(
+                                        child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(child: _amountField()),
-                                            const SizedBox(width: 16),
-                                            Expanded(child: _categoryField()),
-                                          ],
-                                        )
-                                      else
-                                        Column(
-                                          children: [
-                                            _amountField(),
+                                            const TransactionInfoCard(
+                                              title: 'Add your transaction',
+                                              subtitle:
+                                                  'Track your income and expenses',
+                                            ),
+                                            const SizedBox(height: 26),
+
+                                            const TransactionSectionLabel(
+                                              'Transaction Type',
+                                            ),
+                                            const SizedBox(height: 12),
+                                            Row(
+                                              children: [
+                                                Expanded(
+                                                  child: TransactionTypeButton(
+                                                    label: 'Income',
+                                                    icon: Icons
+                                                        .arrow_downward_rounded,
+                                                    color:
+                                                        TransactionWidgetPalette
+                                                            .income,
+                                                    selected:
+                                                        selectedTypeId ==
+                                                        income?.id,
+                                                    disabled: transactionTypes
+                                                        .isEmpty,
+                                                    onTap:
+                                                        transactionTypes.isEmpty
+                                                        ? null
+                                                        : () {
+                                                            setState(() {
+                                                              selectedTypeId =
+                                                                  income?.id;
+                                                            });
+                                                          },
+                                                  ),
+                                                ),
+                                                const SizedBox(width: 12),
+                                                Expanded(
+                                                  child: TransactionTypeButton(
+                                                    label: 'Expense',
+                                                    icon: Icons
+                                                        .arrow_upward_rounded,
+                                                    color:
+                                                        TransactionWidgetPalette
+                                                            .expense,
+                                                    selected:
+                                                        selectedTypeId ==
+                                                        expense?.id,
+                                                    disabled: transactionTypes
+                                                        .isEmpty,
+                                                    onTap:
+                                                        transactionTypes.isEmpty
+                                                        ? null
+                                                        : () {
+                                                            setState(() {
+                                                              selectedTypeId =
+                                                                  expense?.id;
+                                                            });
+                                                          },
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 24),
+                                            if (!isMobile)
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Expanded(
+                                                    child: _amountField(),
+                                                  ),
+                                                  const SizedBox(width: 16),
+                                                  Expanded(
+                                                    child: _categoryField(),
+                                                  ),
+                                                ],
+                                              )
+                                            else
+                                              Column(
+                                                children: [
+                                                  _amountField(),
+                                                  const SizedBox(height: 20),
+                                                  _categoryField(),
+                                                ],
+                                              ),
                                             const SizedBox(height: 20),
-                                            _categoryField(),
+                                            const TransactionSectionLabel(
+                                              'Description',
+                                            ),
+                                            const SizedBox(height: 10),
+                                            TransactionTextField(
+                                              controller: descriptionController,
+                                              hintText:
+                                                  'What was this transaction for?',
+                                              icon: Icons.notes_rounded,
+                                              maxLines: 3,
+                                              iconVerticalOffset: -22,
+                                              validator: (value) {
+                                                if (value == null ||
+                                                    value.trim().isEmpty) {
+                                                  return 'Please enter description';
+                                                }
+
+                                                return null;
+                                              },
+                                            ),
+                                            const SizedBox(height: 20),
+                                            const TransactionSectionLabel(
+                                              'Date',
+                                            ),
+                                            const SizedBox(height: 10),
+                                            TransactionDateField(
+                                              selectedDate: selectedDate,
+                                              onTap: selectDate,
+                                            ),
+                                            const SizedBox(height: 30),
+                                            TransactionPrimaryButton(
+                                              label: 'Save Transaction',
+                                              icon: Icons
+                                                  .check_circle_outline_rounded,
+                                              onPressed: saveTransaction,
+                                            ),
                                           ],
                                         ),
-                                      const SizedBox(height: 20),
-                                      const TransactionSectionLabel(
-                                        'Description',
-                                      ),
-                                      const SizedBox(height: 10),
-                                      TransactionTextField(
-                                        controller: descriptionController,
-                                        hintText:
-                                            'What was this transaction for?',
-                                        icon: Icons.notes_rounded,
-                                        maxLines: 3,
-                                        iconVerticalOffset: -22,
-                                      ),
-                                      const SizedBox(height: 20),
-                                      const TransactionSectionLabel('Date'),
-                                      const SizedBox(height: 10),
-                                      TransactionDateField(
-                                        selectedDate: selectedDate,
-                                        onTap: selectDate,
-                                      ),
-                                      const SizedBox(height: 30),
-                                      TransactionPrimaryButton(
-                                        label: 'Save Transaction',
-                                        icon:
-                                            Icons.check_circle_outline_rounded,
-                                        onPressed: saveTransaction,
                                       ),
                                     ],
                                   ),
@@ -383,6 +423,23 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           prefixText: '${AppConstants.currencySymbol} ',
           icon: Icons.payments_rounded,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          validator: (value) {
+            if (value == null || value.trim().isEmpty) {
+              return 'Please enter amount';
+            }
+
+            final amount = double.tryParse(value.trim());
+
+            if (amount == null) {
+              return 'Please enter a valid amount';
+            }
+
+            if (amount <= 0) {
+              return 'Amount must be greater than 0';
+            }
+
+            return null;
+          },
         ),
       ],
     );
@@ -408,6 +465,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             setState(() {
               selectedCategoryId = value;
             });
+          },
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return 'Please select category';
+            }
+
+            return null;
           },
         ),
       ],

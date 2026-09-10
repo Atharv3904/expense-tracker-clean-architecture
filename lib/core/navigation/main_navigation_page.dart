@@ -67,7 +67,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   }
 
   void _onNavigationChanged(int index) {
-    if (index == currentIndex) _loadPageData(currentIndex);
+    if (index == currentIndex) return;
 
     setState(() {
       navigationHistory.remove(index);

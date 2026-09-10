@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
 
 import 'transaction_form_panel.dart';
 
@@ -12,6 +11,8 @@ class TransactionTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final double iconVerticalOffset;
 
+  final String? Function(String?)? validator;
+
   const TransactionTextField({
     super.key,
     required this.controller,
@@ -21,21 +22,23 @@ class TransactionTextField extends StatelessWidget {
     this.maxLines = 1,
     this.keyboardType,
     this.iconVerticalOffset = 0,
+    this.validator,
   });
 
   @override
   Widget build(BuildContext context) {
-    return FTextField(
-      control: FTextFieldControl.managed(controller: controller),
-
-      hint: prefixText != null ? '$prefixText$hintText' : hintText,
-
+    return TextFormField(
+      controller: controller,
       maxLines: maxLines,
-
       keyboardType: keyboardType,
+      validator: validator,
 
-      prefixBuilder: (context, style, _) {
-        return Transform.translate(
+      decoration: InputDecoration(
+        hintText: hintText,
+
+        prefixText: prefixText,
+
+        prefixIcon: Transform.translate(
           offset: Offset(0, iconVerticalOffset),
           child: Padding(
             padding: const EdgeInsets.only(left: 12, right: 10),
@@ -49,8 +52,38 @@ class TransactionTextField extends StatelessWidget {
               child: Icon(icon, color: TransactionWidgetPalette.teal, size: 18),
             ),
           ),
-        );
-      },
+        ),
+
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(color: Colors.grey.shade300),
+        ),
+
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: BorderSide(
+            color: TransactionWidgetPalette.teal,
+            width: 2,
+          ),
+        ),
+
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: Colors.red, width: 2),
+        ),
+
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 16,
+        ),
+      ),
     );
   }
 }
