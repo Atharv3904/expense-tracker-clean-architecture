@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
@@ -85,9 +86,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    AppSnackbar.show(context, message: message);
   }
 
   Future<void> selectDate() async {
@@ -154,10 +153,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final expense = transactionTypes
         .where((type) => type.type == 'expense')
         .firstOrNull;
-    setState(() {
-      selectedTypeId = expense?.id;
-    });
-
     return MultiBlocListener(
       listeners: [
         BlocListener<TypeBloc, TypeStates>(
@@ -165,6 +160,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             if (state is TypeLoaded) {
               setState(() {
                 transactionTypes = state.types;
+                final byDefault = transactionTypes
+                    .where((type) => type.type == 'expense')
+                    .firstOrNull;
+                selectedTypeId = byDefault?.id;
               });
             }
 
@@ -337,6 +336,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                             'What was this transaction for?',
                                         icon: Icons.notes_rounded,
                                         maxLines: 3,
+                                        iconVerticalOffset: -22,
                                       ),
                                       const SizedBox(height: 20),
                                       const TransactionSectionLabel('Date'),

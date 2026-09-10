@@ -2,6 +2,7 @@
 
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
@@ -102,9 +103,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    AppSnackbar.show(context, message: message);
   }
 
   void updateTransaction() {
@@ -422,6 +421,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                     hintText: 'What was this transaction for?',
                                     icon: Icons.notes_rounded,
                                     maxLines: 3,
+                                    iconVerticalOffset: -22,
                                   ),
                                   const SizedBox(height: 20),
                                   const TransactionSectionLabel('Date'),

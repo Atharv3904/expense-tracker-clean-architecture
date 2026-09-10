@@ -70,6 +70,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     if (index == currentIndex) _loadPageData(currentIndex);
 
     setState(() {
+      navigationHistory.remove(index);
       navigationHistory.add(index);
       currentIndex = index;
     });

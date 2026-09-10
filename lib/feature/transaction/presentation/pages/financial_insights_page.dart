@@ -1,16 +1,19 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
+import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/chart_card.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/insights_loading.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/legend_chip.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/overview_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/period_pill.dart';
@@ -129,12 +132,11 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
             }
 
             if (state is TypeFailure) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              AppSnackbar.show(context, message: state.message);
             }
           },
         ),
+
         BlocListener<CategoryBloc, CategoryStates>(
           listener: (context, state) {
             if (state is CategoryLoaded) {
@@ -144,34 +146,22 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
             }
 
             if (state is CategoryFailure) {
-              ScaffoldMessenger.of(
-                context,
-              ).showSnackBar(SnackBar(content: Text(state.message)));
+              AppSnackbar.show(context, message: state.message);
             }
           },
         ),
       ],
+
       child: Scaffold(
         backgroundColor: TransactionWidgetPalette.bg,
+
         body: BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
-            if (state is TransactionLoading) {
-              return InsightsLoading();
-            }
-
-            if (state is TransactionFailure) {
-              return Center(
-                child: Text(
-                  state.message,
-                  style: const TextStyle(color: TransactionWidgetPalette.muted),
-                ),
-              );
-            }
+            double income = 0;
+            double expense = 0;
+            Map<String, double> categoryExpenses = {};
 
             if (state is TransactionLoaded) {
-              double income = 0;
-              double expense = 0;
-
               for (final transaction in state.transactions) {
                 if (transaction.typeId == incomeTypeId) {
                   income += transaction.amount;
@@ -182,11 +172,18 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 }
               }
 
-              final categoryExpenses = _calculateCategoryExpenses(
-                state.transactions,
-              );
+              categoryExpenses = _calculateCategoryExpenses(state.transactions);
+            }
 
-              return SingleChildScrollView(
+            return RefreshIndicator(
+              onRefresh: () async {
+                context.read<TransactionBloc>().add(const GetAllTransaction());
+                context.read<TypeBloc>().add(const GetTypesTransaction());
+                context.read<CategoryBloc>().add(
+                  const GetCategoryTransaction(),
+                );
+              },
+              child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 child: Stack(
                   children: [
@@ -194,6 +191,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                       height: 245,
                       bottomRadius: 34,
                     ),
+
                     SafeArea(
                       child: Center(
                         child: ConstrainedBox(
@@ -212,13 +210,17 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                                   title: 'Financial Insights',
                                   isMobile: isMobile,
                                 ),
+
                                 SizedBox(height: isMobile ? 26 : 32),
+
                                 OverviewPanel(
                                   income: income,
                                   expense: expense,
                                   isMobile: isMobile,
                                 ),
+
                                 const SizedBox(height: 24),
+
                                 _buildResponsiveCharts(
                                   context,
                                   income,
@@ -234,10 +236,8 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     ),
                   ],
                 ),
-              );
-            }
-
-            return const SizedBox();
+              ),
+            );
           },
         ),
       ),
@@ -256,7 +256,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildIncomeExpenseChart(income, expense, isMobile),
+
           const SizedBox(height: 18),
+
           _buildCategoryChart(categoryExpenses, isMobile),
         ],
       );
@@ -266,7 +268,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Expanded(child: _buildIncomeExpenseChart(income, expense, false)),
+
         const SizedBox(width: 20),
+
         Expanded(child: _buildCategoryChart(categoryExpenses, false)),
       ],
     );
@@ -277,6 +281,10 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     double expense,
     bool isMobile,
   ) {
+    final hasIncome = income > 0;
+    final hasExpense = expense > 0;
+    final hasNoData = !hasIncome && !hasExpense;
+
     final maxValue = income > expense ? income : expense;
 
     final maxY = maxValue == 0 ? 100.0 : maxValue * 1.2;
@@ -290,6 +298,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
           alignment: BarChartAlignment.spaceAround,
           maxY: maxY,
           minY: 0,
+
           gridData: FlGridData(
             show: true,
             drawVerticalLine: false,
@@ -302,7 +311,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
               );
             },
           ),
+
           borderData: FlBorderData(show: false),
+
           barTouchData: BarTouchData(
             touchTooltipData: BarTouchTooltipData(
               getTooltipColor: (_) => TransactionWidgetPalette.ink,
@@ -320,40 +331,51 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
               },
             ),
           ),
+
           barGroups: [
             BarChartGroupData(
               x: 0,
               barRods: [
                 BarChartRodData(
-                  toY: income,
+                  toY: hasIncome ? income : 0,
                   width: isMobile ? 44 : 56,
-                  color: TransactionWidgetPalette.income,
+                  color: hasIncome
+                      ? TransactionWidgetPalette.income
+                      : TransactionWidgetPalette.muted,
                   borderRadius: BorderRadius.circular(18),
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: maxY,
-                    color: TransactionWidgetPalette.softMint,
+                    color: hasNoData
+                        ? TransactionWidgetPalette.muted.withValues(alpha: 0.25)
+                        : TransactionWidgetPalette.softMint,
                   ),
                 ),
               ],
             ),
+
             BarChartGroupData(
               x: 1,
               barRods: [
                 BarChartRodData(
-                  toY: expense,
+                  toY: hasExpense ? expense : 0,
                   width: isMobile ? 44 : 56,
-                  color: TransactionWidgetPalette.expense,
+                  color: hasExpense
+                      ? TransactionWidgetPalette.expense
+                      : TransactionWidgetPalette.muted,
                   borderRadius: BorderRadius.circular(18),
                   backDrawRodData: BackgroundBarChartRodData(
                     show: true,
                     toY: maxY,
-                    color: TransactionWidgetPalette.softRed,
+                    color: hasNoData
+                        ? TransactionWidgetPalette.muted.withValues(alpha: 0.25)
+                        : TransactionWidgetPalette.softRed,
                   ),
                 ),
               ],
             ),
           ],
+
           titlesData: FlTitlesData(
             bottomTitles: AxisTitles(
               sideTitles: SideTitles(
@@ -376,6 +398,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 },
               ),
             ),
+
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
@@ -393,9 +416,11 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 },
               ),
             ),
+
             topTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
+
             rightTitles: const AxisTitles(
               sideTitles: SideTitles(showTitles: false),
             ),
@@ -416,11 +441,14 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
     return ChartCard(
       title: 'Spending by Category',
+
       trailing: const Icon(
         Icons.pie_chart_rounded,
         color: TransactionWidgetPalette.teal,
       ),
+
       height: 520,
+
       child: categoryExpenses.isEmpty
           ? const Center(child: Text('No expense data available'))
           : Column(
@@ -431,6 +459,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                       sectionsSpace: 4,
                       centerSpaceRadius: isMobile ? 48 : 58,
                       startDegreeOffset: -90,
+
                       sections: categoryExpenses.entries.map((entry) {
                         final percent = total == 0
                             ? 0
@@ -451,7 +480,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                     ),
                   ),
                 ),
+
                 const SizedBox(height: 30),
+
                 Wrap(
                   spacing: 25,
                   runSpacing: 10,

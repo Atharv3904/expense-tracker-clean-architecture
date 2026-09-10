@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_state.dart';
@@ -66,19 +67,16 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
 
   void _handleState(BuildContext context, ForgotPassState state) {
     if (state is ForgotPassSuccess) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Password reset email sent successfully.'),
-        ),
+      AppSnackbar.show(
+        context,
+        message: "Password reset email sent successfully",
       );
 
       context.go(RoutesName.login);
     }
 
     if (state is ForgotPassFailure) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(state.message)));
+      AppSnackbar.show(context, message: state.message);
     }
   }
 

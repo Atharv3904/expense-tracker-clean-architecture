@@ -1,6 +1,5 @@
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/dashboard_palette.dart';
-import 'package:expense_tracker/feature/dashboard/presentation/widgets/transaction_list_skeleton.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/empty_transaction.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/transaction_card.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/transaction_error.dart';
@@ -61,7 +60,7 @@ class TransactionsPanel extends StatelessWidget {
         BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
             if (state is TransactionLoading) {
-              return const TransactionListSkeleton();
+              return const Center(child: CircularProgressIndicator());
             }
 
             if (state is TransactionLoaded) {
