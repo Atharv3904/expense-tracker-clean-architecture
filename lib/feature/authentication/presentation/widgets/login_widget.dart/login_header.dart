@@ -24,7 +24,7 @@ class LoginHeader extends StatelessWidget {
         ),
         const SizedBox(height: 18),
         Text(
-          'Expense Tracker',
+          'Spendly',
           textAlign: TextAlign.center,
           style: TextStyle(
             color: const Color(0xFF07091D),

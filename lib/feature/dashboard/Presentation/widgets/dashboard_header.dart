@@ -42,7 +42,7 @@ class DashboardHeader extends StatelessWidget {
               ),
               const SizedBox(height: 5),
               Text(
-                'Expense Tracker',
+                'Spendly',
                 style: theme.textTheme.headlineSmall?.copyWith(
                   color: Colors.white,
                   fontSize: isMobile ? 24 : 30,

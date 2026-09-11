@@ -121,7 +121,7 @@ class _RegisterFormState extends State<RegisterForm> {
                           ),
                           const SizedBox(height: 18),
                           Text(
-                            'Expense Tracker',
+                            'Spendly',
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: _RegisterPalette.ink,
