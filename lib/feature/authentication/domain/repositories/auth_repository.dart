@@ -3,6 +3,7 @@ import 'package:expense_tracker/feature/authentication/domain/entities/auth_user
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/update_password_params.dart';
 
 abstract class AuthRepository {
   AppResult<AuthUserEntity> registerUser(RegisterParams params);
@@ -14,4 +15,6 @@ abstract class AuthRepository {
   AppResult<void> logout();
 
   AppResult<void> forgotPassword(ForgotPasswordParams email);
+
+  AppResult<void> updatePassword(UpdatePasswordParams params);
 }

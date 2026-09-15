@@ -6,6 +6,7 @@ import 'package:expense_tracker/feature/authentication/data/models/user_model.da
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/update_password_params.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
@@ -79,11 +80,27 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   @override
   Future<void> forgotPassword(ForgotPasswordParams email) async {
     try {
-      await supabaseClient.auth.resetPasswordForEmail(email.email);
+      await supabaseClient.auth.resetPasswordForEmail(
+        email.email,
+        redirectTo: 'spendly://reset-password',
+      );
     } on AuthException catch (e) {
       throw AppException(e.message.trim());
     } catch (_) {
       throw AppException("try Again");
+    }
+  }
+
+  @override
+  Future<void> updatePassword(UpdatePasswordParams params) async {
+    try {
+      await supabaseClient.auth.updateUser(
+        UserAttributes(password: params.password),
+      );
+    } on AuthException catch (e) {
+      throw AppException(e.message.trim());
+    } catch (_) {
+      throw const AppException("Unable to update password");
     }
   }
 }

@@ -9,6 +9,7 @@ import 'package:expense_tracker/feature/authentication/domain/entities/auth_user
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/register_params.dart';
+import 'package:expense_tracker/feature/authentication/domain/params/update_password_params.dart';
 import 'package:expense_tracker/feature/authentication/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
@@ -73,6 +74,19 @@ class AuthRepositoryImpl implements AuthRepository {
       return Left(AppFailure(exception.message));
     } catch (_) {
       return Left(AppFailure("Unable to reset password"));
+    }
+  }
+
+  @override
+  AppResult<void> updatePassword(UpdatePasswordParams params) async {
+    try {
+      await remoteDataSource.updatePassword(params);
+
+      return const Right(null);
+    } on AppException catch (exception) {
+      return Left(AppFailure(exception.message));
+    } catch (_) {
+      return Left(AppFailure("Unable to update password"));
     }
   }
 }

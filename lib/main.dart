@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/auth/supabase_auth_fp_listener.dart';
 import 'package:expense_tracker/core/config/app_config.dart';
 import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/di/injection_container.dart';
@@ -20,6 +21,8 @@ void main() async {
 
   // Dependency Injection
   await init();
+
+  SupabaseAuthFpListener.initialize(AppRouter.router);
 
   // Notifications
   final notificationService = NotificationService();

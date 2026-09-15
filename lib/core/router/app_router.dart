@@ -7,6 +7,17 @@ class AppRouter {
 
   static final GoRouter router = GoRouter(
     initialLocation: RoutesName.splashscreen,
+
+    redirect: (context, state) {
+      final uri = state.uri;
+
+      if (uri.scheme == 'spendly' && uri.host == 'reset-password') {
+        return RoutesName.resetPassword;
+      }
+
+      return null;
+    },
+
     routes: AppRoutes.routes,
   );
 }

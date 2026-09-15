@@ -30,6 +30,18 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
 
+              <!-- Supabase password recovery deep link -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="spendly"
+                    android:host="reset-password" />
+            </intent-filter>
+
         </activity>
 
         <!-- flutter_local_notifications scheduled notification receiver -->

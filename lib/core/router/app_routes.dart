@@ -14,6 +14,7 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/login_
 import 'package:expense_tracker/feature/authentication/presentation/pages/register_page.dart';
 
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/pages/update_password_page.dart';
 
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
 
@@ -68,6 +69,15 @@ class AppRoutes {
       ),
     ),
 
+    GoRoute(
+      path: RoutesName.resetPassword,
+      builder: (context, state) {
+        return BlocProvider(
+          create: (context) => sl<ForgotPassCubit>(),
+          child: const UpdatePasswordPage(),
+        );
+      },
+    ),
     GoRoute(
       path: RoutesName.forgotPage,
       builder: (context, state) => BlocProvider(

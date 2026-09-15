@@ -9,6 +9,7 @@ import 'package:expense_tracker/feature/authentication/domain/usecases/get_curre
 import 'package:expense_tracker/feature/authentication/domain/usecases/login_usecase.dart';
 import 'package:expense_tracker/feature/authentication/domain/usecases/logout_usecase.dart';
 import 'package:expense_tracker/feature/authentication/domain/usecases/register_usecase.dart';
+import 'package:expense_tracker/feature/authentication/domain/usecases/update_password_usecase.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/logout/logout_cubit.dart';
@@ -93,7 +94,15 @@ Future<void> init() async {
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerFactory(() => LogoutCubit(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));
-  sl.registerFactory(() => ForgotPassCubit(sl()));
+
+  sl.registerLazySingleton(() => UpdatePasswordUsecase(sl()));
+
+  sl.registerFactory(
+    () => ForgotPassCubit(
+      sl<ForgotPasswordUsecase>(),
+      sl<UpdatePasswordUsecase>(),
+    ),
+  );
 
   sl.registerFactory(() => DashboardCubit(sl()));
   sl.registerLazySingleton(() => DashboardSummaryUsecases(sl()));

@@ -16,5 +16,20 @@ class ForgotPassSuccess extends ForgotPassState {
 
 class ForgotPassFailure extends ForgotPassState {
   final String message;
-  ForgotPassFailure(this.message);
+
+  const ForgotPassFailure(this.message);
+}
+
+class UpdatePasswordLoading extends ForgotPassState {
+  const UpdatePasswordLoading();
+}
+
+class UpdatePasswordSuccess extends ForgotPassState {
+  const UpdatePasswordSuccess();
+}
+
+class UpdatePasswordFailure extends ForgotPassState {
+  final String message;
+
+  const UpdatePasswordFailure(this.message);
 }

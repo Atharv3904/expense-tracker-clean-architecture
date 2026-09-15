@@ -53,13 +53,6 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     }
     final email = emailController.text.trim();
 
-    if (email.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Enter your email')));
-      return;
-    }
-
     final emailPass = ForgotPasswordParams(email: email);
 
     context.read<ForgotPassCubit>().forgotPassword(emailPass);
