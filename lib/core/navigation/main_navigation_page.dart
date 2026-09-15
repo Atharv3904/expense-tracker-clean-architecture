@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
-import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
-import 'package:expense_tracker/feature/dashboard/Presentation/pages/dashboard_page.dart';
+import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
+import 'package:expense_tracker/feature/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
@@ -36,11 +36,23 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   int currentIndex = 0;
   final List<int> navigationHistory = [0];
 
-  final List<Widget> pages = const [
+  void _goBack() {
+    if (navigationHistory.length > 1) {
+      setState(() {
+        navigationHistory.removeLast();
+        currentIndex = navigationHistory.last;
+      });
+    }
+  }
+
+  late final List<Widget> pages = [
     DashboardPage(),
-    AddTransactionPage(),
-    FinancialInsightsPage(),
-    ProfilePage(),
+
+    AddTransactionPage(onBack: _goBack),
+
+    FinancialInsightsPage(onBack: _goBack),
+
+    ProfilePage(onBack: _goBack),
   ];
 
   void _loadPageData(int index) {

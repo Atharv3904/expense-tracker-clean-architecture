@@ -77,9 +77,9 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }
 
   @override
-  Future<void> forgotPassword(ForgotPasswordParams Email) async {
+  Future<void> forgotPassword(ForgotPasswordParams email) async {
     try {
-      await supabaseClient.auth.resetPasswordForEmail(Email.email);
+      await supabaseClient.auth.resetPasswordForEmail(email.email);
     } on AuthException catch (e) {
       throw AppException(e.message.trim());
     } catch (_) {

@@ -110,6 +110,9 @@ class _EditProfilePageState extends State<EditProfilePage> {
                             AppHeader(
                               title: 'Edit Profile',
                               isMobile: isMobile,
+                              onBack: () {
+                                context.pop();
+                              },
                             ),
 
                             SizedBox(height: isMobile ? 28 : 34),

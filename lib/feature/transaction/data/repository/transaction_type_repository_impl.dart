@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/core/types/app_result.dart';
-import 'package:expense_tracker/feature/transaction/data/datasources/transaction_type_remote_datasource.dart';
+import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_type_datasource.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/repository/transaction_type_repository.dart';
 

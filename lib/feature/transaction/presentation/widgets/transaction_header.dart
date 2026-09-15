@@ -21,6 +21,15 @@ class TransactionHeader extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          Positioned(
+            left: 0,
+            child: IconButton(
+              onPressed: onBack ?? () {},
+              icon: const Icon(Icons.arrow_back),
+              color: Colors.white,
+            ),
+          ),
+
           // Center title
           Center(
             child: Text(
@@ -36,8 +45,6 @@ class TransactionHeader extends StatelessWidget {
 
           // Right-side widget
           if (trailing != null) Positioned(right: 0, child: trailing!),
-
-          // Back button, if you decide to use i
         ],
       ),
     );

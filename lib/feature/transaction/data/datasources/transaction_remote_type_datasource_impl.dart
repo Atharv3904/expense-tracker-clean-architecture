@@ -2,7 +2,7 @@ import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_type_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'transaction_type_remote_datasource.dart';
+import 'transaction_remote_type_datasource.dart';
 
 class TransactionTypeRemoteDatasourceImpl
     implements TransactionTypeRemoteDatasource {

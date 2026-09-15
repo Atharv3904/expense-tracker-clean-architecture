@@ -30,7 +30,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTransactionPage extends StatefulWidget {
-  const AddTransactionPage({super.key});
+  final VoidCallback onBack;
+  const AddTransactionPage({super.key, required this.onBack});
 
   @override
   State<AddTransactionPage> createState() => _AddTransactionPageState();
@@ -254,6 +255,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                 TransactionHeader(
                                   title: 'Add Transaction',
                                   isMobile: isMobile,
+                                  onBack: widget.onBack,
                                 ),
                                 SizedBox(height: isMobile ? 26 : 32),
                                 Form(

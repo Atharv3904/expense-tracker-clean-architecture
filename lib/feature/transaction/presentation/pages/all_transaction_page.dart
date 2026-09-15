@@ -77,8 +77,12 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                           child: TransactionHeader(
                             title: 'All Transactions',
                             isMobile: isMobile,
+                            onBack: () {
+                              context.pop();
+                            },
                           ),
                         ),
+
                         SizedBox(height: isMobile ? 24 : 30),
                         Padding(
                           padding: EdgeInsets.symmetric(

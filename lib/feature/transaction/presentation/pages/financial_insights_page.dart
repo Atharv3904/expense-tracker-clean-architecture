@@ -26,7 +26,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FinancialInsightsPage extends StatefulWidget {
-  const FinancialInsightsPage({super.key});
+  final VoidCallback onBack;
+  const FinancialInsightsPage({super.key, required this.onBack});
 
   @override
   State<FinancialInsightsPage> createState() => _FinancialInsightsPageState();
@@ -209,6 +210,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                                 TransactionHeader(
                                   title: 'Financial Insights',
                                   isMobile: isMobile,
+                                  onBack: widget.onBack,
                                 ),
 
                                 SizedBox(height: isMobile ? 26 : 32),

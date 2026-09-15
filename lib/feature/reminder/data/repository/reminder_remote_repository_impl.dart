@@ -2,9 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/core/types/app_result.dart';
-import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_remote_datasource.dart';
 import 'package:expense_tracker/feature/reminder/domain/entity/reminder_entity.dart';
-import 'package:expense_tracker/feature/reminder/domain/repository/reminder_repository.dart';
+import 'package:expense_tracker/feature/reminder/domain/repository/reminder_remote_repository.dart';
 
 class ReminderRepositoryImpl implements ReminderRepository {
   final ReminderDatasource reminderDatasource;

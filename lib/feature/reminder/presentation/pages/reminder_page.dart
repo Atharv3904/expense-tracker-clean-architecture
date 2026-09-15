@@ -8,6 +8,7 @@ import 'package:expense_tracker/feature/reminder/presentation/widgets/reminder_p
 import 'package:expense_tracker/feature/reminder/presentation/widgets/reminder_top_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 class ReminderPage extends StatefulWidget {
   const ReminderPage({super.key});
@@ -119,7 +120,11 @@ class _ReminderPageState extends State<ReminderPage> {
                   padding: const EdgeInsets.fromLTRB(18, 16, 18, 28),
                   child: Column(
                     children: [
-                      const ReminderHeader(),
+                      ReminderHeader(
+                        onBack: () {
+                          context.pop();
+                        },
+                      ),
                       const SizedBox(height: 28),
                       ReminderPanel(
                         dailyEnabled: dailyEnabled,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 class ReminderHeader extends StatelessWidget {
-  const ReminderHeader({super.key});
+  final VoidCallback? onBack;
+
+  const ReminderHeader({super.key, this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -10,8 +12,14 @@ class ReminderHeader extends StatelessWidget {
         Material(
           color: Colors.white.withValues(alpha: 0.14),
           shape: const CircleBorder(),
+          child: IconButton(
+            onPressed: onBack,
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+          ),
         ),
+
         const SizedBox(width: 14),
+
         const Expanded(
           child: Text(
             'Reminders',
@@ -23,6 +31,9 @@ class ReminderHeader extends StatelessWidget {
             ),
           ),
         ),
+
+        // Keeps the title visually centered
+        const SizedBox(width: 48),
       ],
     );
   }

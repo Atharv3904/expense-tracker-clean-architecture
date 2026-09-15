@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/notification/android_notification_service.dart';
-import 'package:expense_tracker/feature/reminder/data/datasource/reminder_datasource.dart';
+import 'package:expense_tracker/feature/reminder/data/datasource/reminder_remote_datasource.dart';
 import 'package:expense_tracker/feature/reminder/domain/entity/reminder_entity.dart';
 
 class ReminderDatasourceImpl implements ReminderDatasource {

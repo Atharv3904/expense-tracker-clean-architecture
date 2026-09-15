@@ -124,6 +124,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             AppHeader(
                               title: 'Change Password',
                               isMobile: isMobile,
+                              onBack: () {
+                                context.pop();
+                              },
                             ),
 
                             SizedBox(height: isMobile ? 28 : 34),

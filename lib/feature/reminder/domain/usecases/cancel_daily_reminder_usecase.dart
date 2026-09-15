@@ -1,5 +1,5 @@
 import 'package:expense_tracker/core/types/app_result.dart';
-import 'package:expense_tracker/feature/reminder/domain/repository/reminder_repository.dart';
+import 'package:expense_tracker/feature/reminder/domain/repository/reminder_remote_repository.dart';
 
 class CancelDailyReminderUsecase {
   final ReminderRepository _reminderRepository;

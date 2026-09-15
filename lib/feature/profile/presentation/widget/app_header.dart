@@ -19,6 +19,14 @@ class AppHeader extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
+          Positioned(
+            left: 0,
+            child: IconButton(
+              onPressed: onBack ?? () {},
+              icon: const Icon(Icons.arrow_back),
+              color: Colors.white,
+            ),
+          ),
           Center(
             child: Text(
               title,

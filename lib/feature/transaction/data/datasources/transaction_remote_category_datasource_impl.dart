@@ -1,5 +1,5 @@
 import 'package:expense_tracker/core/errors/app_exception.dart';
-import 'package:expense_tracker/feature/transaction/data/datasources/transaction_category_datasource.dart';
+import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_category_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_category_model.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

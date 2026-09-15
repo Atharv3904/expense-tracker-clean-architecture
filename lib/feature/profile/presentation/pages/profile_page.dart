@@ -14,7 +14,8 @@ import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfilePage extends StatefulWidget {
-  const ProfilePage({super.key});
+  final VoidCallback onBack;
+  const ProfilePage({super.key, required this.onBack});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
@@ -95,7 +96,11 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                         child: Column(
                           children: [
-                            AppHeader(title: 'Profile', isMobile: isMobile),
+                            AppHeader(
+                              title: 'Profile',
+                              isMobile: isMobile,
+                              onBack: widget.onBack,
+                            ),
 
                             SizedBox(height: isMobile ? 24 : 30),
 

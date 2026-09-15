@@ -15,7 +15,7 @@ import 'package:expense_tracker/feature/authentication/presentation/pages/regist
 
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
 
-import 'package:expense_tracker/feature/dashboard/Presentation/cubit/dashboard_cubit/dashboard_cubit.dart';
+import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
 
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';

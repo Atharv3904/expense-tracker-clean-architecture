@@ -1,4 +1,4 @@
-import 'package:expense_tracker/feature/dashboard/data/datasources/dasboard_datasource.dart';
+import 'package:expense_tracker/feature/dashboard/data/datasources/dasboard_remote_datasource.dart';
 import 'package:expense_tracker/feature/dashboard/data/model/dashboard_summary_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 

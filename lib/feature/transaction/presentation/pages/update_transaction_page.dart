@@ -322,6 +322,9 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                             TransactionHeader(
                               title: 'Update Transaction',
                               isMobile: isMobile,
+                              onBack: () {
+                                context.pop();
+                              },
                               trailing: Material(
                                 color: Colors.white.withValues(alpha: 0.14),
                                 shape: const CircleBorder(),
