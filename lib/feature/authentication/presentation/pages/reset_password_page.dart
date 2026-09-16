@@ -16,8 +16,8 @@ class _UpdatePasswordPalette {
   static const border = Color(0xFFE8EEEB);
 }
 
-class UpdatePasswordPage extends StatelessWidget {
-  const UpdatePasswordPage({super.key});
+class ResetPasswordPage extends StatelessWidget {
+  const ResetPasswordPage({super.key});
 
   @override
   Widget build(BuildContext context) {
