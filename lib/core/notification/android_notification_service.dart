@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
@@ -14,8 +13,6 @@ class AndroidNotificationService {
 
     // Set India timezone.
     tz.setLocalLocation(tz.getLocation('Asia/Kolkata'));
-
-    debugPrint('LOCAL TIMEZONE: ${tz.local.name}');
 
     // Android notification settings.
     const androidSettings = AndroidInitializationSettings(

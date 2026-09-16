@@ -25,7 +25,7 @@ class TransactionDropdownField extends StatelessWidget {
     final validValue = items.containsValue(value) ? value : null;
 
     return DropdownButtonFormField<String>(
-      value: validValue,
+      initialValue: validValue,
 
       isExpanded: true,
 

@@ -204,7 +204,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                   },
                                 );
 
-                                if (shouldLogout == true) {
+                                if (shouldLogout == true && context.mounted) {
                                   context.push(RoutesName.logout);
                                 }
                               },
