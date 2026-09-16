@@ -7,7 +7,9 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states
 import 'package:expense_tracker/feature/profile/presentation/widget/app_auth_background.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/app_colors.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/app_header.dart';
+import 'package:expense_tracker/feature/profile/presentation/widget/profile_card.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/profile_option.dart';
+import 'package:expense_tracker/feature/profile/presentation/widget/version_tile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -104,7 +106,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             SizedBox(height: isMobile ? 24 : 30),
 
-                            _ProfileCard(
+                            ProfileCard(
                               name: name,
                               email: email,
                               isMobile: isMobile,
@@ -210,7 +212,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                             const SizedBox(height: 28),
 
-                            _VersionTile(appVersion: appVersion),
+                            VersionTile(appVersion: appVersion),
                           ],
                         ),
                       ),
@@ -221,143 +223,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _ProfileCard extends StatelessWidget {
-  final String name;
-  final String email;
-  final bool isMobile;
-
-  const _ProfileCard({
-    required this.name,
-    required this.email,
-    required this.isMobile,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(
-        horizontal: isMobile ? 20 : 30,
-        vertical: 30,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(30),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.85)),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.ink.withValues(alpha: 0.08),
-            blurRadius: 30,
-            offset: const Offset(0, 16),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: AppColors.softMint,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-            ),
-            child: CircleAvatar(
-              radius: isMobile ? 48 : 55,
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.person_rounded,
-                size: isMobile ? 48 : 55,
-                color: AppColors.teal,
-              ),
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          Text(
-            name,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.ink,
-              fontSize: isMobile ? 24 : 28,
-              fontWeight: FontWeight.w900,
-              height: 1.05,
-            ),
-          ),
-
-          const SizedBox(height: 7),
-
-          Text(
-            email,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: AppColors.muted,
-              fontSize: isMobile ? 14 : 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VersionTile extends StatelessWidget {
-  final String appVersion;
-
-  const _VersionTile({required this.appVersion});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.96),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.border),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: const BoxDecoration(
-              color: AppColors.softMint,
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.info_outline_rounded,
-              color: AppColors.teal,
-              size: 21,
-            ),
-          ),
-
-          const SizedBox(width: 14),
-
-          const Expanded(
-            child: Text(
-              'App Version',
-              style: TextStyle(
-                color: AppColors.ink,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-
-          Text(
-            appVersion.isEmpty ? 'Loading...' : appVersion,
-            style: const TextStyle(
-              color: AppColors.muted,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/auth_background.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/field_icon.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/auth_background.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/input_decoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -15,7 +15,6 @@ class _RegisterPalette {
   static const teal = Color(0xFF2B8F84);
   static const ink = Color(0xFF07091D);
   static const muted = Color(0xFF89918F);
-  static const border = Color(0xFFE8EEEB);
   static const softMint = Color(0xFFEAF8F5);
 }
 
@@ -149,7 +148,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               color: _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
-                            decoration: _inputDecoration(
+                            decoration: inputDecoration(
                               labelText: 'Email',
                               hintText: 'Enter your email',
                               icon: Icons.email_outlined,
@@ -176,7 +175,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               color: _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
-                            decoration: _inputDecoration(
+                            decoration: inputDecoration(
                               labelText: 'Password',
                               hintText: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
@@ -216,7 +215,7 @@ class _RegisterFormState extends State<RegisterForm> {
                               color: _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
-                            decoration: _inputDecoration(
+                            decoration: inputDecoration(
                               labelText: 'Confirm Password',
                               hintText: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
@@ -328,47 +327,6 @@ class _RegisterFormState extends State<RegisterForm> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String labelText,
-    required String hintText,
-    required IconData icon,
-    Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      labelStyle: const TextStyle(
-        color: _RegisterPalette.muted,
-        fontWeight: FontWeight.w600,
-      ),
-      hintStyle: TextStyle(
-        color: _RegisterPalette.muted.withValues(alpha: 0.75),
-        fontWeight: FontWeight.w500,
-      ),
-      prefixIcon: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 10),
-        child: FieldIcon(icon: icon),
-      ),
-      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: _RegisterPalette.border),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: _RegisterPalette.border),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: _RegisterPalette.teal, width: 1.4),
       ),
     );
   }

@@ -2,10 +2,10 @@ import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_state.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/auth_background.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/field_icon.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/login_bottom_links.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/login_header.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/auth_background.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/input_decoration.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/login_bottom_links.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/login_header.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -112,7 +112,7 @@ class _LoginFormState extends State<LoginForm> {
                             onChanged: (_) {
                               _updateButtonVisibility();
                             },
-                            decoration: _inputDecoration(
+                            decoration: inputDecoration(
                               labelText: 'Email',
                               hintText: 'Enter your email',
                               icon: Icons.email_outlined,
@@ -140,7 +140,7 @@ class _LoginFormState extends State<LoginForm> {
                             onChanged: (_) {
                               _updateButtonVisibility();
                             },
-                            decoration: _inputDecoration(
+                            decoration: inputDecoration(
                               labelText: 'Password',
                               hintText: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
@@ -227,39 +227,6 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String labelText,
-    required String hintText,
-    required IconData icon,
-    Widget? suffixIcon,
-  }) {
-    return InputDecoration(
-      labelText: labelText,
-      hintText: hintText,
-      prefixIcon: Padding(
-        padding: const EdgeInsets.only(left: 12, right: 10),
-        child: FieldIcon(icon: icon),
-      ),
-      prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
-      suffixIcon: suffixIcon,
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 17),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: Color(0xFFE8EEEB)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: Color(0xFFE8EEEB)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(20),
-        borderSide: const BorderSide(color: Color(0xFF2B8F84), width: 1.4),
       ),
     );
   }

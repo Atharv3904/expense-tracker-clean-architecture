@@ -13,15 +13,14 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/chart_card.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/legend_chip.dart';
+
 import 'package:expense_tracker/feature/transaction/presentation/widgets/overview_panel.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/period_pill.dart';
+
+import 'package:expense_tracker/feature/transaction/presentation/widgets/responsive_chart.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
 
-import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -65,34 +64,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     }
 
     return categoryExpenses;
-  }
-
-  Color _getCategoryColor(String category) {
-    switch (category.toLowerCase()) {
-      case 'food':
-        return const Color(0xFFFFA24C);
-
-      case 'shopping':
-        return const Color(0xFF8B5CF6);
-
-      case 'transport':
-        return const Color(0xFF3B82F6);
-
-      case 'healthcare':
-        return const Color(0xFF22B573);
-
-      case 'investment':
-        return const Color.fromARGB(255, 45, 65, 2);
-
-      case 'bills':
-        return const Color(0xFFE8524A);
-
-      case 'salary':
-        return const Color.fromARGB(255, 221, 35, 238);
-
-      default:
-        return const Color(0xFF8A9693);
-    }
   }
 
   @override
@@ -223,12 +194,11 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
                                 const SizedBox(height: 24),
 
-                                _buildResponsiveCharts(
-                                  context,
-                                  income,
-                                  expense,
-                                  categoryExpenses,
-                                  isMobile,
+                                ResponsiveCharts(
+                                  income: income,
+                                  expense: expense,
+                                  categoryExpenses: categoryExpenses,
+                                  isMobile: isMobile,
                                 ),
                               ],
                             ),
@@ -243,261 +213,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
           },
         ),
       ),
-    );
-  }
-
-  Widget _buildResponsiveCharts(
-    BuildContext context,
-    double income,
-    double expense,
-    Map<String, double> categoryExpenses,
-    bool isMobile,
-  ) {
-    if (isMobile || Responsive.isTablet(context)) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildIncomeExpenseChart(income, expense, isMobile),
-
-          const SizedBox(height: 18),
-
-          _buildCategoryChart(categoryExpenses, isMobile),
-        ],
-      );
-    }
-
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: _buildIncomeExpenseChart(income, expense, false)),
-
-        const SizedBox(width: 20),
-
-        Expanded(child: _buildCategoryChart(categoryExpenses, false)),
-      ],
-    );
-  }
-
-  Widget _buildIncomeExpenseChart(
-    double income,
-    double expense,
-    bool isMobile,
-  ) {
-    final hasIncome = income > 0;
-    final hasExpense = expense > 0;
-    final hasNoData = !hasIncome && !hasExpense;
-
-    final maxValue = income > expense ? income : expense;
-
-    final maxY = maxValue == 0 ? 100.0 : maxValue * 1.2;
-
-    return ChartCard(
-      title: 'Income vs Expense',
-      trailing: const PeriodPill(text: 'Total'),
-      height: 520,
-      child: BarChart(
-        BarChartData(
-          alignment: BarChartAlignment.spaceAround,
-          maxY: maxY,
-          minY: 0,
-
-          gridData: FlGridData(
-            show: true,
-            drawVerticalLine: false,
-            horizontalInterval: maxY / 4,
-            getDrawingHorizontalLine: (value) {
-              return FlLine(
-                color: TransactionWidgetPalette.border,
-                strokeWidth: 1,
-                dashArray: [6, 6],
-              );
-            },
-          ),
-
-          borderData: FlBorderData(show: false),
-
-          barTouchData: BarTouchData(
-            touchTooltipData: BarTouchTooltipData(
-              getTooltipColor: (_) => TransactionWidgetPalette.ink,
-              tooltipRoundedRadius: 14,
-              getTooltipItem: (group, groupIndex, rod, rodIndex) {
-                final label = group.x == 0 ? 'Income' : 'Expense';
-
-                return BarTooltipItem(
-                  '$label\n₹${rod.toY.toStringAsFixed(2)}',
-                  const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w800,
-                  ),
-                );
-              },
-            ),
-          ),
-
-          barGroups: [
-            BarChartGroupData(
-              x: 0,
-              barRods: [
-                BarChartRodData(
-                  toY: hasIncome ? income : 0,
-                  width: isMobile ? 44 : 56,
-                  color: hasIncome
-                      ? TransactionWidgetPalette.income
-                      : TransactionWidgetPalette.muted,
-                  borderRadius: BorderRadius.circular(18),
-                  backDrawRodData: BackgroundBarChartRodData(
-                    show: true,
-                    toY: maxY,
-                    color: hasNoData
-                        ? TransactionWidgetPalette.muted.withValues(alpha: 0.25)
-                        : TransactionWidgetPalette.softMint,
-                  ),
-                ),
-              ],
-            ),
-
-            BarChartGroupData(
-              x: 1,
-              barRods: [
-                BarChartRodData(
-                  toY: hasExpense ? expense : 0,
-                  width: isMobile ? 44 : 56,
-                  color: hasExpense
-                      ? TransactionWidgetPalette.expense
-                      : TransactionWidgetPalette.muted,
-                  borderRadius: BorderRadius.circular(18),
-                  backDrawRodData: BackgroundBarChartRodData(
-                    show: true,
-                    toY: maxY,
-                    color: hasNoData
-                        ? TransactionWidgetPalette.muted.withValues(alpha: 0.25)
-                        : TransactionWidgetPalette.softRed,
-                  ),
-                ),
-              ],
-            ),
-          ],
-
-          titlesData: FlTitlesData(
-            bottomTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 38,
-                getTitlesWidget: (value, meta) {
-                  final text = value.toInt() == 0 ? 'Income' : 'Expense';
-
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: Text(
-                      text,
-                      style: const TextStyle(
-                        color: TransactionWidgetPalette.muted,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 12,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            leftTitles: AxisTitles(
-              sideTitles: SideTitles(
-                showTitles: true,
-                reservedSize: 48,
-                interval: maxY / 4,
-                getTitlesWidget: (value, meta) {
-                  return Text(
-                    value.toInt().toString(),
-                    style: const TextStyle(
-                      fontSize: 10,
-                      color: TransactionWidgetPalette.muted,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            topTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-
-            rightTitles: const AxisTitles(
-              sideTitles: SideTitles(showTitles: false),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCategoryChart(
-    Map<String, double> categoryExpenses,
-    bool isMobile,
-  ) {
-    final total = categoryExpenses.values.fold<double>(
-      0,
-      (previous, amount) => previous + amount,
-    );
-
-    return ChartCard(
-      title: 'Spending by Category',
-
-      trailing: const Icon(
-        Icons.pie_chart_rounded,
-        color: TransactionWidgetPalette.teal,
-      ),
-
-      height: 520,
-
-      child: categoryExpenses.isEmpty
-          ? const Center(child: Text('No expense data available'))
-          : Column(
-              children: [
-                Expanded(
-                  child: PieChart(
-                    PieChartData(
-                      sectionsSpace: 4,
-                      centerSpaceRadius: isMobile ? 48 : 58,
-                      startDegreeOffset: -90,
-
-                      sections: categoryExpenses.entries.map((entry) {
-                        final percent = total == 0
-                            ? 0
-                            : ((entry.value / total) * 100).round();
-
-                        return PieChartSectionData(
-                          value: entry.value,
-                          title: '$percent%',
-                          radius: isMobile ? 78 : 92,
-                          color: _getCategoryColor(entry.key),
-                          titleStyle: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                Wrap(
-                  spacing: 25,
-                  runSpacing: 10,
-                  children: categoryExpenses.entries.map((entry) {
-                    return LegendChip(
-                      label: entry.key,
-                      amount: entry.value,
-                      color: _getCategoryColor(entry.key),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
     );
   }
 }

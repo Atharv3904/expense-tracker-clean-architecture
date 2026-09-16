@@ -1,4 +1,4 @@
-import 'package:expense_tracker/feature/authentication/presentation/widgets/login_widget.dart/header_ring.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/header_ring.dart';
 import 'package:flutter/material.dart';
 
 class AuthBackground extends StatelessWidget {

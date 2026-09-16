@@ -1,3 +1,4 @@
+import 'package:expense_tracker/feature/authentication/presentation/widgets/field_icon.dart';
 import 'package:flutter/material.dart';
 
 class ForgotPasswordInput extends StatelessWidget {
@@ -35,7 +36,7 @@ class ForgotPasswordInput extends StatelessWidget {
 
         prefixIcon: Padding(
           padding: const EdgeInsets.only(left: 12, right: 10),
-          child: _FieldIcon(icon: Icons.email_outlined, teal: teal),
+          child: FieldIcon(icon: Icons.email_outlined),
         ),
 
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
@@ -73,26 +74,6 @@ class ForgotPasswordInput extends StatelessWidget {
         }
         return null;
       },
-    );
-  }
-}
-
-class _FieldIcon extends StatelessWidget {
-  final IconData icon;
-  final Color teal;
-
-  const _FieldIcon({required this.icon, required this.teal});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 34,
-      height: 34,
-      decoration: BoxDecoration(
-        color: teal.withValues(alpha: 0.11),
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon, color: teal, size: 18),
     );
   }
 }

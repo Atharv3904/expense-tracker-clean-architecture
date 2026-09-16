@@ -1,5 +1,5 @@
 import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/splash_widgets/splash_ring.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/header_ring.dart';
 import 'package:flutter/material.dart';
 
 class SplashLoadingView extends StatelessWidget {
@@ -17,9 +17,9 @@ class SplashLoadingView extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          Positioned(top: -58, left: -44, child: SplashRing(size: 170)),
-          Positioned(top: 92, right: -56, child: SplashRing(size: 150)),
-          Positioned(bottom: 120, left: -42, child: SplashRing(size: 130)),
+          Positioned(top: -58, left: -44, child: HeaderRing(size: 170)),
+          Positioned(top: 92, right: -56, child: HeaderRing(size: 150)),
+          Positioned(bottom: 120, left: -42, child: HeaderRing(size: 130)),
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,

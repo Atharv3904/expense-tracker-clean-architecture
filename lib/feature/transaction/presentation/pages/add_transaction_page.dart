@@ -1,4 +1,3 @@
-import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
@@ -15,8 +14,9 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/amount_field.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/category_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_date_field.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_dropdown_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_info_card.dart';
@@ -338,20 +338,44 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Expanded(
-                                                    child: _amountField(),
+                                                    child: AmountField(
+                                                      controller:
+                                                          amountController,
+                                                    ),
                                                   ),
                                                   const SizedBox(width: 16),
                                                   Expanded(
-                                                    child: _categoryField(),
+                                                    child: CategoryField(
+                                                      value: selectedCategoryId,
+                                                      categories: categories,
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          selectedCategoryId =
+                                                              value;
+                                                        });
+                                                      },
+                                                    ),
                                                   ),
                                                 ],
                                               )
                                             else
                                               Column(
                                                 children: [
-                                                  _amountField(),
+                                                  AmountField(
+                                                    controller:
+                                                        amountController,
+                                                  ),
                                                   const SizedBox(height: 20),
-                                                  _categoryField(),
+                                                  CategoryField(
+                                                    value: selectedCategoryId,
+                                                    categories: categories,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        selectedCategoryId =
+                                                            value;
+                                                      });
+                                                    },
+                                                  ),
                                                 ],
                                               ),
                                             const SizedBox(height: 20),
@@ -410,73 +434,6 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           );
         },
       ),
-    );
-  }
-
-  Widget _amountField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TransactionSectionLabel('Amount'),
-        const SizedBox(height: 10),
-        TransactionTextField(
-          controller: amountController,
-          hintText: 'Enter amount',
-          prefixText: '${AppConstants.currencySymbol} ',
-          icon: Icons.payments_rounded,
-          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter amount';
-            }
-
-            final amount = double.tryParse(value.trim());
-
-            if (amount == null) {
-              return 'Please enter a valid amount';
-            }
-
-            if (amount <= 0) {
-              return 'Amount must be greater than 0';
-            }
-
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _categoryField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const TransactionSectionLabel('Category'),
-        const SizedBox(height: 10),
-
-        TransactionDropdownField(
-          value: selectedCategoryId,
-          hintText: 'Select category',
-          icon: Icons.category_rounded,
-
-          items: {
-            for (final category in categories) category.name: category.id,
-          },
-
-          onChanged: (value) {
-            setState(() {
-              selectedCategoryId = value;
-            });
-          },
-          validator: (value) {
-            if (value == null || value.isEmpty) {
-              return 'Please select category';
-            }
-
-            return null;
-          },
-        ),
-      ],
     );
   }
 }
