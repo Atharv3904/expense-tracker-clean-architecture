@@ -87,7 +87,7 @@ class AndroidNotificationService {
     const androidDetails = AndroidNotificationDetails(
       'daily_reminder_channel',
       'Daily Reminders',
-      channelDescription: 'Expense Tracker daily reminders',
+      channelDescription: 'Spendly daily reminders',
       importance: Importance.max,
       priority: Priority.high,
     );

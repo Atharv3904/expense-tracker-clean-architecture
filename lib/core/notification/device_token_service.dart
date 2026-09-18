@@ -13,14 +13,7 @@ class DeviceTokenService {
 
     String? token;
 
-    if (kIsWeb) {
-      token = await _messaging.getToken(
-        vapidKey:
-            'BJrmxmUPd3i4cQik-7i1KwXVmhiEwzKBpZ-hVYGG6Fv76_QPVLjC5-2heLSLhy37pSOumiePR41iNzheAIurxi8',
-      );
-    } else {
-      token = await _messaging.getToken();
-    }
+    token = await _messaging.getToken();
 
     if (token == null) return;
 

@@ -16,7 +16,7 @@ class ReminderDatasourceImpl implements ReminderDatasource {
     try {
       await _androidNotificationService.scheduleDaily(
         id: 1001,
-        title: '💰 Expense Tracker',
+        title: '💰 Spendly',
         body: "Don't forget to add today's income and expenses.",
         hour: reminder.hour,
         minute: reminder.minute,

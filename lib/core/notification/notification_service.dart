@@ -20,11 +20,7 @@ class NotificationService {
       await _androidNotification.initialize();
     }
 
-    await _firebaseMessaging.getToken(
-      vapidKey: kIsWeb
-          ? 'BJrmxmUPd3i4cQik-7i1KwXVmhiEwzKBpZ-hVYGG6Fv76_QPVLjC5-2heLSLhy37pSOumiePR41iNzheAIurxi8'
-          : null,
-    );
+    await _firebaseMessaging.getToken();
 
     FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
   }
@@ -51,7 +47,7 @@ class NotificationService {
       return;
     }
 
-    final title = notification.title ?? 'Expense Tracker';
+    final title = notification.title ?? 'Spendly';
 
     final body = notification.body ?? '';
 
