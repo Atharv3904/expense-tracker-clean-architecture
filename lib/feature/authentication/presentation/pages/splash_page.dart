@@ -10,11 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class SplashPalette {
-  static const teal = Color(0xFF2B8F84);
-  static const tealDark = Color(0xFF19766E);
-}
-
 class SplashPage extends StatelessWidget {
   const SplashPage({super.key});
 

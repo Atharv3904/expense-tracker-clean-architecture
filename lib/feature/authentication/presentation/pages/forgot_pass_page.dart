@@ -4,6 +4,7 @@ import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/forgot_password_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_state.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/color_pallete.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/forgot_password_background.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/forgot_password_button.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/forgot_password_header.dart';
@@ -11,15 +12,6 @@ import 'package:expense_tracker/feature/authentication/presentation/widgets/forg
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-class _ForgotPalette {
-  static const bg = Color(0xFFF3F6F4);
-  static const teal = Color(0xFF2B8F84);
-  static const tealDark = Color(0xFF19766E);
-  static const ink = Color(0xFF07091D);
-  static const muted = Color(0xFF89918F);
-  static const border = Color(0xFFE8EEEB);
-}
 
 class ForgotPassPage extends StatelessWidget {
   const ForgotPassPage({super.key});
@@ -87,7 +79,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
     return BlocListener<ForgotPassCubit, ForgotPassState>(
       listener: _handleState,
       child: Scaffold(
-        backgroundColor: _ForgotPalette.bg,
+        backgroundColor: ColorPallete.bg,
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -96,8 +88,8 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
           child: Stack(
             children: [
               const ForgotPasswordBackground(
-                teal: _ForgotPalette.teal,
-                tealDark: _ForgotPalette.tealDark,
+                teal: ColorPallete.teal,
+                tealDark: ColorPallete.tealDark,
               ),
 
               Center(
@@ -118,7 +110,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: _ForgotPalette.ink.withValues(alpha: 0.08),
+                            color: ColorPallete.ink.withValues(alpha: 0.08),
                             blurRadius: 30,
                             offset: const Offset(0, 16),
                           ),
@@ -135,19 +127,19 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                               children: [
                                 ForgotPasswordHeader(
                                   isMobile: isMobile,
-                                  teal: _ForgotPalette.teal,
-                                  ink: _ForgotPalette.ink,
-                                  muted: _ForgotPalette.muted,
+                                  teal: ColorPallete.teal,
+                                  ink: ColorPallete.ink,
+                                  muted: ColorPallete.muted,
                                 ),
 
                                 SizedBox(height: isMobile ? 24 : 30),
 
                                 ForgotPasswordInput(
                                   controller: emailController,
-                                  ink: _ForgotPalette.ink,
-                                  muted: _ForgotPalette.muted,
-                                  border: _ForgotPalette.border,
-                                  teal: _ForgotPalette.teal,
+                                  ink: ColorPallete.ink,
+                                  muted: ColorPallete.muted,
+                                  border: ColorPallete.border,
+                                  teal: ColorPallete.teal,
                                 ),
 
                                 const SizedBox(height: 22),
@@ -155,7 +147,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                                 ForgotPasswordButton(
                                   isLoading: isLoading,
                                   onPressed: _sendResetLink,
-                                  teal: _ForgotPalette.teal,
+                                  teal: ColorPallete.teal,
                                 ),
 
                                 const SizedBox(height: 18),
@@ -165,7 +157,7 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> {
                                     context.go(RoutesName.login);
                                   },
                                   style: TextButton.styleFrom(
-                                    foregroundColor: _ForgotPalette.teal,
+                                    foregroundColor: ColorPallete.teal,
                                   ),
                                   child: const Text(
                                     'Back to Login',

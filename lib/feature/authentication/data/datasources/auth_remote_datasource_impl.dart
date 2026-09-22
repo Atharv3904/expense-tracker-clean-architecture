@@ -57,13 +57,19 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
 
   @override
   UserModel? getCurrentUser() {
-    final user = supabaseClient.auth.currentUser;
+    try {
+      final user = supabaseClient.auth.currentUser;
 
-    if (user == null) {
-      return null;
+      if (user == null) {
+        return null;
+      }
+
+      return UserModel.fromSupabaseUser(user);
+    } on AuthException catch (exception) {
+      throw AppException(exception.message.trim());
+    } catch (_) {
+      throw AppException("something went wrong");
     }
-
-    return UserModel.fromSupabaseUser(user);
   }
 
   @override

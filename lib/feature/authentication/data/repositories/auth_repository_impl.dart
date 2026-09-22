@@ -47,7 +47,7 @@ class AuthRepositoryImpl implements AuthRepository {
       final user = remoteDataSource.getCurrentUser();
       return Right(user);
     } on AppException catch (e) {
-      return const Left(AuthFailure("we are unable to fetch user"));
+      return Left(AuthFailure("we are unable to fetch user"));
     } catch (_) {
       return Left(AppFailure("check your net"));
     }

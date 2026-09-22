@@ -3,7 +3,7 @@ import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_state.dart';
-import 'package:expense_tracker/feature/authentication/presentation/pages/login_form.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/login_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -22,7 +22,10 @@ class LoginPage extends StatelessWidget {
         if (state is LoginSuccess) {
           AppSnackbar.show(context, message: "Login Successful");
 
-          await DeviceTokenService().saveToken();
+          final deviceTokenService = DeviceTokenService();
+
+          await deviceTokenService.saveToken();
+          deviceTokenService.listenForTokenRefresh();
 
           if (context.mounted) {
             context.pushReplacement(RoutesName.mainNavigationPage);

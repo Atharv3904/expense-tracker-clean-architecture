@@ -1,6 +1,6 @@
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
-import 'package:expense_tracker/feature/authentication/presentation/pages/register_form.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/register_form.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';

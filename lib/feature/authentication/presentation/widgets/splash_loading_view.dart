@@ -1,4 +1,4 @@
-import 'package:expense_tracker/feature/authentication/presentation/pages/splash_page.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/color_pallete.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/header_ring.dart';
 import 'package:flutter/material.dart';
 
@@ -10,7 +10,7 @@ class SplashLoadingView extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [SplashPalette.teal, SplashPalette.tealDark],
+          colors: [ColorPallete.teal, ColorPallete.tealDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),

@@ -4,17 +4,10 @@ import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/update_password_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_state.dart';
+import 'package:expense_tracker/feature/authentication/presentation/widgets/color_pallete.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
-class _UpdatePasswordPalette {
-  static const bg = Color(0xFFF3F6F4);
-  static const teal = Color(0xFF2B8F84);
-  static const ink = Color(0xFF07091D);
-  static const muted = Color(0xFF89918F);
-  static const border = Color(0xFFE8EEEB);
-}
 
 class ResetPasswordPage extends StatelessWidget {
   const ResetPasswordPage({super.key});
@@ -86,7 +79,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
     return BlocListener<ForgotPassCubit, ForgotPassState>(
       listener: _handleState,
       child: Scaffold(
-        backgroundColor: _UpdatePasswordPalette.bg,
+        backgroundColor: ColorPallete.bg,
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
@@ -110,9 +103,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _UpdatePasswordPalette.ink.withValues(
-                          alpha: 0.08,
-                        ),
+                        color: ColorPallete.ink.withValues(alpha: 0.08),
                         blurRadius: 30,
                         offset: const Offset(0, 16),
                       ),
@@ -130,7 +121,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                             Icon(
                               Icons.lock_reset_rounded,
                               size: isMobile ? 55 : 65,
-                              color: _UpdatePasswordPalette.teal,
+                              color: ColorPallete.teal,
                             ),
 
                             const SizedBox(height: 20),
@@ -141,7 +132,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                               style: TextStyle(
                                 fontSize: isMobile ? 25 : 30,
                                 fontWeight: FontWeight.w900,
-                                color: _UpdatePasswordPalette.ink,
+                                color: ColorPallete.ink,
                               ),
                             ),
 
@@ -152,7 +143,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: isMobile ? 14 : 16,
-                                color: _UpdatePasswordPalette.muted,
+                                color: ColorPallete.muted,
                               ),
                             ),
 
@@ -186,13 +177,13 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   borderSide: const BorderSide(
-                                    color: _UpdatePasswordPalette.border,
+                                    color: ColorPallete.border,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   borderSide: const BorderSide(
-                                    color: _UpdatePasswordPalette.teal,
+                                    color: ColorPallete.teal,
                                     width: 2,
                                   ),
                                 ),
@@ -246,13 +237,13 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                                 enabledBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   borderSide: const BorderSide(
-                                    color: _UpdatePasswordPalette.border,
+                                    color: ColorPallete.border,
                                   ),
                                 ),
                                 focusedBorder: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(14),
                                   borderSide: const BorderSide(
-                                    color: _UpdatePasswordPalette.teal,
+                                    color: ColorPallete.teal,
                                     width: 2,
                                   ),
                                 ),
@@ -278,7 +269,7 @@ class _UpdatePasswordViewState extends State<UpdatePasswordView> {
                               child: ElevatedButton(
                                 onPressed: isLoading ? null : _updatePassword,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _UpdatePasswordPalette.teal,
+                                  backgroundColor: ColorPallete.teal,
                                   foregroundColor: Colors.white,
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
