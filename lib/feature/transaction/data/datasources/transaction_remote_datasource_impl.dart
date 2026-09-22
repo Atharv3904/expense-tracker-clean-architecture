@@ -12,9 +12,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   Future<List<TransactionModel>> getAllTransactionData({
     String? searchQuery,
   }) async {
-    final userId = supabaseClient.auth.currentUser!.id;
-
     try {
+      final userId = supabaseClient.auth.currentUser!.id;
       var query = supabaseClient
           .from('transactions')
           .select()
@@ -36,8 +35,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
   @override
   Future<List<TransactionModel>> getTransaction() async {
-    final userId = supabaseClient.auth.currentUser!.id;
     try {
+      final userId = supabaseClient.auth.currentUser!.id;
       final response = await supabaseClient
           .from('transactions')
           .select()
@@ -55,8 +54,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
   @override
   Future<TransactionModel> addTransaction(TransactionModel transaction) async {
-    final userId = supabaseClient.auth.currentUser!.id;
     try {
+      final userId = supabaseClient.auth.currentUser!.id;
       final data = transaction.toJson();
       data['user_id'] = userId;
 
@@ -68,7 +67,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return TransactionModel.fromJson(response);
     } catch (e) {
-      throw ServerException(e.toString());
+      throw ServerException("check your internet connection...");
     }
   }
 

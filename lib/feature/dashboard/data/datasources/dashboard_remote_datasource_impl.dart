@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/dashboard/data/datasources/dasboard_remote_datasource.dart';
 import 'package:expense_tracker/feature/dashboard/data/model/dashboard_summary_model.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -12,12 +13,10 @@ class DashboardDatasourceImpl implements DasboardDatasource {
     final userId = supabaseClient.auth.currentUser!.id;
 
     try {
-      // Get transaction types
       final typeResponse = await supabaseClient
           .from('transaction_types')
           .select('id, type');
 
-      // Get user's transactions
       final transactionResponse = await supabaseClient
           .from('transactions')
           .select('amount, type_id')
@@ -47,7 +46,7 @@ class DashboardDatasourceImpl implements DasboardDatasource {
         balance: balance,
       );
     } catch (e) {
-      throw Exception('Failed to get dashboard summary');
+      throw AppException('Failed to get dashboard summary');
     }
   }
 }

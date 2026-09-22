@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
@@ -63,17 +64,13 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
     return BlocListener<ProfileBloc, ProfileState>(
       listener: (context, state) {
         if (state is ProfileSuccess) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnackbar.show(context, message: state.message);
 
           context.pop();
         }
 
         if (state is ProfileFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnackbar.show(context, message: state.message);
         }
       },
       child: Scaffold(

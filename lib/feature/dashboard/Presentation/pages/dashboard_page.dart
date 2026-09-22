@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_states.dart';
 
@@ -27,26 +28,33 @@ class _DashboardPageState extends State<DashboardPage> {
         context.read<TransactionBloc>().add(LoadTransaction());
         await Future<void>.value();
       },
-      child: Scaffold(
-        backgroundColor: DashboardPalettes.bg,
-        body: BlocBuilder<DashboardCubit, DashboardStates>(
-          builder: (context, state) {
-            double balance = 0;
-            double income = 0;
-            double expense = 0;
+      child: BlocListener<DashboardCubit, DashboardStates>(
+        listener: (context, state) {
+          if (state is DashboardFailure) {
+            AppSnackbar.show(context, message: state.message);
+          }
+        },
+        child: Scaffold(
+          backgroundColor: DashboardPalettes.bg,
+          body: BlocBuilder<DashboardCubit, DashboardStates>(
+            builder: (context, state) {
+              double balance = 0;
+              double income = 0;
+              double expense = 0;
 
-            if (state is DashboardLoaded) {
-              balance = state.summary.balance;
-              income = state.summary.totalIncome;
-              expense = state.summary.totalExpense;
-            }
+              if (state is DashboardLoaded) {
+                balance = state.summary.balance;
+                income = state.summary.totalIncome;
+                expense = state.summary.totalExpense;
+              }
 
-            return DashboardContent(
-              balance: balance,
-              income: income,
-              expense: expense,
-            );
-          },
+              return DashboardContent(
+                balance: balance,
+                income: income,
+                expense: expense,
+              );
+            },
+          ),
         ),
       ),
     );

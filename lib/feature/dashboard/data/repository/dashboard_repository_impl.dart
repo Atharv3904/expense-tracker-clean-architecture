@@ -15,7 +15,7 @@ class DashboardRepositoryImpl implements DashboardRepository {
       final result = await remoteDataSource.getDashboardSummary();
       return Right(result);
     } on AppException catch (e) {
-      return Left(AppFailure(e.toString()));
+      return Left(AppFailure(e.message));
     } catch (_) {
       return const Left(AppFailure("try again!"));
     }

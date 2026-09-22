@@ -34,7 +34,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
           })
           .eq('id', user.id);
     } catch (e) {
-      throw ProfileException(e.toString());
+      throw ProfileException("check your internet connection");
     }
   }
 
@@ -43,7 +43,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     try {
       await supabaseClient.auth.updateUser(UserAttributes(password: password));
     } catch (e) {
-      throw ProfileException(e.toString());
+      throw ProfileException("password is not changed");
     }
   }
 
@@ -64,7 +64,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
 
       return ProfileModel.fronJson(response, email: user.email);
     } catch (e) {
-      throw ProfileException(e.toString());
+      throw ProfileException("net issue");
     }
   }
 }
