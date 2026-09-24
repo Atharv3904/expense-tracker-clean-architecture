@@ -8,7 +8,6 @@ import 'package:expense_tracker/core/widgets/app_error_widget.dart';
 import 'package:expense_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:forui/forui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -66,6 +65,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Show error screen if initialization failed
+    if (initializationError != null) {
+      return MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: AppErrorWidget(message: initializationError!),
+      );
+    }
+
+    // Normal application
     return MaterialApp.router(
       title: AppConstants.appName,
       theme: ThemeData(
@@ -73,13 +81,6 @@ class MyApp extends StatelessWidget {
       ),
       debugShowCheckedModeBanner: false,
       routerConfig: AppRouter.router,
-      builder: (context, child) {
-        if (initializationError != null) {
-          return AppErrorWidget(message: initializationError!);
-        }
-
-        return FTheme(data: FTheme.neutral.light.touch, child: child!);
-      },
     );
   }
 }
