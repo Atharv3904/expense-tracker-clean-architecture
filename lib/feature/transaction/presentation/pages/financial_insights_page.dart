@@ -1,21 +1,23 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
 
+import 'package:expense_tracker/feature/transaction/domain/entities/today_income_expense_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
+
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transaction_event.dart';
+
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/widgets/overview_panel.dart';
-
 import 'package:expense_tracker/feature/transaction/presentation/widgets/responsive_chart.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
@@ -26,6 +28,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 class FinancialInsightsPage extends StatefulWidget {
   final VoidCallback onBack;
+
   const FinancialInsightsPage({super.key, required this.onBack});
 
   @override
@@ -37,6 +40,77 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
   String? expenseTypeId;
 
   List<TransactionCategoryEntity> categories = [];
+
+  List<TodayIncomeExpenseEntity> todayIncomeExpense = [];
+
+  List<TodayIncomeExpenseEntity> _calculateTodayIncomeExpense(
+    List transactions,
+  ) {
+    final now = DateTime.now();
+
+    // Start of today: 28 Sep 00:00
+    final startOfToday = DateTime(now.year, now.month, now.day);
+
+    // Start of tomorrow: 29 Sep 00:00
+    final startOfTomorrow = startOfToday.add(const Duration(days: 1));
+
+    debugPrint('========== TODAY CHART ==========');
+    debugPrint('Now: $now');
+    debugPrint('Start of today: $startOfToday');
+    debugPrint('Start of tomorrow: $startOfTomorrow');
+    debugPrint('Total transactions: ${transactions.length}');
+
+    final todayTransactions = transactions.where((transaction) {
+      // Supabase created_at can be UTC.
+      // Convert it to device local time.
+      final date = transaction.date.toLocal();
+
+      final isToday =
+          !date.isBefore(startOfToday) && date.isBefore(startOfTomorrow);
+
+      debugPrint(
+        'Transaction: $date | '
+        'Amount: ${transaction.amount} | '
+        'Is today: $isToday',
+      );
+
+      return isToday;
+    }).toList();
+
+    debugPrint('Today transactions found: ${todayTransactions.length}');
+
+    // Oldest → newest
+    todayTransactions.sort((a, b) => a.date.compareTo(b.date));
+
+    double cumulativeIncome = 0;
+    double cumulativeExpense = 0;
+
+    final result = <TodayIncomeExpenseEntity>[];
+
+    for (final transaction in todayTransactions) {
+      if (transaction.typeId == incomeTypeId) {
+        cumulativeIncome += transaction.amount;
+      }
+
+      if (transaction.typeId == expenseTypeId) {
+        cumulativeExpense += transaction.amount;
+      }
+
+      result.add(
+        TodayIncomeExpenseEntity(
+          time: transaction.date.toLocal(),
+          income: cumulativeIncome,
+          expense: cumulativeExpense,
+        ),
+      );
+    }
+
+    debugPrint('Chart points created: ${result.length}');
+
+    debugPrint('=================================');
+
+    return result;
+  }
 
   Map<String, double> _calculateCategoryExpenses(List transactions) {
     final Map<String, double> categoryExpenses = {};
@@ -81,6 +155,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
 
     return MultiBlocListener(
       listeners: [
+        // --------------------------------------------------------
+        // TYPE LISTENER
+        // --------------------------------------------------------
         BlocListener<TypeBloc, TypeStates>(
           listener: (context, state) {
             if (state is TypeLoaded) {
@@ -131,6 +208,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
           builder: (context, state) {
             double income = 0;
             double expense = 0;
+
             Map<String, double> categoryExpenses = {};
 
             if (state is TransactionLoaded) {
@@ -145,18 +223,29 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
               }
 
               categoryExpenses = _calculateCategoryExpenses(state.transactions);
+
+              todayIncomeExpense = _calculateTodayIncomeExpense(
+                state.transactions,
+              );
             }
 
             return RefreshIndicator(
               onRefresh: () async {
+                // Reload ALL transactions.
                 context.read<TransactionBloc>().add(const GetAllTransaction());
+
+                // Reload transaction types.
                 context.read<TypeBloc>().add(const GetTypesTransaction());
+
+                // Reload categories.
                 context.read<CategoryBloc>().add(
                   const GetCategoryTransaction(),
                 );
               },
+
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
+
                 child: Stack(
                   children: [
                     const TransactionTopBackground(
@@ -168,6 +257,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                       child: Center(
                         child: ConstrainedBox(
                           constraints: BoxConstraints(maxWidth: maxWidth),
+
                           child: Padding(
                             padding: EdgeInsets.fromLTRB(
                               horizontalPadding,
@@ -175,8 +265,10 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                               horizontalPadding,
                               28,
                             ),
+
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+
                               children: [
                                 TransactionHeader(
                                   title: 'Financial Insights',
@@ -198,6 +290,9 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                                   income: income,
                                   expense: expense,
                                   categoryExpenses: categoryExpenses,
+
+                                  dailyIncomeExpense: todayIncomeExpense,
+
                                   isMobile: isMobile,
                                 ),
                               ],

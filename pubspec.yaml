@@ -57,6 +57,7 @@ dependencies:
   flutter_timezone: ^5.1.0
   shared_preferences: ^2.5.3
   forui: ^0.25.0
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:
