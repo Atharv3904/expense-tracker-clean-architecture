@@ -29,6 +29,15 @@ import 'package:expense_tracker/feature/profile/domain/usecases/change_password_
 import 'package:expense_tracker/feature/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:expense_tracker/feature/profile/domain/usecases/update_profile_usecase.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:expense_tracker/feature/receipts/data/datasource/receipt_remote_datasource.dart';
+import 'package:expense_tracker/feature/receipts/data/datasource/receipt_remote_datasource_impl.dart';
+import 'package:expense_tracker/feature/receipts/data/repository/receipt_repository_impl.dart';
+import 'package:expense_tracker/feature/receipts/domain/repository/receipt_repository.dart';
+import 'package:expense_tracker/feature/receipts/domain/usecases/delete_receipt_usecase.dart';
+import 'package:expense_tracker/feature/receipts/domain/usecases/get_receipt_url_usecase.dart';
+import 'package:expense_tracker/feature/receipts/domain/usecases/get_receipts_usecase.dart';
+import 'package:expense_tracker/feature/receipts/domain/usecases/upload_receipt_usecase.dart';
+import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_remote_datasource.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_remote_datasource_impl.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_local_datasource.dart';
@@ -239,6 +248,33 @@ Future<void> init() async {
       saveReminderUsecase: sl(),
       getReminderUsecase: sl(),
       clearReminderUsecase: sl(),
+    ),
+  );
+
+  //***************** receipts ****************/
+
+  sl.registerLazySingleton<ReceiptRemoteDatasource>(
+    () => ReceiptRemoteDatasourceImpl(sl()),
+  );
+
+  sl.registerLazySingleton<ReceiptRepository>(
+    () => ReceiptRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton(() => UploadReceiptUsecase(sl()));
+
+  sl.registerLazySingleton(() => GetReceiptsUsecase(sl()));
+
+  sl.registerLazySingleton(() => DeleteReceiptUsecase(sl()));
+
+  sl.registerLazySingleton(() => GetReceiptUrlUsecase(sl()));
+
+  sl.registerFactory(
+    () => ReceiptBloc(
+      sl<UploadReceiptUsecase>(),
+      sl<GetReceiptsUsecase>(),
+      sl<DeleteReceiptUsecase>(),
+      sl<GetReceiptUrlUsecase>(),
     ),
   );
 }

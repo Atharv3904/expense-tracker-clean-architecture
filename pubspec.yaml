@@ -53,11 +53,13 @@ dependencies:
   firebase_messaging: ^16.6.0
   flutter_local_notifications: ^22.3.0
   timezone: ^0.11.1
-  package_info_plus: ^8.0.0
+  package_info_plus: ^10.2.1
   flutter_timezone: ^5.1.0
   shared_preferences: ^2.5.3
   forui: ^0.25.0
   intl: ^0.20.2
+  file_picker: ^12.2.0
+  syncfusion_flutter_pdfviewer: ^35.1.37
 
 dev_dependencies:
   flutter_test:

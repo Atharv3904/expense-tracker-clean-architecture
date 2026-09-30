@@ -41,3 +41,10 @@ class SharedPrefException implements AppException {
   final String message;
   SharedPrefException(this.message);
 }
+
+class ReceiptException implements AppException {
+  @override
+  final String message;
+
+  ReceiptException(this.message);
+}

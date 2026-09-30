@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/reminder/domain/entity/reminder_entity.dart';
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_event.dart';
@@ -91,21 +92,15 @@ class _ReminderPageState extends State<ReminderPage> {
         }
 
         if (state is ReminderSuccess) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Reminder added successfully')),
-          );
+          AppSnackbar.show(context, message: "Reminder added successfully");
         }
 
         if (state is ReminderFailure) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(state.message)));
+          AppSnackbar.show(context, message: state.message);
         }
 
         if (state is ReminderCancel) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Reminder cancelled')));
+          AppSnackbar.show(context, message: "Reminder cancelled");
         }
       },
       child: Scaffold(

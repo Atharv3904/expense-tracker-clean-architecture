@@ -2,8 +2,11 @@ import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
-import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
+import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
+import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_event.dart';
+import 'package:expense_tracker/feature/receipts/presentation/pages/receipt_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
@@ -34,6 +37,7 @@ class MainNavigationPage extends StatefulWidget {
 
 class _MainNavigationPageState extends State<MainNavigationPage> {
   int currentIndex = 0;
+
   final List<int> navigationHistory = [0];
 
   void _goBack() {
@@ -52,34 +56,52 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     FinancialInsightsPage(onBack: _goBack),
 
+    ReceiptPage(onBack: _goBack),
+
     ProfilePage(onBack: _goBack),
   ];
 
   void _loadPageData(int index) {
+    // Dashboard
     if (index == 0) {
       context.read<TransactionBloc>().add(const LoadTransaction());
+
       context.read<DashboardCubit>().dashboardSummary();
     }
 
+    // Add Transaction
     if (index == 1) {
       context.read<TransactionBloc>().add(const GetAllTransaction());
+
       context.read<TypeBloc>().add(const GetTypesTransaction());
+
       context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
+    // Financial Insights
     if (index == 2) {
       context.read<TransactionBloc>().add(const GetAllTransaction());
+
       context.read<TypeBloc>().add(const GetTypesTransaction());
+
       context.read<CategoryBloc>().add(const GetCategoryTransaction());
     }
 
+    // Receipts
     if (index == 3) {
-      context.read<ProfileBloc>().add(const LoadProfile());
+      context.read<ReceiptBloc>().add(const GetReceipts());
+    }
+
+    // Profile
+    if (index == 4) {
+      context.read<ProfileBloc>();
     }
   }
 
   void _onNavigationChanged(int index) {
-    if (index == currentIndex) return;
+    if (index == currentIndex) {
+      return;
+    }
 
     setState(() {
       navigationHistory.remove(index);
@@ -99,13 +121,16 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) async {
-        if (didPop) return;
+        if (didPop) {
+          return;
+        }
 
         if (navigationHistory.length > 1) {
           setState(() {
             navigationHistory.removeLast();
             currentIndex = navigationHistory.last;
           });
+
           return;
         }
 
@@ -164,21 +189,28 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         extendBody: isMobile,
         body: Row(
           children: [
+            // Tablet navigation
             if (isTablet && !isDesktop)
               _TabletNavigationRail(
                 currentIndex: currentIndex,
                 onChanged: _onNavigationChanged,
               ),
+
+            // Desktop navigation
             if (isDesktop)
               _DesktopNavigationSidebar(
                 currentIndex: currentIndex,
                 onChanged: _onNavigationChanged,
               ),
+
+            // Page content
             Expanded(
               child: IndexedStack(index: currentIndex, children: pages),
             ),
           ],
         ),
+
+        // Mobile navigation
         bottomNavigationBar: isMobile
             ? _FloatingBottomNavigation(
                 currentIndex: currentIndex,
@@ -189,6 +221,10 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     );
   }
 }
+
+// ============================================================
+// MOBILE NAVIGATION
+// ============================================================
 
 class _FloatingBottomNavigation extends StatelessWidget {
   final int currentIndex;
@@ -203,6 +239,11 @@ class _FloatingBottomNavigation extends StatelessWidget {
     _NavItem(Icons.dashboard_outlined, Icons.dashboard_rounded, 'Dashboard'),
     _NavItem(Icons.add_circle_outline_rounded, Icons.add_circle_rounded, 'Add'),
     _NavItem(Icons.bar_chart_outlined, Icons.bar_chart_rounded, 'Insights'),
+    _NavItem(
+      Icons.receipt_long_outlined,
+      Icons.receipt_long_rounded,
+      'Receipts',
+    ),
     _NavItem(Icons.person_outline_rounded, Icons.person_rounded, 'Profile'),
   ];
 
@@ -294,6 +335,10 @@ class _BottomNavButton extends StatelessWidget {
   }
 }
 
+// ============================================================
+// TABLET NAVIGATION
+// ============================================================
+
 class _TabletNavigationRail extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onChanged;
@@ -329,16 +374,25 @@ class _TabletNavigationRail extends StatelessWidget {
             selectedIcon: Icon(Icons.dashboard_rounded),
             label: Text('Dashboard'),
           ),
+
           NavigationRailDestination(
             icon: Icon(Icons.add_circle_outline_rounded),
             selectedIcon: Icon(Icons.add_circle_rounded),
             label: Text('Add'),
           ),
+
           NavigationRailDestination(
             icon: Icon(Icons.bar_chart_outlined),
             selectedIcon: Icon(Icons.bar_chart_rounded),
             label: Text('Insights'),
           ),
+
+          NavigationRailDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long_rounded),
+            label: Text('Receipts'),
+          ),
+
           NavigationRailDestination(
             icon: Icon(Icons.person_outline_rounded),
             selectedIcon: Icon(Icons.person_rounded),
@@ -349,6 +403,10 @@ class _TabletNavigationRail extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// DESKTOP NAVIGATION
+// ============================================================
 
 class _DesktopNavigationSidebar extends StatelessWidget {
   final int currentIndex;
@@ -371,6 +429,7 @@ class _DesktopNavigationSidebar extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 26),
+
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: Row(
@@ -387,7 +446,9 @@ class _DesktopNavigationSidebar extends StatelessWidget {
                       color: _MainNavPalette.teal,
                     ),
                   ),
+
                   const SizedBox(width: 12),
+
                   const Expanded(
                     child: Text(
                       'Expense Tracker',
@@ -401,7 +462,9 @@ class _DesktopNavigationSidebar extends StatelessWidget {
                 ],
               ),
             ),
+
             const SizedBox(height: 34),
+
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -413,6 +476,7 @@ class _DesktopNavigationSidebar extends StatelessWidget {
                     selected: currentIndex == 0,
                     onTap: () => onChanged(0),
                   ),
+
                   _DesktopNavigationItem(
                     icon: Icons.add_circle_outline_rounded,
                     selectedIcon: Icons.add_circle_rounded,
@@ -420,6 +484,7 @@ class _DesktopNavigationSidebar extends StatelessWidget {
                     selected: currentIndex == 1,
                     onTap: () => onChanged(1),
                   ),
+
                   _DesktopNavigationItem(
                     icon: Icons.bar_chart_outlined,
                     selectedIcon: Icons.bar_chart_rounded,
@@ -427,16 +492,26 @@ class _DesktopNavigationSidebar extends StatelessWidget {
                     selected: currentIndex == 2,
                     onTap: () => onChanged(2),
                   ),
+
+                  _DesktopNavigationItem(
+                    icon: Icons.receipt_long_outlined,
+                    selectedIcon: Icons.receipt_long_rounded,
+                    label: 'Receipts',
+                    selected: currentIndex == 3,
+                    onTap: () => onChanged(3),
+                  ),
+
                   _DesktopNavigationItem(
                     icon: Icons.person_outline_rounded,
                     selectedIcon: Icons.person_rounded,
                     label: 'Profile',
-                    selected: currentIndex == 3,
-                    onTap: () => onChanged(3),
+                    selected: currentIndex == 4,
+                    onTap: () => onChanged(4),
                   ),
                 ],
               ),
             ),
+
             Padding(
               padding: const EdgeInsets.all(20),
               child: Container(
@@ -500,7 +575,9 @@ class _DesktopNavigationItem extends StatelessWidget {
                       ? _MainNavPalette.teal
                       : _MainNavPalette.muted,
                 ),
+
                 const SizedBox(width: 12),
+
                 Expanded(
                   child: Text(
                     label,
@@ -520,6 +597,10 @@ class _DesktopNavigationItem extends StatelessWidget {
     );
   }
 }
+
+// ============================================================
+// NAV ITEM MODEL
+// ============================================================
 
 class _NavItem {
   final IconData icon;

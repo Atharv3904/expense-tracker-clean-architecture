@@ -14,4 +14,6 @@ class RoutesName {
   static const String mainNavigationPage = '/mainNavigationPage';
   static const String reminderPage = '/reminderPage';
   static const resetPassword = '/reset-password';
+  static const String receipts = '/receipts';
+  static const String receiptList = '/receiptList';
 }

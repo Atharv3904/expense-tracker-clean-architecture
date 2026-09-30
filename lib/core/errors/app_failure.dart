@@ -26,3 +26,7 @@ class ReminderFailure extends AppFailure {
 class SharedPrefFailure extends AppFailure {
   const SharedPrefFailure(super.message);
 }
+
+class ReceiptFailure extends AppFailure {
+  const ReceiptFailure(super.message);
+}

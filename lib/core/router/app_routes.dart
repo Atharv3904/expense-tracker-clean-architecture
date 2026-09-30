@@ -22,6 +22,10 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.d
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/change_password_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/pages/edit_profile_page.dart';
+import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
+import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_event.dart';
+import 'package:expense_tracker/feature/receipts/presentation/pages/receipt_list_page.dart';
+
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_bloc.dart';
 import 'package:expense_tracker/feature/reminder/presentation/bloc/reminder_event.dart';
 import 'package:expense_tracker/feature/reminder/presentation/pages/reminder_page.dart';
@@ -109,10 +113,19 @@ class AppRoutes {
             BlocProvider(
               create: (_) => sl<TypeBloc>()..add(const GetTypesTransaction()),
             ),
+            BlocProvider<ReceiptBloc>(create: (_) => sl<ReceiptBloc>()),
           ],
           child: const MainNavigationPage(),
         );
       },
+    ),
+    // ............All receipts
+    GoRoute(
+      path: RoutesName.receiptList,
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<ReceiptBloc>()..add(GetReceipts()),
+        child: ReceiptListPage(),
+      ),
     ),
 
     // ---------------- LOGOUT
