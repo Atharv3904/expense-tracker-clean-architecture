@@ -1,3 +1,5 @@
+import 'package:file_picker/file_picker.dart';
+
 abstract class ProfileEvent {
   const ProfileEvent();
 }
@@ -8,8 +10,9 @@ class LoadProfile extends ProfileEvent {
 
 class UpdateProfile extends ProfileEvent {
   final String name;
+  final PlatformFile? avatar;
 
-  const UpdateProfile(this.name);
+  const UpdateProfile({required this.name, this.avatar});
 }
 
 class ChangePassword extends ProfileEvent {

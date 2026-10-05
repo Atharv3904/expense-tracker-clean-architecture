@@ -1,22 +1,40 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
+
 import 'package:expense_tracker/core/router/routes_name.dart';
+
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/app_auth_background.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/app_colors.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/app_header.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/profile_card.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/profile_option.dart';
+
 import 'package:expense_tracker/feature/profile/presentation/widget/version_tile.dart';
+
+import 'package:file_picker/file_picker.dart';
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:go_router/go_router.dart';
+
 import 'package:package_info_plus/package_info_plus.dart';
 
 class ProfilePage extends StatefulWidget {
   final VoidCallback onBack;
+
   const ProfilePage({super.key, required this.onBack});
 
   @override
@@ -25,14 +43,28 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   String appVersion = '';
+  String? avatarUrl;
 
   @override
   void initState() {
     super.initState();
 
-    context.read<ProfileBloc>().add(const LoadProfile());
-
     loadAppVersion();
+  }
+
+  void _pickAvatar(String currentName) async {
+    final file = await FilePicker.pickFile(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp'],
+    );
+
+    if (file == null || !mounted) {
+      return;
+    }
+
+    context.read<ProfileBloc>().add(
+      UpdateProfile(name: currentName, avatar: file),
+    );
   }
 
   Future<void> loadAppVersion() async {
@@ -64,6 +96,9 @@ class _ProfilePageState extends State<ProfilePage> {
         listener: (context, state) {
           if (state is ProfileSuccess) {
             AppSnackbar.show(context, message: state.message);
+
+            // Load updated profile after successful update.
+            context.read<ProfileBloc>().add(const LoadProfile());
           }
 
           if (state is ProfileFailure) {
@@ -77,149 +112,166 @@ class _ProfilePageState extends State<ProfilePage> {
           if (state is ProfileLoaded) {
             name = state.profile.name ?? 'User';
             email = state.profile.email ?? 'abc123@gmail.com';
+            avatarUrl = state.profile.avatarUrl;
           }
 
-          return SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Stack(
-              children: [
-                const AppAuthBackground(height: 250),
+          return RefreshIndicator(
+            onRefresh: () async {
+              context.read<ProfileBloc>().add(const LoadProfile());
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Stack(
+                children: [
+                  const AppAuthBackground(height: 250),
 
-                SafeArea(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxWidth),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          horizontalPadding,
-                          isMobile ? 16 : 24,
-                          horizontalPadding,
-                          28,
-                        ),
-                        child: Column(
-                          children: [
-                            AppHeader(
-                              title: 'Profile',
-                              isMobile: isMobile,
-                              onBack: widget.onBack,
-                            ),
+                  SafeArea(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            isMobile ? 16 : 24,
+                            horizontalPadding,
+                            28,
+                          ),
+                          child: Column(
+                            children: [
+                              AppHeader(
+                                title: 'Profile',
+                                isMobile: isMobile,
+                                onBack: widget.onBack,
+                              ),
 
-                            SizedBox(height: isMobile ? 24 : 30),
+                              SizedBox(height: isMobile ? 24 : 30),
 
-                            ProfileCard(
-                              name: name,
-                              email: email,
-                              isMobile: isMobile,
-                            ),
+                              ProfileCard(
+                                name: name,
+                                email: email,
+                                avatarUrl: avatarUrl,
+                                isMobile: isMobile,
+                                onAvatarTap: () {
+                                  _pickAvatar(name);
+                                },
+                              ),
 
-                            const SizedBox(height: 24),
+                              const SizedBox(height: 24),
 
-                            const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                'Account Settings',
-                                style: TextStyle(
-                                  color: AppColors.ink,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w900,
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  'Account Settings',
+                                  style: TextStyle(
+                                    color: AppColors.ink,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w900,
+                                  ),
                                 ),
                               ),
-                            ),
 
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            ProfileOption(
-                              icon: Icons.edit_outlined,
-                              title: 'Edit Profile',
-                              subtitle: 'Update your personal information',
-                              onTap: () async {
-                                final profileBloc = context.read<ProfileBloc>();
+                              ProfileOption(
+                                icon: Icons.edit_outlined,
+                                title: 'Edit Profile',
+                                subtitle: 'Update your personal information',
+                                onTap: () async {
+                                  final profileBloc = context
+                                      .read<ProfileBloc>();
 
-                                final result = await context.push(
-                                  RoutesName.editProfile,
-                                  extra: name,
-                                );
+                                  final result = await context.push(
+                                    RoutesName.editProfile,
+                                    extra: name,
+                                  );
 
-                                if (result == true && context.mounted) {
-                                  profileBloc.add(const LoadProfile());
-                                }
-                              },
-                            ),
+                                  if (result == true && context.mounted) {
+                                    profileBloc.add(const LoadProfile());
+                                  }
+                                },
+                              ),
 
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            ProfileOption(
-                              icon: Icons.lock_outline,
-                              title: 'Change Password',
-                              subtitle: 'Update your account password',
-                              onTap: () async {
-                                await context.push(RoutesName.changePassword);
-                              },
-                            ),
+                              ProfileOption(
+                                icon: Icons.lock_outline,
+                                title: 'Change Password',
+                                subtitle: 'Update your account password',
+                                onTap: () async {
+                                  await context.push(RoutesName.changePassword);
+                                },
+                              ),
 
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            ProfileOption(
-                              icon: Icons.remember_me_rounded,
-                              title: 'Reminder',
-                              subtitle:
-                                  'Create your reminder for daily expenses',
-                              onTap: () async {
-                                await context.push(RoutesName.reminderPage);
-                              },
-                            ),
+                              ProfileOption(
+                                icon: Icons.remember_me_rounded,
+                                title: 'Reminder',
+                                subtitle:
+                                    'Create your reminder for daily expenses',
+                                onTap: () async {
+                                  await context.push(RoutesName.reminderPage);
+                                },
+                              ),
 
-                            const SizedBox(height: 12),
+                              const SizedBox(height: 12),
 
-                            ProfileOption(
-                              icon: Icons.logout_rounded,
-                              title: 'Logout',
-                              subtitle: 'Sign out from your account',
-                              iconColor: AppColors.danger,
-                              titleColor: AppColors.danger,
-                              onTap: () async {
-                                final shouldLogout = await showDialog<bool>(
-                                  context: context,
-                                  builder: (dialogContext) {
-                                    return AlertDialog(
-                                      title: const Text('Logout'),
-                                      content: const Text(
-                                        'Are you sure you want to logout?',
-                                      ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(dialogContext, false);
-                                          },
-                                          child: const Text('No'),
+                              ProfileOption(
+                                icon: Icons.logout_rounded,
+                                title: 'Logout',
+                                subtitle: 'Sign out from your account',
+                                iconColor: AppColors.danger,
+                                titleColor: AppColors.danger,
+                                onTap: () async {
+                                  final shouldLogout = await showDialog<bool>(
+                                    context: context,
+                                    builder: (dialogContext) {
+                                      return AlertDialog(
+                                        title: const Text('Logout'),
+                                        content: const Text(
+                                          'Are you sure you want to logout?',
                                         ),
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(dialogContext, true);
-                                          },
-                                          child: const Text('Yes'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(
+                                                dialogContext,
+                                                false,
+                                              );
+                                            },
+                                            child: const Text('No'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(
+                                                dialogContext,
+                                                true,
+                                              );
+                                            },
+                                            child: const Text('Yes'),
+                                          ),
+                                        ],
+                                      );
+                                    },
+                                  );
 
-                                if (shouldLogout == true && context.mounted) {
-                                  context.push(RoutesName.logout);
-                                }
-                              },
-                            ),
+                                  if (shouldLogout == true && context.mounted) {
+                                    context.push(RoutesName.logout);
+                                  }
+                                },
+                              ),
 
-                            const SizedBox(height: 28),
+                              const SizedBox(height: 28),
 
-                            VersionTile(appVersion: appVersion),
-                          ],
+                              VersionTile(appVersion: appVersion),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

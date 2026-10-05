@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:expense_tracker/feature/profile/domain/params/update_profile_params.dart';
 import 'package:expense_tracker/feature/profile/domain/usecases/change_password_usecase.dart';
 import 'package:expense_tracker/feature/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:expense_tracker/feature/profile/domain/usecases/update_profile_usecase.dart';
@@ -46,7 +47,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(const ProfileLoading());
 
-    final result = await updateProfileUsecase(name: event.name);
+    final result = await updateProfileUsecase(
+      UpdateProfileParams(name: event.name, avatar: event.avatar),
+    );
 
     result.fold(
       (failure) {

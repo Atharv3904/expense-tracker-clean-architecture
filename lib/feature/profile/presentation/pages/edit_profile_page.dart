@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/feature/profile/domain/params/update_profile_params.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
@@ -45,9 +46,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
       return;
     }
 
-    final name = nameController.text.trim();
+    final param = UpdateProfileParams(name: nameController.text.trim());
 
-    context.read<ProfileBloc>().add(UpdateProfile(name));
+    context.read<ProfileBloc>().add(
+      UpdateProfile(name: param.name, avatar: param.avatar),
+    );
   }
 
   @override

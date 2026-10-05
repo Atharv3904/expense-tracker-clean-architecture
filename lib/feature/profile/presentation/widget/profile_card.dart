@@ -1,16 +1,24 @@
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
+import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class ProfileCard extends StatelessWidget {
   final String name;
   final String email;
   final bool isMobile;
 
+  final String? avatarUrl;
+  final VoidCallback onAvatarTap;
+
   const ProfileCard({
     super.key,
     required this.name,
     required this.email,
     required this.isMobile,
+    required this.onAvatarTap,
+    this.avatarUrl,
   });
 
   @override
@@ -35,22 +43,41 @@ class ProfileCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              color: AppColors.softMint,
-              shape: BoxShape.circle,
-              border: Border.all(color: Colors.white, width: 4),
-            ),
-            child: CircleAvatar(
-              radius: isMobile ? 48 : 55,
-              backgroundColor: Colors.white,
-              child: Icon(
-                Icons.person_rounded,
-                size: isMobile ? 48 : 55,
-                color: AppColors.teal,
-              ),
-            ),
+          BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              final loading = (state is ProfileLoading);
+              return GestureDetector(
+                onTap: onAvatarTap,
+                child: Container(
+                  padding: const EdgeInsets.all(5),
+                  decoration: BoxDecoration(
+                    color: AppColors.softMint,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 4),
+                  ),
+                  child: CircleAvatar(
+                    radius: isMobile ? 58 : 65,
+                    backgroundColor: Colors.white,
+                    child: avatarUrl != null
+                        ? loading
+                              ? Center(child: CircularProgressIndicator())
+                              : ClipOval(
+                                  child: Image.network(
+                                    avatarUrl!,
+                                    width: isMobile ? 116 : 130,
+                                    height: isMobile ? 116 : 130,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                        : Icon(
+                            Icons.person_rounded,
+                            size: isMobile ? 58 : 65,
+                            color: AppColors.teal,
+                          ),
+                  ),
+                ),
+              );
+            },
           ),
 
           const SizedBox(height: 18),

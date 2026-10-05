@@ -1,11 +1,13 @@
 import 'package:expense_tracker/core/types/app_result.dart';
+import 'package:expense_tracker/feature/profile/domain/params/update_profile_params.dart';
 import 'package:expense_tracker/feature/profile/domain/repository/profile_repository.dart';
 
 class UpdateProfileUsecase {
-  final ProfileRepository profileRepository;
-  const UpdateProfileUsecase(this.profileRepository);
+  final ProfileRepository repository;
 
-  AppResult<void> call({required String name}) async {
-    return profileRepository.updateProfile(name: name);
+  const UpdateProfileUsecase(this.repository);
+
+  AppResult<void> call(UpdateProfileParams params) async {
+    return await repository.updateProfile(params);
   }
 }
