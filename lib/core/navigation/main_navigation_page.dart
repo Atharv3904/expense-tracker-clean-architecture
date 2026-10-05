@@ -5,7 +5,6 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.d
 
 import 'package:expense_tracker/feature/profile/presentation/pages/profile_page.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
-import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_event.dart';
 import 'package:expense_tracker/feature/receipts/presentation/pages/receipt_page.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_event.dart';
@@ -89,7 +88,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
     // Receipts
     if (index == 3) {
-      context.read<ReceiptBloc>().add(const GetReceipts());
+      context.read<ReceiptBloc>();
     }
 
     // Profile

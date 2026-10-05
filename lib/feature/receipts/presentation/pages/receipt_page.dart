@@ -22,13 +22,6 @@ class ReceiptPage extends StatefulWidget {
 class _ReceiptPageState extends State<ReceiptPage> {
   static const Color _background = Color(0xFFF5F8F7);
 
-  @override
-  void initState() {
-    super.initState();
-
-    context.read<ReceiptBloc>().add(const GetReceipts());
-  }
-
   Future<void> _pickAndUploadReceipt() async {
     final file = await FilePicker.pickFile(
       type: FileType.custom,
