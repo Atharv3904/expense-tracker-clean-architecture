@@ -10,6 +10,7 @@ class ReceiptCard extends StatelessWidget {
   final VoidCallback onView;
 
   const ReceiptCard({
+    super.key,
     required this.receipt,
     required this.fileIcon,
     required this.fileSize,
@@ -57,7 +58,7 @@ class ReceiptCard extends StatelessWidget {
                 const SizedBox(height: 6),
 
                 Text(
-                  '${fileSize} • ${DateFormat('dd MMM yyyy').format(receipt.createdAt)}',
+                  ' ${DateFormat('dd MMM yyyy').format(receipt.createdAt)}',
                   style: const TextStyle(
                     fontSize: 12,
                     color: Color(0xFF707A7A),
