@@ -7,4 +7,5 @@ class AppColor {
   static const muted = Color(0xFF89918F);
   static const border = Color(0xFFE8EEEB);
   static const softMint = Color(0xFFEAF8F5);
+  static const primary = Color(0xFF2B8F84);
 }

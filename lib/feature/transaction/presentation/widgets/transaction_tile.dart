@@ -7,6 +7,8 @@ class TransactionTile extends StatelessWidget {
   final dynamic amount;
   final bool isMobile;
   final VoidCallback onTap;
+  final String? receiptUrl;
+  final VoidCallback? onReceiptTap;
 
   const TransactionTile({
     super.key,
@@ -14,10 +16,14 @@ class TransactionTile extends StatelessWidget {
     required this.amount,
     required this.isMobile,
     required this.onTap,
+    this.receiptUrl,
+    this.onReceiptTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final hasReceipt = receiptUrl != null && receiptUrl!.isNotEmpty;
+
     return Material(
       color: Colors.white.withValues(alpha: 0.96),
       borderRadius: BorderRadius.circular(24),
@@ -55,7 +61,9 @@ class TransactionTile extends StatelessWidget {
                   size: 21,
                 ),
               ),
+
               const SizedBox(width: 13),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,7 +78,9 @@ class TransactionTile extends StatelessWidget {
                         fontWeight: FontWeight.w900,
                       ),
                     ),
+
                     const SizedBox(height: 4),
+
                     const Text(
                       'Transaction amount',
                       style: TextStyle(
@@ -79,10 +89,27 @@ class TransactionTile extends StatelessWidget {
                         color: TransactionWidgetPalette.muted,
                       ),
                     ),
+
+                    if (hasReceipt)
+                      TextButton.icon(
+                        onPressed: onReceiptTap,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.visibility_rounded, size: 15),
+                        label: const Text(
+                          'View Receipt',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
                   ],
                 ),
               ),
+
               const SizedBox(width: 10),
+
               Text(
                 '₹$amount',
                 style: TextStyle(
@@ -91,7 +118,9 @@ class TransactionTile extends StatelessWidget {
                   color: TransactionWidgetPalette.income,
                 ),
               ),
+
               const SizedBox(width: 8),
+
               const Icon(
                 Icons.chevron_right_rounded,
                 color: TransactionWidgetPalette.muted,

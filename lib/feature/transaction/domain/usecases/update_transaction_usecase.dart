@@ -4,6 +4,7 @@ import 'package:expense_tracker/feature/transaction/domain/repository/transactio
 
 class UpdateTransactionUsecase {
   final TransactionRepository repository;
+
   const UpdateTransactionUsecase(this.repository);
 
   AppResult<TransactionEntity> call(TransactionEntity transaction) {

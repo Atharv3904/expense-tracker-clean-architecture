@@ -120,6 +120,10 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
       categoryId: selectedCategoryId!,
       description: descriptionController.text.trim(),
       date: selectedDate,
+
+      // Preserve existing receipt information
+      receiptId: widget.transaction.receiptId,
+      receiptUrl: widget.transaction.receiptUrl,
     );
 
     context.read<TransactionBloc>().add(UpdateTransaction(updatedTransaction));

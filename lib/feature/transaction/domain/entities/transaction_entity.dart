@@ -9,6 +9,8 @@ class TransactionEntity {
     required this.categoryId,
     required this.description,
     required this.date,
+    required this.receiptId,
+    required this.receiptUrl,
   });
 
   final String id; // Transaction ID , new and unique by supabase
@@ -20,4 +22,6 @@ class TransactionEntity {
   categoryId; // categories.id  foregin key , we will get from the categories table
   final String description; // e.g. Dinner   where we spent in details
   final DateTime date; // Transaction date.  the time
+  final String? receiptUrl;
+  final String? receiptId;
 }

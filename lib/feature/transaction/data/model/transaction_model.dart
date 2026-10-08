@@ -1,7 +1,7 @@
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 
 class TransactionModel extends TransactionEntity {
-  TransactionModel({
+  const TransactionModel({
     required super.id,
     required super.userId,
     required super.amount,
@@ -9,6 +9,8 @@ class TransactionModel extends TransactionEntity {
     required super.categoryId,
     required super.description,
     required super.date,
+    required super.receiptUrl,
+    required super.receiptId,
   });
 
   factory TransactionModel.fromJson(Map<String, dynamic> json) {
@@ -20,11 +22,15 @@ class TransactionModel extends TransactionEntity {
       categoryId: json['category_id'] as String,
       description: json['description'] as String? ?? '',
       date: DateTime.parse(json['created_at'] as String),
+
+      // Nullable because transaction may not have receipt
+      receiptId: json['receipt_id'] as String?,
+      receiptUrl: json['receipt_url'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final data = {
+    final data = <String, dynamic>{
       'user_id': userId,
       'amount': amount,
       'type_id': typeId,
@@ -32,9 +38,11 @@ class TransactionModel extends TransactionEntity {
       'description': description,
       'created_at': date.toIso8601String(),
     };
+
     if (id.isNotEmpty) {
       data['id'] = id;
     }
+
     return data;
   }
 }

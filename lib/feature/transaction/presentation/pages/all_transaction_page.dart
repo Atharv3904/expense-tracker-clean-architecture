@@ -16,6 +16,7 @@ import 'package:expense_tracker/feature/transaction/presentation/widgets/transac
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class AllTransactionPage extends StatefulWidget {
   const AllTransactionPage({super.key});
@@ -31,6 +32,25 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
   void dispose() {
     searchController.dispose();
     super.dispose();
+  }
+
+  void _showReceipt(String url) {
+    final isPdf = url.toLowerCase().contains('.pdf');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: SizedBox(
+            width: 700,
+            height: 600,
+            child: isPdf
+                ? SfPdfViewer.network(url)
+                : Image.network(url, fit: BoxFit.contain),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -148,6 +168,11 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
                                         description: transaction.description,
                                         amount: transaction.amount,
                                         isMobile: isMobile,
+                                        receiptUrl: transaction.receiptUrl,
+
+                                        onReceiptTap: () {
+                                          _showReceipt(transaction.receiptUrl!);
+                                        },
                                         onTap: () async {
                                           final result = await context.push(
                                             RoutesName.updateTransactionpage,

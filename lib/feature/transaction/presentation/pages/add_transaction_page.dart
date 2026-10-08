@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
@@ -6,7 +8,7 @@ import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
-
+import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
@@ -16,6 +18,7 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/amount_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/category_field.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/receipt_upload.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_date_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
@@ -25,12 +28,13 @@ import 'package:expense_tracker/feature/transaction/presentation/widgets/transac
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_text_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_type_button.dart';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddTransactionPage extends StatefulWidget {
   final VoidCallback onBack;
+
   const AddTransactionPage({super.key, required this.onBack});
 
   @override
@@ -44,12 +48,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
   String? selectedTypeId;
   String? selectedCategoryId;
   String? userId;
+
   final formKey = GlobalKey<FormState>();
 
   List<TransactionTypeEntity> transactionTypes = [];
   List<TransactionCategoryEntity> categories = [];
 
   DateTime selectedDate = DateTime.now();
+
+  PlatformFile? selectedReceipt;
 
   @override
   void dispose() {
@@ -117,6 +124,24 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     }
   }
 
+  Future<void> onUpload() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'webp', 'pdf'],
+    );
+
+    if (result == null || result.isEmpty) {
+      return;
+    }
+    final file = result.single;
+
+    setState(() {
+      selectedReceipt = file;
+    });
+
+    _showMessage('Receipt selected: ${file.name}');
+  }
+
   void saveTransaction() {
     if (!formKey.currentState!.validate()) {
       return;
@@ -132,6 +157,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       return;
     }
 
+    if (userId == null) {
+      _showMessage('User information is not available');
+      return;
+    }
+
     final transaction = TransactionEntity(
       id: '',
       userId: userId!,
@@ -140,9 +170,16 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
       categoryId: selectedCategoryId!,
       description: descriptionController.text.trim(),
       date: selectedDate,
+      receiptId: null,
+      receiptUrl: null,
     );
 
-    context.read<TransactionBloc>().add(AddTransaction(transaction));
+    final param = TransactionParam(
+      transaction: transaction,
+      file: selectedReceipt,
+    );
+
+    context.read<TransactionBloc>().add(AddTransaction(param));
   }
 
   @override
@@ -165,6 +202,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
     final expense = transactionTypes
         .where((type) => type.type == 'expense')
         .firstOrNull;
+
     return MultiBlocListener(
       listeners: [
         BlocListener<TypeBloc, TypeStates>(
@@ -172,9 +210,11 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             if (state is TypeLoaded) {
               setState(() {
                 transactionTypes = state.types;
+
                 final byDefault = transactionTypes
                     .where((type) => type.type == 'expense')
                     .firstOrNull;
+
                 selectedTypeId = byDefault?.id;
               });
             }
@@ -184,6 +224,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             }
           },
         ),
+
         BlocListener<CategoryBloc, CategoryStates>(
           listener: (context, state) {
             if (state is CategoryLoaded) {
@@ -197,10 +238,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
             }
           },
         ),
+
         BlocListener<TransactionBloc, TransactionState>(
           listener: (context, state) async {
             if (state is TransactionSuccess) {
               _showMessage('Transaction added successfully');
+
+              setState(() {
+                selectedReceipt = null;
+              });
 
               if (userId != null) {
                 await NotificationService().sendNotification(
@@ -218,11 +264,13 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           },
         ),
       ],
+
       child: BlocBuilder<ProfileBloc, ProfileState>(
         builder: (context, state) {
           if (state is ProfileLoaded) {
             userId = state.profile.id;
           }
+
           return Scaffold(
             backgroundColor: TransactionWidgetPalette.bg,
             body: GestureDetector(
@@ -238,6 +286,7 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                       height: 245,
                       bottomRadius: 34,
                     ),
+
                     SafeArea(
                       child: Center(
                         child: ConstrainedBox(
@@ -257,7 +306,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                   isMobile: isMobile,
                                   onBack: widget.onBack,
                                 ),
+
                                 SizedBox(height: isMobile ? 26 : 32),
+
                                 Form(
                                   key: formKey,
                                   child: Column(
@@ -272,12 +323,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                               subtitle:
                                                   'Track your income and expenses',
                                             ),
+
                                             const SizedBox(height: 26),
 
                                             const TransactionSectionLabel(
                                               'Transaction Type',
                                             ),
+
                                             const SizedBox(height: 12),
+
                                             Row(
                                               children: [
                                                 Expanded(
@@ -304,7 +358,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                           },
                                                   ),
                                                 ),
+
                                                 const SizedBox(width: 12),
+
                                                 Expanded(
                                                   child: TransactionTypeButton(
                                                     label: 'Expense',
@@ -331,7 +387,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                 ),
                                               ],
                                             ),
+
                                             const SizedBox(height: 24),
+
                                             if (!isMobile)
                                               Row(
                                                 crossAxisAlignment:
@@ -343,7 +401,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                           amountController,
                                                     ),
                                                   ),
+
                                                   const SizedBox(width: 16),
+
                                                   Expanded(
                                                     child: CategoryField(
                                                       value: selectedCategoryId,
@@ -365,7 +425,9 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                     controller:
                                                         amountController,
                                                   ),
+
                                                   const SizedBox(height: 20),
+
                                                   CategoryField(
                                                     value: selectedCategoryId,
                                                     categories: categories,
@@ -378,11 +440,15 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                   ),
                                                 ],
                                               ),
+
                                             const SizedBox(height: 20),
+
                                             const TransactionSectionLabel(
                                               'Description',
                                             ),
+
                                             const SizedBox(height: 10),
+
                                             TransactionTextField(
                                               controller: descriptionController,
                                               hintText:
@@ -399,16 +465,26 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                                                 return null;
                                               },
                                             ),
+
                                             const SizedBox(height: 20),
+
                                             const TransactionSectionLabel(
                                               'Date',
                                             ),
+
                                             const SizedBox(height: 10),
+
                                             TransactionDateField(
                                               selectedDate: selectedDate,
                                               onTap: selectDate,
                                             ),
+
                                             const SizedBox(height: 30),
+
+                                            ReceiptUpload(onUpload: onUpload),
+
+                                            const SizedBox(height: 30),
+
                                             TransactionPrimaryButton(
                                               label: 'Save Transaction',
                                               icon: Icons

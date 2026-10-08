@@ -3,8 +3,8 @@ import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/core/errors/app_failure.dart';
 import 'package:expense_tracker/core/types/app_result.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
-import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
+import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
 import 'package:expense_tracker/feature/transaction/domain/repository/transaction_repository.dart';
 
 class TransactionRepositoryImpl implements TransactionRepository {
@@ -20,6 +20,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
       final result = await datasource.getAllTransactionData(
         searchQuery: searchQuery,
       );
+
       return Right(result);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));
@@ -30,6 +31,7 @@ class TransactionRepositoryImpl implements TransactionRepository {
   AppResult<List<TransactionEntity>> getTransaction() async {
     try {
       final result = await datasource.getTransaction();
+
       return Right(result);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));
@@ -37,21 +39,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
   }
 
   @override
-  AppResult<TransactionEntity> addTransaction(
-    TransactionEntity transaction,
-  ) async {
+  AppResult<TransactionEntity> addTransaction(TransactionParam param) async {
     try {
-      final model = TransactionModel(
-        id: transaction.id,
-        userId: transaction.userId,
-        amount: transaction.amount,
-        typeId: transaction.typeId,
-        categoryId: transaction.categoryId,
-        description: transaction.description,
-        date: transaction.date,
-      );
+      final result = await datasource.addTransaction(param);
 
-      final result = await datasource.addTransaction(model);
       return Right(result);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));
@@ -63,17 +54,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
     TransactionEntity transaction,
   ) async {
     try {
-      final model = TransactionModel(
-        id: transaction.id,
-        userId: transaction.userId,
-        amount: transaction.amount,
-        typeId: transaction.typeId,
-        categoryId: transaction.categoryId,
-        description: transaction.description,
-        date: transaction.date,
-      );
+      final result = await datasource.updateTransaction(transaction);
 
-      final result = await datasource.updateTransaction(model);
       return Right(result);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));
@@ -84,7 +66,8 @@ class TransactionRepositoryImpl implements TransactionRepository {
   AppResult<void> deleteTransaction(String transactionid) async {
     try {
       await datasource.deleteTransaction(transactionid);
-      return Right(null);
+
+      return const Right(null);
     } on ServerException catch (e) {
       return Left(AppFailure(e.message));
     }

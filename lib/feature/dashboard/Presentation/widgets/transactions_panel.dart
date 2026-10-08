@@ -9,11 +9,31 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/transactio
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class TransactionsPanel extends StatelessWidget {
   final bool isMobile;
 
   const TransactionsPanel({super.key, required this.isMobile});
+
+  void _showReceipt(BuildContext context, String url) {
+    final isPdf = url.toLowerCase().contains('.pdf');
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: SizedBox(
+            width: 700,
+            height: 600,
+            child: isPdf
+                ? SfPdfViewer.network(url)
+                : Image.network(url, fit: BoxFit.contain),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +96,10 @@ class TransactionsPanel extends StatelessWidget {
                     TransactionCard(
                       description: items[i].description,
                       amount: items[i].amount,
+                      receiptUrl: items[i].receiptUrl,
+                      onReceiptTap: () {
+                        _showReceipt(context, items[i].receiptUrl!);
+                      },
                       onTap: () async {
                         final result = await context.push(
                           RoutesName.updateTransactionpage,

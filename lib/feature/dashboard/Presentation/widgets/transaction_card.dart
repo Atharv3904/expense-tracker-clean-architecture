@@ -5,12 +5,16 @@ class TransactionCard extends StatelessWidget {
   final String description;
   final dynamic amount;
   final VoidCallback onTap;
+  final String? receiptUrl;
+  final VoidCallback? onReceiptTap;
 
   const TransactionCard({
     super.key,
     required this.description,
     required this.amount,
     required this.onTap,
+    this.receiptUrl,
+    this.onReceiptTap,
   });
 
   @override
@@ -19,6 +23,8 @@ class TransactionCard extends StatelessWidget {
 
     const ink = Color(0xFF07091D);
     const accentColor = Color(0xFF22C55E);
+
+    final hasReceipt = receiptUrl != null && receiptUrl!.isNotEmpty;
 
     return Material(
       color: Colors.transparent,
@@ -57,7 +63,9 @@ class TransactionCard extends StatelessWidget {
                   size: 21,
                 ),
               ),
+
               const SizedBox(width: 13),
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -72,19 +80,38 @@ class TransactionCard extends StatelessWidget {
                         fontWeight: FontWeight.w800,
                       ),
                     ),
+
                     const SizedBox(height: 4),
-                    Text(
+
+                    const Text(
                       'Transaction amount',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
-                        color: ink.withValues(alpha: 0.45),
+                        color: Colors.grey,
                       ),
                     ),
+
+                    if (hasReceipt)
+                      TextButton.icon(
+                        onPressed: onReceiptTap,
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        icon: const Icon(Icons.visibility_rounded, size: 15),
+                        label: const Text(
+                          'View Receipt',
+                          style: TextStyle(fontSize: 12),
+                        ),
+                      ),
                   ],
                 ),
               ),
+
               const SizedBox(width: 10),
+
               Text(
                 '₹$amount',
                 style: TextStyle(
@@ -93,6 +120,7 @@ class TransactionCard extends StatelessWidget {
                   color: accentColor,
                 ),
               ),
+
               const SizedBox(width: 8),
             ],
           ),
