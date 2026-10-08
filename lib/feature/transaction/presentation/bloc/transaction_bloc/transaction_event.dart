@@ -1,4 +1,3 @@
-import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
 
 abstract class TransactionEvent {
@@ -15,8 +14,8 @@ class AddTransaction extends TransactionEvent {
 }
 
 class UpdateTransaction extends TransactionEvent {
-  final TransactionEntity transaction;
-  const UpdateTransaction(this.transaction);
+  final TransactionParam params;
+  const UpdateTransaction(this.params);
 }
 
 class DeleteTransaction extends TransactionEvent {

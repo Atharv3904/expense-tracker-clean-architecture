@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: unnecessary_null_comparison, use_build_context_synchronously
 
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
@@ -7,6 +7,7 @@ import 'package:expense_tracker/core/utils/app_snackbar.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_type_entity.dart';
+import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/category_bloc/category_states.dart';
@@ -17,6 +18,7 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/
 import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/type_states.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/amount_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/category_field.dart';
+import 'package:expense_tracker/feature/transaction/presentation/widgets/receipt_upload.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_date_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
@@ -26,10 +28,12 @@ import 'package:expense_tracker/feature/transaction/presentation/widgets/transac
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_text_field.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_type_button.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 class UpdateTransactionPage extends StatefulWidget {
   final TransactionEntity transaction;
@@ -47,6 +51,8 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   String? selectedTypeId;
   String? selectedCategoryId;
   String? userId;
+  String? receiptUrl;
+  PlatformFile? selectedFile;
 
   List<TransactionTypeEntity> transactionTypes = [];
   List<TransactionCategoryEntity> categories = [];
@@ -65,6 +71,51 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
     selectedCategoryId = widget.transaction.categoryId;
     selectedDate = widget.transaction.date;
     userId = widget.transaction.userId;
+    receiptUrl = widget.transaction.receiptUrl;
+  }
+
+  void onReceiptTap() {
+    if (receiptUrl == null || receiptUrl!.isEmpty) {
+      _showMessage('No receipt available for this transaction.');
+      return;
+    }
+
+    final isPdf = receiptUrl!.toLowerCase().contains('.pdf');
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          child: SizedBox(
+            width: 700,
+            height: 600,
+            child: isPdf
+                ? SfPdfViewer.network(receiptUrl!)
+                : Image.network(receiptUrl!, fit: BoxFit.contain),
+          ),
+        );
+      },
+    );
+  }
+
+  void onUpload() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
+    );
+
+    if (result == null || result.isEmpty) {
+      return;
+    }
+
+    final file = result.single;
+
+    setState(() {
+      selectedFile = file;
+    });
+
+    AppSnackbar.show(context, message: "Receipt selected: ${file.name}");
   }
 
   @override
@@ -126,7 +177,12 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
       receiptUrl: widget.transaction.receiptUrl,
     );
 
-    context.read<TransactionBloc>().add(UpdateTransaction(updatedTransaction));
+    final params = TransactionParam(
+      file: selectedFile,
+      transaction: updatedTransaction,
+    );
+
+    context.read<TransactionBloc>().add(UpdateTransaction(params));
   }
 
   Future<void> selectDate() async {
@@ -463,6 +519,49 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                     onTap: selectDate,
                                   ),
                                   const SizedBox(height: 30),
+                                  if (receiptUrl != null &&
+                                      receiptUrl!.isNotEmpty) ...[
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 52,
+                                      child: OutlinedButton.icon(
+                                        onPressed: onReceiptTap,
+                                        icon: const Icon(
+                                          Icons.receipt_long_rounded,
+                                          size: 20,
+                                        ),
+                                        label: const Text(
+                                          'View Receipt',
+                                          style: TextStyle(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w800,
+                                          ),
+                                        ),
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor:
+                                              TransactionWidgetPalette.teal,
+                                          side: const BorderSide(
+                                            color:
+                                                TransactionWidgetPalette.teal,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              18,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    const SizedBox(height: 14),
+                                  ],
+
+                                  ReceiptUpload(
+                                    onUpload: onUpload,
+                                    value: "Update Receipt",
+                                  ),
+
+                                  const SizedBox(height: 30),
                                   BlocBuilder<
                                     TransactionBloc,
                                     TransactionState
@@ -477,6 +576,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
                                       );
                                     },
                                   ),
+
                                   const SizedBox(height: 14),
                                   SizedBox(
                                     width: double.infinity,

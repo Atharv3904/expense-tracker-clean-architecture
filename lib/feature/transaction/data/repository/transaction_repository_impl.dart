@@ -51,10 +51,10 @@ class TransactionRepositoryImpl implements TransactionRepository {
 
   @override
   AppResult<TransactionEntity> updateTransaction(
-    TransactionEntity transaction,
+    TransactionParam params,
   ) async {
     try {
-      final result = await datasource.updateTransaction(transaction);
+      final result = await datasource.updateTransaction(params);
 
       return Right(result);
     } on ServerException catch (e) {

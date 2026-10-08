@@ -94,7 +94,7 @@ class TransactionBloc extends Bloc<TransactionEvent, TransactionState> {
   ) async {
     emit(const TransactionLoading());
 
-    final result = await updateTransactionUsecase(event.transaction);
+    final result = await updateTransactionUsecase(event.params);
 
     result.fold(
       (failure) {

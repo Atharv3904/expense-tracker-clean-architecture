@@ -481,7 +481,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
 
                                             const SizedBox(height: 30),
 
-                                            ReceiptUpload(onUpload: onUpload),
+                                            ReceiptUpload(
+                                              onUpload: onUpload,
+                                              value: "Choose Receipt",
+                                            ),
 
                                             const SizedBox(height: 30),
 

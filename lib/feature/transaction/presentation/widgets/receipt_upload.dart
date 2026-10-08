@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 
 class ReceiptUpload extends StatelessWidget {
   final VoidCallback onUpload;
+  final String value;
 
-  const ReceiptUpload({super.key, required this.onUpload});
+  const ReceiptUpload({super.key, required this.onUpload, required this.value});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +28,7 @@ class ReceiptUpload extends StatelessWidget {
         : const Icon(
           Icons.upload_file_rounded,
         ),
-        label: Text('Choose Receipt'),
+        label: Text(value),
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColor.primary,
           foregroundColor: Colors.white,

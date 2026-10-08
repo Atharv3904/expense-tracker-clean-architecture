@@ -13,7 +13,7 @@ abstract class TransactionRepository {
 
   AppResult<TransactionEntity> addTransaction(TransactionParam param);
 
-  AppResult<TransactionEntity> updateTransaction(TransactionEntity param);
+  AppResult<TransactionEntity> updateTransaction(TransactionParam param);
 
   AppResult<void> deleteTransaction(String transactionid);
 }

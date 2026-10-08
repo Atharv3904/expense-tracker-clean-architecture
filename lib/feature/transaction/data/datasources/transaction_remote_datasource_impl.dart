@@ -1,8 +1,9 @@
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
-import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
+
 import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
@@ -48,6 +49,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return transactions;
     } catch (e) {
+      print('❌ getAllTransactionData ERROR: $e');
+
       if (e is ServerException) {
         rethrow;
       }
@@ -88,6 +91,8 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return transactions;
     } catch (e) {
+      print('❌ getTransaction ERROR: $e');
+
       if (e is ServerException) {
         rethrow;
       }
@@ -112,9 +117,16 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       final filePath = receipt['file_path'] as String?;
 
       if (filePath != null && filePath.isNotEmpty) {
-        receiptUrl = await supabaseClient.storage
-            .from('receipts')
-            .createSignedUrl(filePath, 60 * 10);
+        try {
+          receiptUrl = await supabaseClient.storage
+              .from('receipts')
+              .createSignedUrl(filePath, 60 * 10);
+        } catch (e) {
+          print('⚠️ Receipt file not found: $filePath');
+          print('⚠️ Storage error: $e');
+
+          receiptUrl = null;
+        }
       }
     }
 
@@ -128,28 +140,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
   @override
   Future<TransactionModel> addTransaction(TransactionParam param) async {
-    String getContentType(String fileName) {
-      final extension = fileName.split('.').last.toLowerCase();
-
-      switch (extension) {
-        case 'pdf':
-          return 'application/pdf';
-
-        case 'jpg':
-        case 'jpeg':
-          return 'image/jpeg';
-
-        case 'png':
-          return 'image/png';
-
-        case 'webp':
-          return 'image/webp';
-
-        default:
-          throw ServerException('Unsupported file type');
-      }
-    }
-
     final user = supabaseClient.auth.currentUser;
 
     if (user == null) {
@@ -279,11 +269,69 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
   }
 
   @override
-  Future<TransactionModel> updateTransaction(
-    TransactionEntity transaction,
-  ) async {
+  Future<TransactionModel> updateTransaction(TransactionParam params) async {
+    final user = supabaseClient.auth.currentUser;
+
+    if (user == null) {
+      throw ServerException('User is not authenticated');
+    }
+
+    final transaction = params.transaction;
+    final file = params.file;
+
+    String? newFilePath;
+    String? oldFilePath;
+
     try {
-      final data = {
+      final oldReceiptResponse = await supabaseClient
+          .from('receipts')
+          .select('id, file_path')
+          .eq('transaction_id', transaction.id)
+          .maybeSingle();
+
+      final String? oldReceiptId = oldReceiptResponse?['id'] as String?;
+
+      oldFilePath = oldReceiptResponse?['file_path'] as String?;
+
+      // ---------------------------------------------------------
+      // 2. Upload NEW receipt
+      // ---------------------------------------------------------
+
+      String? fileName;
+      String? contentType;
+      int? fileSize;
+
+      if (file != null) {
+        final storageFile = await file.readAsBytes();
+
+        fileName = file.name;
+
+        final safeFileName = fileName.replaceAll(RegExp(r'[/\\]'), '_');
+
+        final timestamp = DateTime.now().microsecondsSinceEpoch;
+
+        newFilePath =
+            '${user.id}/'
+            '${timestamp}_$safeFileName';
+
+        contentType = getContentType(fileName);
+
+        fileSize = storageFile.length;
+
+        await supabaseClient.storage
+            .from('receipts')
+            .uploadBinary(
+              newFilePath,
+              storageFile,
+              fileOptions: FileOptions(contentType: contentType, upsert: false),
+            );
+      }
+
+      // ---------------------------------------------------------
+      // 3. Update transaction
+      // ---------------------------------------------------------
+
+      final transactionData = {
         'amount': transaction.amount,
         'type_id': transaction.typeId,
         'category_id': transaction.categoryId,
@@ -291,15 +339,83 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         'created_at': transaction.date.toIso8601String(),
       };
 
-      final response = await supabaseClient
+      await supabaseClient
           .from('transactions')
-          .update(data)
+          .update(transactionData)
           .eq('id', transaction.id)
           .select()
           .single();
 
-      return TransactionModel.fromJson(response);
+      // ---------------------------------------------------------
+      // 4. Update receipt row
+      // ---------------------------------------------------------
+
+      if (file != null && newFilePath != null) {
+        final receiptData = {
+          'user_id': user.id,
+          'transaction_id': transaction.id,
+          'file_name': fileName,
+          'file_path': newFilePath,
+          'file_type': contentType,
+          'file_size': fileSize,
+        };
+
+        if (oldReceiptId != null) {
+          // Existing receipt → UPDATE it
+          await supabaseClient
+              .from('receipts')
+              .update(receiptData)
+              .eq('id', oldReceiptId);
+        } else {
+          // No old receipt → INSERT new receipt
+          await supabaseClient.from('receipts').insert(receiptData);
+        }
+      }
+
+      // ---------------------------------------------------------
+      // 5. Delete OLD receipt from Storage
+      // ---------------------------------------------------------
+
+      if (file != null && oldFilePath != null && oldFilePath.isNotEmpty) {
+        await supabaseClient.storage.from('receipts').remove([oldFilePath]);
+      }
+
+      // ---------------------------------------------------------
+      // 6. Get updated transaction WITH receipt
+      // ---------------------------------------------------------
+
+      final updatedResponse = await supabaseClient
+          .from('transactions')
+          .select('''
+          *,
+          receipts (
+            id,
+            file_path
+          )
+        ''')
+          .eq('id', transaction.id)
+          .single();
+
+      return await _transactionModelWithReceipt(
+        Map<String, dynamic>.from(updatedResponse),
+      );
     } catch (e) {
+      // ---------------------------------------------------------
+      // Remove NEW file if something failed
+      // ---------------------------------------------------------
+
+      if (newFilePath != null) {
+        try {
+          await supabaseClient.storage.from('receipts').remove([newFilePath]);
+        } catch (_) {
+          // Keep original error
+        }
+      }
+
+      if (e is ServerException) {
+        rethrow;
+      }
+
       throw ServerException('Failed to update transaction');
     }
   }
@@ -314,6 +430,28 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           .select();
     } catch (e) {
       throw ServerException('Failed to delete transaction');
+    }
+  }
+
+  String getContentType(String fileName) {
+    final extension = fileName.split('.').last.toLowerCase();
+
+    switch (extension) {
+      case 'pdf':
+        return 'application/pdf';
+
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+
+      case 'png':
+        return 'image/png';
+
+      case 'webp':
+        return 'image/webp';
+
+      default:
+        throw ServerException('Unsupported file type');
     }
   }
 }
