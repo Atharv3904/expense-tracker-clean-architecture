@@ -1,8 +1,11 @@
+// ignore_for_file: avoid_print
+
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -49,7 +52,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return transactions;
     } catch (e) {
-      print('❌ getAllTransactionData ERROR: $e');
+      debugPrint(' getAllTransactionData ERROR: $e');
 
       if (e is ServerException) {
         rethrow;
@@ -91,7 +94,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return transactions;
     } catch (e) {
-      print('❌ getTransaction ERROR: $e');
+      debugPrint(' getTransaction ERROR: $e');
 
       if (e is ServerException) {
         rethrow;
@@ -122,8 +125,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               .from('receipts')
               .createSignedUrl(filePath, 60 * 10);
         } catch (e) {
-          print('⚠️ Receipt file not found: $filePath');
-          print('⚠️ Storage error: $e');
+          debugPrint('❌ Receipt ID: $receiptId');
+          debugPrint('❌ Missing Storage path: $filePath');
+          debugPrint('❌ Storage error: $e');
 
           receiptUrl = null;
         }
@@ -152,12 +156,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     String? filePath;
 
     try {
-      // ---------------------------------------------------------
-      // 1. Upload receipt to Supabase Storage
-      // ---------------------------------------------------------
-
       if (file != null) {
-        // Read the actual file bytes.
         final storageFile = await file.readAsBytes();
 
         final fileName = file.name;
@@ -180,10 +179,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               fileOptions: FileOptions(contentType: contentType, upsert: false),
             );
 
-        // -------------------------------------------------------
-        // 2. Call PostgreSQL RPC
-        // -------------------------------------------------------
-
         final response = await supabaseClient.rpc(
           'add_transaction_with_receipt',
           params: {
@@ -200,15 +195,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           },
         );
 
-        // -------------------------------------------------------
-        // 3. RPC returns the newly created transaction ID
-        // -------------------------------------------------------
-
         final transactionId = response as String;
-
-        // -------------------------------------------------------
-        // 4. Get newly created transaction
-        // -------------------------------------------------------
 
         final transactionResponse = await supabaseClient
             .from('transactions')
@@ -218,10 +205,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
         return TransactionModel.fromJson(transactionResponse);
       }
-
-      // ---------------------------------------------------------
-      // No receipt selected
-      // ---------------------------------------------------------
 
       final response = await supabaseClient.rpc(
         'add_transaction_with_receipt',
@@ -248,16 +231,10 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       return TransactionModel.fromJson(transactionResponse);
     } catch (e) {
-      // ---------------------------------------------------------
-      // 5. Remove uploaded file if database/RPC failed
-      // ---------------------------------------------------------
-
       if (filePath != null) {
         try {
           await supabaseClient.storage.from('receipts').remove([filePath]);
-        } catch (_) {
-          // Keep the original error.
-        }
+        } catch (_) {}
       }
 
       if (e is ServerException) {
@@ -282,19 +259,26 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     String? newFilePath;
     String? oldFilePath;
 
+    bool databaseUpdated = false;
+
     try {
+      debugPrint('========== UPDATE TRANSACTION ==========');
+      debugPrint('Transaction ID: ${transaction.id}');
+      debugPrint('Replacement receipt: ${file?.name ?? "None"}');
+
       final oldReceiptResponse = await supabaseClient
           .from('receipts')
           .select('id, file_path')
           .eq('transaction_id', transaction.id)
           .maybeSingle();
 
-      final String? oldReceiptId = oldReceiptResponse?['id'] as String?;
-
       oldFilePath = oldReceiptResponse?['file_path'] as String?;
 
+      debugPrint('Old receipt row: $oldReceiptResponse');
+      debugPrint('Old receipt path: $oldFilePath');
+
       // ---------------------------------------------------------
-      // 2. Upload NEW receipt
+      // 2. Upload the replacement receipt, if selected.
       // ---------------------------------------------------------
 
       String? fileName;
@@ -302,20 +286,17 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       int? fileSize;
 
       if (file != null) {
-        final storageFile = await file.readAsBytes();
-
         fileName = file.name;
+
+        final storageFile = await file.readAsBytes();
 
         final safeFileName = fileName.replaceAll(RegExp(r'[/\\]'), '_');
 
         final timestamp = DateTime.now().microsecondsSinceEpoch;
 
-        newFilePath =
-            '${user.id}/'
-            '${timestamp}_$safeFileName';
+        newFilePath = '${user.id}/${timestamp}_$safeFileName';
 
         contentType = getContentType(fileName);
-
         fileSize = storageFile.length;
 
         await supabaseClient.storage
@@ -325,64 +306,47 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               storageFile,
               fileOptions: FileOptions(contentType: contentType, upsert: false),
             );
+
+        debugPrint('✅ New receipt uploaded: $newFilePath');
       }
 
-      // ---------------------------------------------------------
-      // 3. Update transaction
-      // ---------------------------------------------------------
+      final rpcResponse = await supabaseClient.rpc(
+        'update_transaction_with_receipt',
+        params: {
+          'p_transaction_id': transaction.id,
+          'p_amount': transaction.amount,
+          'p_type_id': transaction.typeId,
+          'p_category_id': transaction.categoryId,
+          'p_description': transaction.description,
+          'p_created_at': transaction.date.toIso8601String(),
+          'p_receipt_file_name': fileName,
+          'p_receipt_file_path': newFilePath,
+          'p_receipt_file_type': contentType,
+          'p_receipt_file_size': fileSize,
+        },
+      );
 
-      final transactionData = {
-        'amount': transaction.amount,
-        'type_id': transaction.typeId,
-        'category_id': transaction.categoryId,
-        'description': transaction.description,
-        'created_at': transaction.date.toIso8601String(),
-      };
+      debugPrint('RPC response: $rpcResponse');
 
-      await supabaseClient
-          .from('transactions')
-          .update(transactionData)
-          .eq('id', transaction.id)
-          .select()
-          .single();
+      databaseUpdated = true;
 
-      // ---------------------------------------------------------
-      // 4. Update receipt row
-      // ---------------------------------------------------------
+      debugPrint('✅ Transaction and receipt metadata updated');
 
-      if (file != null && newFilePath != null) {
-        final receiptData = {
-          'user_id': user.id,
-          'transaction_id': transaction.id,
-          'file_name': fileName,
-          'file_path': newFilePath,
-          'file_type': contentType,
-          'file_size': fileSize,
-        };
+      if (file != null &&
+          oldFilePath != null &&
+          oldFilePath.isNotEmpty &&
+          oldFilePath != newFilePath) {
+        try {
+          await supabaseClient.storage.from('receipts').remove([oldFilePath]);
 
-        if (oldReceiptId != null) {
-          // Existing receipt → UPDATE it
-          await supabaseClient
-              .from('receipts')
-              .update(receiptData)
-              .eq('id', oldReceiptId);
-        } else {
-          // No old receipt → INSERT new receipt
-          await supabaseClient.from('receipts').insert(receiptData);
+          debugPrint('✅ Old receipt removed: $oldFilePath');
+        } catch (e) {
+          // The database is already updated.
+          // Never delete the new file because old-file cleanup failed.
+          debugPrint('⚠️ Could not remove old receipt: $oldFilePath');
+          debugPrint('Storage cleanup error: $e');
         }
       }
-
-      // ---------------------------------------------------------
-      // 5. Delete OLD receipt from Storage
-      // ---------------------------------------------------------
-
-      if (file != null && oldFilePath != null && oldFilePath.isNotEmpty) {
-        await supabaseClient.storage.from('receipts').remove([oldFilePath]);
-      }
-
-      // ---------------------------------------------------------
-      // 6. Get updated transaction WITH receipt
-      // ---------------------------------------------------------
 
       final updatedResponse = await supabaseClient
           .from('transactions')
@@ -394,21 +358,28 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           )
         ''')
           .eq('id', transaction.id)
+          .eq('user_id', user.id)
           .single();
 
-      return await _transactionModelWithReceipt(
+      final updatedTransaction = await _transactionModelWithReceipt(
         Map<String, dynamic>.from(updatedResponse),
       );
-    } catch (e) {
-      // ---------------------------------------------------------
-      // Remove NEW file if something failed
-      // ---------------------------------------------------------
 
-      if (newFilePath != null) {
+      debugPrint('✅ Updated transaction fetched successfully');
+      debugPrint('========================================');
+
+      return updatedTransaction;
+    } catch (e, stackTrace) {
+      debugPrint('❌ UPDATE TRANSACTION ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!databaseUpdated && newFilePath != null) {
         try {
           await supabaseClient.storage.from('receipts').remove([newFilePath]);
-        } catch (_) {
-          // Keep original error
+
+          debugPrint('Cleaned up failed replacement upload: $newFilePath');
+        } catch (cleanupError) {
+          debugPrint('⚠️ New-file cleanup failed: $cleanupError');
         }
       }
 
@@ -416,7 +387,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         rethrow;
       }
 
-      throw ServerException('Failed to update transaction');
+      throw ServerException('Failed to update transaction: $e');
     }
   }
 
