@@ -1,12 +1,8 @@
-// ignore_for_file: avoid_print
-
 import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/transaction/data/datasources/transaction_remote_datasource.dart';
 import 'package:expense_tracker/feature/transaction/data/model/transaction_model.dart';
-
 import 'package:expense_tracker/feature/transaction/domain/params/transaction_param.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
@@ -28,12 +24,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       var query = supabaseClient
           .from('transactions')
           .select('''
-          *,
-          receipts (
-            id,
-            file_path
-          )
-        ''')
+            *,
+            receipts (
+              id,
+              file_path
+            )
+          ''')
           .eq('user_id', user.id);
 
       if (searchQuery != null && searchQuery.trim().isNotEmpty) {
@@ -51,8 +47,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       }
 
       return transactions;
-    } catch (e) {
-      debugPrint(' getAllTransactionData ERROR: $e');
+    } catch (e, stackTrace) {
+      debugPrint('getAllTransactionData ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
 
       if (e is ServerException) {
         rethrow;
@@ -74,12 +71,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       final response = await supabaseClient
           .from('transactions')
           .select('''
-          *,
-          receipts (
-            id,
-            file_path
-          )
-        ''')
+            *,
+            receipts (
+              id,
+              file_path
+            )
+          ''')
           .eq('user_id', user.id)
           .order('updated_at', ascending: false)
           .limit(3);
@@ -93,8 +90,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       }
 
       return transactions;
-    } catch (e) {
-      debugPrint(' getTransaction ERROR: $e');
+    } catch (e, stackTrace) {
+      debugPrint('getTransaction ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
 
       if (e is ServerException) {
         rethrow;
@@ -112,6 +110,10 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
     final receipts = json['receipts'];
 
+    debugPrint('========== RECEIPT MAPPING ==========');
+    debugPrint('Transaction ID: ${json['id']}');
+    debugPrint('Receipt data: $receipts');
+
     if (receipts is List && receipts.isNotEmpty) {
       final receipt = Map<String, dynamic>.from(receipts.first as Map);
 
@@ -121,23 +123,36 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       if (filePath != null && filePath.isNotEmpty) {
         try {
+          debugPrint('Generating signed URL for: $filePath');
+
           receiptUrl = await supabaseClient.storage
               .from('receipts')
-              .createSignedUrl(filePath, 60 * 10);
-        } catch (e) {
-          debugPrint('❌ Receipt ID: $receiptId');
-          debugPrint('❌ Missing Storage path: $filePath');
-          debugPrint('❌ Storage error: $e');
+              .createSignedUrl(filePath, 600);
+
+          debugPrint('Signed URL generated successfully');
+        } catch (e, stackTrace) {
+          debugPrint('Failed to generate signed URL: $e');
+          debugPrintStack(stackTrace: stackTrace);
 
           receiptUrl = null;
         }
+      } else {
+        debugPrint('Receipt file path is empty or null');
       }
+    } else {
+      debugPrint('No receipt record found for this transaction');
     }
 
     final transactionJson = Map<String, dynamic>.from(json);
 
     transactionJson['receipt_id'] = receiptId;
     transactionJson['receipt_url'] = receiptUrl;
+
+    debugPrint(
+      'Final receipt URL: '
+      '${receiptUrl != null ? "Available" : "Null"}',
+    );
+    debugPrint('=====================================');
 
     return TransactionModel.fromJson(transactionJson);
   }
@@ -154,22 +169,26 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
     final file = param.file;
 
     String? filePath;
+    bool transactionCreated = false;
 
     try {
-      if (file != null) {
-        final storageFile = await file.readAsBytes();
+      String? fileName;
+      String? contentType;
+      int? fileSize;
 
-        final fileName = file.name;
+      if (file != null) {
+        fileName = file.name;
+
+        final storageFile = await file.readAsBytes();
 
         final safeFileName = fileName.replaceAll(RegExp(r'[/\\]'), '_');
 
         final timestamp = DateTime.now().microsecondsSinceEpoch;
 
-        filePath =
-            '${user.id}/'
-            '${timestamp}_$safeFileName';
+        filePath = '${user.id}/${timestamp}_$safeFileName';
 
-        final contentType = getContentType(fileName);
+        contentType = getContentType(fileName);
+        fileSize = storageFile.length;
 
         await supabaseClient.storage
             .from('receipts')
@@ -179,31 +198,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               fileOptions: FileOptions(contentType: contentType, upsert: false),
             );
 
-        final response = await supabaseClient.rpc(
-          'add_transaction_with_receipt',
-          params: {
-            'p_amount': transaction.amount,
-            'p_type_id': transaction.typeId,
-            'p_category_id': transaction.categoryId,
-            'p_description': transaction.description,
-            'p_created_at': transaction.date.toIso8601String(),
-
-            'p_receipt_file_name': fileName,
-            'p_receipt_file_path': filePath,
-            'p_receipt_file_type': contentType,
-            'p_receipt_file_size': storageFile.length,
-          },
-        );
-
-        final transactionId = response as String;
-
-        final transactionResponse = await supabaseClient
-            .from('transactions')
-            .select()
-            .eq('id', transactionId)
-            .single();
-
-        return TransactionModel.fromJson(transactionResponse);
+        debugPrint('Receipt uploaded: $filePath');
       }
 
       final response = await supabaseClient.rpc(
@@ -214,34 +209,54 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           'p_category_id': transaction.categoryId,
           'p_description': transaction.description,
           'p_created_at': transaction.date.toIso8601String(),
-          'p_receipt_file_name': null,
-          'p_receipt_file_path': null,
-          'p_receipt_file_type': null,
-          'p_receipt_file_size': null,
+          'p_receipt_file_name': fileName,
+          'p_receipt_file_path': filePath,
+          'p_receipt_file_type': contentType,
+          'p_receipt_file_size': fileSize,
         },
       );
 
       final transactionId = response as String;
 
+      transactionCreated = true;
+
+      debugPrint('Transaction created: $transactionId');
+
       final transactionResponse = await supabaseClient
           .from('transactions')
-          .select()
+          .select('''
+            *,
+            receipts (
+              id,
+              file_path
+            )
+          ''')
           .eq('id', transactionId)
+          .eq('user_id', user.id)
           .single();
 
-      return TransactionModel.fromJson(transactionResponse);
-    } catch (e) {
-      if (filePath != null) {
+      return await _transactionModelWithReceipt(
+        Map<String, dynamic>.from(transactionResponse),
+      );
+    } catch (e, stackTrace) {
+      debugPrint('ADD TRANSACTION ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
+      if (!transactionCreated && filePath != null) {
         try {
           await supabaseClient.storage.from('receipts').remove([filePath]);
-        } catch (_) {}
+
+          debugPrint('Cleaned up failed upload: $filePath');
+        } catch (cleanupError) {
+          debugPrint('Upload cleanup failed: $cleanupError');
+        }
       }
 
       if (e is ServerException) {
         rethrow;
       }
 
-      throw ServerException('Failed to add transaction');
+      throw ServerException('Failed to add transaction: $e');
     }
   }
 
@@ -277,10 +292,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       debugPrint('Old receipt row: $oldReceiptResponse');
       debugPrint('Old receipt path: $oldFilePath');
 
-      // ---------------------------------------------------------
-      // 2. Upload the replacement receipt, if selected.
-      // ---------------------------------------------------------
-
       String? fileName;
       String? contentType;
       int? fileSize;
@@ -307,7 +318,7 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
               fileOptions: FileOptions(contentType: contentType, upsert: false),
             );
 
-        debugPrint('✅ New receipt uploaded: $newFilePath');
+        debugPrint('New receipt uploaded: $newFilePath');
       }
 
       final rpcResponse = await supabaseClient.rpc(
@@ -330,7 +341,13 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       databaseUpdated = true;
 
-      debugPrint('✅ Transaction and receipt metadata updated');
+      final receiptCheck = await supabaseClient
+          .from('receipts')
+          .select('id, transaction_id, file_path')
+          .eq('transaction_id', transaction.id);
+
+      debugPrint('Expected new path: $newFilePath');
+      debugPrint('Receipt rows after RPC: $receiptCheck');
 
       if (file != null &&
           oldFilePath != null &&
@@ -339,11 +356,9 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         try {
           await supabaseClient.storage.from('receipts').remove([oldFilePath]);
 
-          debugPrint('✅ Old receipt removed: $oldFilePath');
+          debugPrint('Old receipt removed: $oldFilePath');
         } catch (e) {
-          // The database is already updated.
-          // Never delete the new file because old-file cleanup failed.
-          debugPrint('⚠️ Could not remove old receipt: $oldFilePath');
+          debugPrint('Could not remove old receipt: $oldFilePath');
           debugPrint('Storage cleanup error: $e');
         }
       }
@@ -351,12 +366,12 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       final updatedResponse = await supabaseClient
           .from('transactions')
           .select('''
-          *,
-          receipts (
-            id,
-            file_path
-          )
-        ''')
+            *,
+            receipts (
+              id,
+              file_path
+            )
+          ''')
           .eq('id', transaction.id)
           .eq('user_id', user.id)
           .single();
@@ -365,21 +380,21 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
         Map<String, dynamic>.from(updatedResponse),
       );
 
-      debugPrint('✅ Updated transaction fetched successfully');
+      debugPrint('Updated transaction fetched successfully');
       debugPrint('========================================');
 
       return updatedTransaction;
     } catch (e, stackTrace) {
-      debugPrint('❌ UPDATE TRANSACTION ERROR: $e');
+      debugPrint('UPDATE TRANSACTION ERROR: $e');
       debugPrintStack(stackTrace: stackTrace);
 
       if (!databaseUpdated && newFilePath != null) {
         try {
           await supabaseClient.storage.from('receipts').remove([newFilePath]);
 
-          debugPrint('Cleaned up failed replacement upload: $newFilePath');
+          debugPrint('Cleaned up failed replacement: $newFilePath');
         } catch (cleanupError) {
-          debugPrint('⚠️ New-file cleanup failed: $cleanupError');
+          debugPrint('Replacement cleanup failed: $cleanupError');
         }
       }
 
@@ -399,7 +414,10 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
           .delete()
           .eq('id', transactionId)
           .select();
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('DELETE TRANSACTION ERROR: $e');
+      debugPrintStack(stackTrace: stackTrace);
+
       throw ServerException('Failed to delete transaction');
     }
   }
