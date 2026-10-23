@@ -8,7 +8,7 @@ class AllUserModel extends AllUserEntity {
       name: json['name'] as String?,
       email: json['email'] as String?,
       role: json['role'] as String?,
-      created: DateTime.tryParse(json['created'] as String? ?? ''),
+      created: DateTime.tryParse(json['created_at'] as String? ?? ''),
     );
   }
 }
