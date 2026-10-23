@@ -47,7 +47,6 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
         'updated_by': user.id,
       };
 
-      // Only update avatar_path when a new avatar was selected.
       if (avatarPath != null) {
         updateData['avatar_path'] = avatarPath;
       }
@@ -89,7 +88,7 @@ class ProfileRemoteDatasourceImpl implements ProfileRemoteDatasource {
     try {
       final response = await supabaseClient
           .from('profiles')
-          .select('id, name, avatar_path')
+          .select('id, name, avatar_path , role')
           .eq('id', user.id)
           .single();
 

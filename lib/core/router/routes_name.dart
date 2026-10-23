@@ -16,4 +16,5 @@ class RoutesName {
   static const resetPassword = '/reset-password';
   static const String receipts = '/receipts';
   static const String receiptList = '/receiptList';
+  static const String adminDashboard = '/admin-dashboard';
 }

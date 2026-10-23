@@ -9,19 +9,28 @@ class SplashCubit extends Cubit<SplashState> {
 
   Future<void> checkAuthethication() async {
     emit(SplashLoading());
-    final user = await getCurrentUserUseCase();
 
-    user.fold(
-      (failure) {
-        emit(SplashUnauthenticated());
-      },
-      (user) {
-        if (user == null) {
+    try {
+      final result = await getCurrentUserUseCase();
+
+      result.fold(
+        (failure) {
           emit(SplashUnauthenticated());
-        } else {
-          emit(SplashAuthenticated());
-        }
-      },
-    );
+        },
+        (user) {
+          if (user == null) {
+            emit(SplashUnauthenticated());
+            return;
+          }
+
+          final role = user.role;
+
+          emit(SplashAuthenticated(role: role));
+        },
+      );
+    } catch (error, stackTrace) {
+      addError(error, stackTrace);
+      emit(SplashUnauthenticated());
+    }
   }
 }

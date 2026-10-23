@@ -1,6 +1,7 @@
 import 'package:expense_tracker/core/colors/app_color.dart';
 import 'package:expense_tracker/core/navigation/desktop_navigation.dart';
-import 'package:expense_tracker/core/navigation/mobile_navigation.dart';
+import 'package:expense_tracker/core/navigation/liquid_glass_navigation.dart';
+// import 'package:expense_tracker/core/navigation/mobile_navigation.dart';
 import 'package:expense_tracker/core/navigation/tablet_navigation.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
@@ -206,7 +207,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
         // Mobile navigation
         bottomNavigationBar: isMobile
-            ? FloatingBottomNavigation(
+            ? LiquidGlassBottomNavigation(
                 currentIndex: currentIndex,
                 onChanged: _onNavigationChanged,
               )

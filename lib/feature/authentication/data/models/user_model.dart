@@ -2,9 +2,13 @@ import 'package:expense_tracker/feature/authentication/domain/entities/auth_user
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class UserModel extends AuthUserEntity {
-  UserModel({required super.id, required super.email});
+  const UserModel({
+    required super.id,
+    required super.email,
+    required super.role,
+  });
 
-  factory UserModel.fromSupabaseUser(User user) {
-    return UserModel(id: user.id, email: user.email ?? '');
+  factory UserModel.fromSupabaseUser(User user, {required String role}) {
+    return UserModel(id: user.id, email: user.email ?? '', role: role);
   }
 }

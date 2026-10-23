@@ -44,12 +44,12 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   AppResult<AuthUserEntity?> getCurrentUser() async {
     try {
-      final user = remoteDataSource.getCurrentUser();
+      final user = await remoteDataSource.getCurrentUser();
       return Right(user);
-    } on AppException catch (e) {
-      return Left(AuthFailure("we are unable to fetch user"));
+    } on AppException catch (exception) {
+      return Left(AppFailure(exception.message));
     } catch (_) {
-      return Left(AppFailure("check your net"));
+      return Left(AppFailure('Unable to fetch current user'));
     }
   }
 

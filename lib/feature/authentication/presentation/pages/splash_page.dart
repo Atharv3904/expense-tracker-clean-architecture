@@ -24,7 +24,11 @@ class SplashPage extends StatelessWidget {
           deviceTokenService.listenForTokenRefresh();
 
           if (context.mounted) {
-            context.go(RoutesName.mainNavigationPage);
+            if (state.role == 'admin') {
+              context.pushReplacement(RoutesName.adminDashboard);
+            } else {
+              context.pushReplacement(RoutesName.mainNavigationPage);
+            }
           }
         }
 

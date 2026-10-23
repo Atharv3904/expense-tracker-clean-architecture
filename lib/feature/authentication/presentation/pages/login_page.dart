@@ -28,7 +28,11 @@ class LoginPage extends StatelessWidget {
           deviceTokenService.listenForTokenRefresh();
 
           if (context.mounted) {
-            context.pushReplacement(RoutesName.mainNavigationPage);
+            if (state.role == 'admin') {
+              context.pushReplacement(RoutesName.adminDashboard);
+            } else {
+              context.pushReplacement(RoutesName.mainNavigationPage);
+            }
           }
         }
 

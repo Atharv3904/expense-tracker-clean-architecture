@@ -11,7 +11,9 @@ class SplashLoading extends SplashState {
 }
 
 class SplashAuthenticated extends SplashState {
-  const SplashAuthenticated();
+  final String role;
+
+  SplashAuthenticated({required this.role});
 }
 
 class SplashUnauthenticated extends SplashState {

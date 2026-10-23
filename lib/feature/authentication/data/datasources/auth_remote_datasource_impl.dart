@@ -11,7 +11,28 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   final SupabaseClient supabaseClient;
+
   AuthRemoteDatasourceImpl(this.supabaseClient);
+
+  Future<String> _getUserRole(String userId) async {
+    try {
+      final profile = await supabaseClient
+          .from('profiles')
+          .select('role')
+          .eq('id', userId)
+          .single();
+
+      final role = profile['role'] as String?;
+
+      if (role == null || role.trim().isEmpty) {
+        throw const AppException('User role not found');
+      }
+
+      return role.trim();
+    } on PostgrestException catch (exception) {
+      throw AppException(exception.message.trim());
+    }
+  }
 
   @override
   Future<UserModel> registerUser(RegisterParams params) async {
@@ -21,15 +42,28 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         password: params.password,
       );
 
-      if (response.user == null) {
-        throw const AppException("User registration failed");
+      final user = response.user;
+
+      if (user == null) {
+        throw const AppException('User registration failed');
       }
 
-      return UserModel.fromSupabaseUser(response.user!);
+      await supabaseClient
+          .from('profiles')
+          .update({'role': params.role})
+          .eq('id', user.id);
+
+      final role = await _getUserRole(user.id);
+
+      return UserModel.fromSupabaseUser(user, role: role);
     } on AuthException catch (exception) {
       throw AppException(exception.message.trim());
+    } on PostgrestException catch (exception) {
+      throw AppException(exception.message.trim());
+    } on AppException {
+      rethrow;
     } catch (_) {
-      throw const AppException("something went wrong");
+      throw const AppException('Something went wrong');
     }
   }
 
@@ -44,19 +78,23 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       final user = response.user;
 
       if (user == null) {
-        throw const AppException('Login Failed');
+        throw const AppException('Login failed');
       }
 
-      return UserModel.fromSupabaseUser(user);
+      final role = await _getUserRole(user.id);
+
+      return UserModel.fromSupabaseUser(user, role: role);
     } on AuthException catch (exception) {
       throw AppException(exception.message.trim());
+    } on AppException {
+      rethrow;
     } catch (_) {
-      throw const AppException("something went wrong");
+      throw const AppException('Something went wrong');
     }
   }
 
   @override
-  UserModel? getCurrentUser() {
+  Future<UserModel?> getCurrentUser() async {
     try {
       final user = supabaseClient.auth.currentUser;
 
@@ -64,11 +102,15 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         return null;
       }
 
-      return UserModel.fromSupabaseUser(user);
+      final role = await _getUserRole(user.id);
+
+      return UserModel.fromSupabaseUser(user, role: role);
     } on AuthException catch (exception) {
       throw AppException(exception.message.trim());
+    } on AppException {
+      rethrow;
     } catch (_) {
-      throw AppException("something went wrong");
+      throw const AppException('Unable to fetch current user');
     }
   }
 
@@ -76,10 +118,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   Future<void> logout() async {
     try {
       await supabaseClient.auth.signOut();
-    } on AuthException catch (e) {
-      throw AppException(e.message.trim());
+    } on AuthException catch (exception) {
+      throw AppException(exception.message.trim());
     } catch (_) {
-      throw AppException("Unable to logout");
+      throw const AppException('Unable to logout');
     }
   }
 
@@ -90,10 +132,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
         email.email,
         redirectTo: 'spendly://reset-password',
       );
-    } on AuthException catch (e) {
-      throw AppException(e.message.trim());
+    } on AuthException catch (exception) {
+      throw AppException(exception.message.trim());
     } catch (_) {
-      throw AppException("try Again");
+      throw const AppException('Unable to reset password');
     }
   }
 
@@ -103,10 +145,10 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
       await supabaseClient.auth.updateUser(
         UserAttributes(password: params.password),
       );
-    } on AuthException catch (e) {
-      throw AppException(e.message.trim());
+    } on AuthException catch (exception) {
+      throw AppException(exception.message.trim());
     } catch (_) {
-      throw const AppException("Unable to update password");
+      throw const AppException('Unable to update password');
     }
   }
 }

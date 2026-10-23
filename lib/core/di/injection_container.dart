@@ -1,4 +1,10 @@
 import 'package:expense_tracker/core/notification/android_notification_service.dart';
+import 'package:expense_tracker/feature/admin/data/datasource/all_user_remote_admin_datasource.dart';
+import 'package:expense_tracker/feature/admin/data/datasource/all_user_remote_admin_datasource_impl.dart';
+import 'package:expense_tracker/feature/admin/data/repository/get_all_user_repository_impl.dart';
+import 'package:expense_tracker/feature/admin/domain/repository/all_user_repository.dart';
+import 'package:expense_tracker/feature/admin/domain/usecases/get_all_user_usecase.dart';
+import 'package:expense_tracker/feature/admin/presentation/cubit/all_user_cubit.dart';
 // import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource_impl.dart';
@@ -96,7 +102,12 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUsecase(sl()));
 
   sl.registerFactory(() => RegisterCubit(sl()));
-  sl.registerFactory(() => LoginCubit(sl()));
+  sl.registerFactory(
+    () => LoginCubit(
+      loginUseCase: sl<LoginUsecase>(),
+      getProfileUsecase: sl<GetProfileUsecase>(),
+    ),
+  );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
   sl.registerFactory(() => SplashCubit(sl()));
@@ -276,5 +287,17 @@ Future<void> init() async {
       sl<DeleteReceiptUsecase>(),
       sl<GetReceiptUrlUsecase>(),
     ),
+  );
+
+  sl.registerFactory(() => AllUserCubit(sl<GetAllUserUsecase>()));
+
+  sl.registerLazySingleton(() => GetAllUserUsecase(sl()));
+
+  sl.registerLazySingleton<AllUserRepository>(
+    () => GetAllUserRepositoryImpl(sl()),
+  );
+
+  sl.registerLazySingleton<AllUserRemoteAdminDatasource>(
+    () => AllUserRemoteAdminDatasourceImpl(sl()),
   );
 }

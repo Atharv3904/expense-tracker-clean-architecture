@@ -60,6 +60,7 @@ dependencies:
   intl: ^0.20.2
   file_picker: ^12.2.0
   syncfusion_flutter_pdfviewer: ^35.1.37
+  flutter_liquid_glass_widgets: ^0.0.1
 
 dev_dependencies:
   flutter_test:

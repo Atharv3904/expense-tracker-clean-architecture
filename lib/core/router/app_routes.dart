@@ -2,6 +2,8 @@ import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/navigation/main_navigation_page.dart';
 // import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/feature/admin/presentation/cubit/all_user_cubit.dart';
+import 'package:expense_tracker/feature/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/forgot_password/forgot_pass_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/logout/logout_cubit.dart';
@@ -199,6 +201,13 @@ class AppRoutes {
       builder: (context, state) => BlocProvider(
         create: (context) => sl<ReminderBloc>()..add(LoadReminder()),
         child: const ReminderPage(),
+      ),
+    ),
+    GoRoute(
+      path: RoutesName.adminDashboard,
+      builder: (context, state) => BlocProvider(
+        create: (context) => sl<AllUserCubit>()..getAllUsers(),
+        child: const AdminDashboardPage(),
       ),
     ),
   ];

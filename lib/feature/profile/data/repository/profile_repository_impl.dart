@@ -25,6 +25,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
           name: profile.name,
           avatarPath: profile.avatarPath,
           avatarUrl: profile.avatarUrl,
+          role: profile.role,
         ),
       );
     } on ProfileException catch (e) {

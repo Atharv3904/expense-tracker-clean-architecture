@@ -31,6 +31,7 @@ class _RegisterFormState extends State<RegisterForm> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
+  String selectedRole = 'user';
 
   bool isPasswordVisible = false;
   bool isConfirmPasswordVisible = false;
@@ -41,6 +42,7 @@ class _RegisterFormState extends State<RegisterForm> {
     final params = RegisterParams(
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
+      role: selectedRole, // Set the role to 'user' for registration
     );
 
     context.read<RegisterCubit>().register(params);
@@ -246,6 +248,35 @@ class _RegisterFormState extends State<RegisterForm> {
                               return null;
                             },
                           ),
+
+                          const SizedBox(height: 18),
+
+                          DropdownButtonFormField<String>(
+                            initialValue: selectedRole,
+                            decoration: inputDecoration(
+                              labelText: 'Select Role',
+                              hintText: 'Choose your role',
+                              icon: Icons.manage_accounts_outlined,
+                            ),
+                            items: const [
+                              DropdownMenuItem<String>(
+                                value: 'user',
+                                child: Text('User'),
+                              ),
+                              DropdownMenuItem<String>(
+                                value: 'admin',
+                                child: Text('Admin'),
+                              ),
+                            ],
+                            onChanged: (value) {
+                              if (value != null) {
+                                setState(() {
+                                  selectedRole = value;
+                                });
+                              }
+                            },
+                          ),
+
                           const SizedBox(height: 24),
                           BlocBuilder<RegisterCubit, RegisterState>(
                             builder: (context, state) {

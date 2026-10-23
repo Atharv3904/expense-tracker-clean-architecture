@@ -11,7 +11,8 @@ final class LoginLoading extends LoginState {
 }
 
 final class LoginSuccess extends LoginState {
-  const LoginSuccess();
+  final String role;
+  const LoginSuccess({required this.role});
 }
 
 final class LoginFailure extends LoginState {

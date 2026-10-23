@@ -7,6 +7,7 @@ class ProfileModel extends ProfileEntity {
     required super.name,
     super.avatarPath,
     super.avatarUrl,
+    super.role,
   });
 
   factory ProfileModel.fromJson(
@@ -20,10 +21,11 @@ class ProfileModel extends ProfileEntity {
       email: email ?? '',
       avatarPath: json['avatar_path'] as String?,
       avatarUrl: avatarUrl,
+      role: json['role'] as String? ?? 'user',
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'name': name, 'avatar_path': avatarPath};
+    return {'id': id, 'name': name, 'avatar_path': avatarPath, 'role': role};
   }
 }

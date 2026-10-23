@@ -4,6 +4,7 @@ class ProfileEntity {
   final String? name;
   final String? avatarPath;
   final String? avatarUrl;
+  final String? role;
 
   const ProfileEntity({
     required this.id,
@@ -11,5 +12,6 @@ class ProfileEntity {
     this.name,
     this.avatarPath,
     this.avatarUrl,
+    this.role,
   });
 }
