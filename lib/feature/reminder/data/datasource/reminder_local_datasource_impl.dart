@@ -2,15 +2,27 @@ import 'package:expense_tracker/core/errors/app_exception.dart';
 import 'package:expense_tracker/feature/reminder/data/datasource/reminder_local_datasource.dart';
 import 'package:expense_tracker/feature/reminder/domain/entity/reminder_entity.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ReminderLocalDatasourceImpl implements ReminderLocalDatasource {
   final SharedPreferences _preferences;
+  final SupabaseClient _supabaseClient;
 
-  const ReminderLocalDatasourceImpl(this._preferences);
+  const ReminderLocalDatasourceImpl(this._preferences, this._supabaseClient);
 
-  static const String _enabledKey = 'daily_reminder_enabled';
-  static const String _hourKey = 'daily_reminder_hour';
-  static const String _minuteKey = 'daily_reminder_minute';
+  String get _userId {
+    final user = _supabaseClient.auth.currentUser;
+
+    if (user == null) {
+      throw const AppException('User is not logged in');
+    }
+
+    return user.id;
+  }
+
+  String get _enabledKey => 'daily_reminder_${_userId}_enabled';
+  String get _hourKey => 'daily_reminder_${_userId}_hour';
+  String get _minuteKey => 'daily_reminder_${_userId}_minute';
 
   @override
   Future<void> saveReminder(ReminderEntity reminder) async {

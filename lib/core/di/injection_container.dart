@@ -235,7 +235,10 @@ Future<void> init() async {
 
   // reminder Local Storage Shared preference
   sl.registerLazySingleton<ReminderLocalDatasource>(
-    () => ReminderLocalDatasourceImpl(sl<SharedPreferences>()),
+    () => ReminderLocalDatasourceImpl(
+      sl<SharedPreferences>(),
+      sl<SupabaseClient>(),
+    ),
   );
 
   sl.registerLazySingleton<ReminderLocalRepository>(
