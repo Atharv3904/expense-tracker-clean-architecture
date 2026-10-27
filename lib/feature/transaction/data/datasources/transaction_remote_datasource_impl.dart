@@ -110,10 +110,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
     final receipts = json['receipts'];
 
-    debugPrint('========== RECEIPT MAPPING ==========');
-    debugPrint('Transaction ID: ${json['id']}');
-    debugPrint('Receipt data: $receipts');
-
     if (receipts is List && receipts.isNotEmpty) {
       final receipt = Map<String, dynamic>.from(receipts.first as Map);
 
@@ -123,15 +119,10 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
       if (filePath != null && filePath.isNotEmpty) {
         try {
-          debugPrint('Generating signed URL for: $filePath');
-
           receiptUrl = await supabaseClient.storage
               .from('receipts')
               .createSignedUrl(filePath, 600);
-
-          debugPrint('Signed URL generated successfully');
         } catch (e, stackTrace) {
-          debugPrint('Failed to generate signed URL: $e');
           debugPrintStack(stackTrace: stackTrace);
 
           receiptUrl = null;
@@ -147,12 +138,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
 
     transactionJson['receipt_id'] = receiptId;
     transactionJson['receipt_url'] = receiptUrl;
-
-    debugPrint(
-      'Final receipt URL: '
-      '${receiptUrl != null ? "Available" : "Null"}',
-    );
-    debugPrint('=====================================');
 
     return TransactionModel.fromJson(transactionJson);
   }
@@ -219,8 +204,6 @@ class TransactionRemoteDatasourceImpl implements TransactionRemoteDatasource {
       final transactionId = response as String;
 
       transactionCreated = true;
-
-      debugPrint('Transaction created: $transactionId');
 
       final transactionResponse = await supabaseClient
           .from('transactions')

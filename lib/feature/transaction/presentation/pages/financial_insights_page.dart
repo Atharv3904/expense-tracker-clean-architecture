@@ -54,12 +54,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
     // Start of tomorrow: 29 Sep 00:00
     final startOfTomorrow = startOfToday.add(const Duration(days: 1));
 
-    debugPrint('========== TODAY CHART ==========');
-    debugPrint('Now: $now');
-    debugPrint('Start of today: $startOfToday');
-    debugPrint('Start of tomorrow: $startOfTomorrow');
-    debugPrint('Total transactions: ${transactions.length}');
-
     final todayTransactions = transactions.where((transaction) {
       // Supabase created_at can be UTC.
       // Convert it to device local time.
@@ -68,16 +62,8 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       final isToday =
           !date.isBefore(startOfToday) && date.isBefore(startOfTomorrow);
 
-      debugPrint(
-        'Transaction: $date | '
-        'Amount: ${transaction.amount} | '
-        'Is today: $isToday',
-      );
-
       return isToday;
     }).toList();
-
-    debugPrint('Today transactions found: ${todayTransactions.length}');
 
     // Oldest → newest
     todayTransactions.sort((a, b) => a.date.compareTo(b.date));
@@ -104,10 +90,6 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
         ),
       );
     }
-
-    debugPrint('Chart points created: ${result.length}');
-
-    debugPrint('=================================');
 
     return result;
   }
