@@ -1,4 +1,5 @@
 import 'package:expense_tracker/core/notification/android_notification_service.dart';
+import 'package:expense_tracker/core/services/biometric_service.dart';
 import 'package:expense_tracker/feature/admin/data/datasource/all_user_remote_admin_datasource.dart';
 import 'package:expense_tracker/feature/admin/data/datasource/all_user_remote_admin_datasource_impl.dart';
 import 'package:expense_tracker/feature/admin/data/repository/get_all_user_repository_impl.dart';
@@ -8,6 +9,7 @@ import 'package:expense_tracker/feature/admin/presentation/cubit/all_user_cubit.
 // import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource.dart';
 import 'package:expense_tracker/feature/authentication/data/datasources/auth_remote_datasource_impl.dart';
+import 'package:expense_tracker/feature/authentication/data/datasources/biometric_credential_local_datasource_service.dart';
 import 'package:expense_tracker/feature/authentication/data/repositories/auth_repository_impl.dart';
 import 'package:expense_tracker/feature/authentication/domain/repositories/auth_repository.dart';
 import 'package:expense_tracker/feature/authentication/domain/usecases/forgot_password_usecase.dart';
@@ -102,10 +104,20 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RegisterUsecase(sl()));
 
   sl.registerFactory(() => RegisterCubit(sl()));
+
+  sl.registerLazySingleton<BiometricService>(() => BiometricService());
+
+  sl.registerLazySingleton<BiometricCredentialLocalDatasourceService>(
+    () => BiometricCredentialLocalDatasourceService(),
+  );
+
   sl.registerFactory(
     () => LoginCubit(
       loginUseCase: sl<LoginUsecase>(),
       getProfileUsecase: sl<GetProfileUsecase>(),
+      biometricService: sl<BiometricService>(),
+      biometricCredentialLocalDatasourceService:
+          sl<BiometricCredentialLocalDatasourceService>(),
     ),
   );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
