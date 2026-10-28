@@ -157,11 +157,11 @@ class LoginPage extends StatelessWidget {
         }
 
         if (state is LoginFailure) {
+          if (!context.mounted) return;
+
           context.read<LoginCubit>().clearPendingBiometricOptIn();
 
-          if (context.mounted) {
-            AppSnackbar.show(context, message: state.message);
-          }
+          AppSnackbar.show(context, message: state.message);
         }
       },
       child: const Scaffold(
