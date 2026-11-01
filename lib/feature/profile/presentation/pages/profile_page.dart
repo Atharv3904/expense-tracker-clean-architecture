@@ -75,57 +75,99 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  Future<void> _toggleBiometric(bool enable, String email) async {
-    final user = Supabase.instance.client.auth.currentUser;
-    if (user == null) return;
-
-    if (!enable) {
-      await _biometricStorage.disable(user.id);
-      if (!mounted) return;
-      setState(() => _isBiometricEnabled = false);
-      AppSnackbar.show(context, message: 'Fingerprint login disabled');
-      return;
-    }
-
-    if (!_isBiometricSupported) {
-      AppSnackbar.show(
-        context,
-        message: 'Fingerprint is not available or enrolled on this device.',
-      );
-      return;
-    }
-
+  Future<String?> _showPasswordPromptDialog({
+    required String title,
+    required String subtitle,
+    required String confirmButtonLabel,
+    required String email,
+  }) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final passwordController = TextEditingController();
-    final confirmed = await showDialog<bool>(
+
+    return showDialog<String>(
       context: context,
       builder: (dialogContext) {
         bool obscure = true;
         return StatefulBuilder(
           builder: (dialogCtx, setDialogState) {
             return AlertDialog(
+              backgroundColor:
+                  isDark ? const Color(0xFF1E293B) : Colors.white,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
+                side: BorderSide(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.16)
+                      : Colors.white.withValues(alpha: 0.9),
+                  width: 1.2,
+                ),
               ),
-              title: const Text('Enable Fingerprint Login'),
+              title: Text(
+                title,
+                style: TextStyle(
+                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Enter your current account password to enable fingerprint login on this device.',
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
+                      fontSize: 14,
+                    ),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: passwordController,
                     obscureText: obscure,
+                    style: TextStyle(
+                      color: isDark ? Colors.white : const Color(0xFF0F172A),
+                      fontWeight: FontWeight.w600,
+                    ),
                     decoration: InputDecoration(
                       labelText: 'Password',
+                      labelStyle: TextStyle(
+                        color: isDark
+                            ? Colors.white70
+                            : const Color(0xFF64748B),
+                      ),
+                      filled: true,
+                      fillColor: isDark
+                          ? const Color(0xFF0F172A).withValues(alpha: 0.7)
+                          : const Color(0xFFF8FAFC),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.14)
+                              : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: BorderSide(
+                          color: isDark
+                              ? Colors.white.withValues(alpha: 0.14)
+                              : const Color(0xFFE2E8F0),
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        borderSide: const BorderSide(
+                          color: Color(0xFF1B7A70),
+                          width: 1.8,
+                        ),
                       ),
                       suffixIcon: IconButton(
                         icon: Icon(
                           obscure ? Icons.visibility_off : Icons.visibility,
+                          color: isDark ? Colors.white70 : const Color(0xFF64748B),
                         ),
                         onPressed: () {
                           setDialogState(() => obscure = !obscure);
@@ -137,15 +179,29 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               actions: [
                 TextButton(
-                  onPressed: () => Navigator.pop(dialogContext, false),
-                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.pop(dialogContext, null),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
                 FilledButton(
-                  onPressed: () => Navigator.pop(dialogContext, true),
+                  onPressed: () =>
+                      Navigator.pop(dialogContext, passwordController.text),
                   style: FilledButton.styleFrom(
                     backgroundColor: const Color(0xFF1B7A70),
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
                   ),
-                  child: const Text('Verify & Enable'),
+                  child: Text(
+                    confirmButtonLabel,
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
                 ),
               ],
             );
@@ -153,17 +209,120 @@ class _ProfilePageState extends State<ProfilePage> {
         );
       },
     );
+  }
 
-    if (confirmed != true) return;
+  Future<void> _toggleBiometric(bool enable, String email) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
 
-    final enteredPassword = passwordController.text;
-    if (enteredPassword.isEmpty) {
-      if (mounted) {
+    if (!_isBiometricSupported) {
+      AppSnackbar.show(
+        context,
+        message: 'Fingerprint is not available or enrolled on this device.',
+      );
+      if (!mounted) return;
+      setState(() => _isBiometricEnabled = false);
+      return;
+    }
+
+    if (!enable) {
+      // 1. Biometric authentication required to disable
+      final authResult = await _biometricService.authenticateWithResult(
+        localizedReason: 'Scan fingerprint to disable biometric login',
+      );
+
+      if (authResult == BiometricAuthResult.success) {
+        await _biometricStorage.setEnabled(user.id, false);
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = false);
+        AppSnackbar.show(context, message: 'Fingerprint login disabled');
+        return;
+      }
+
+      if (authResult == BiometricAuthResult.cancelled) {
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = true);
+        return;
+      }
+
+      // If biometric failed, offer password fallback to disable
+      final enteredPassword = await _showPasswordPromptDialog(
+        title: 'Disable Fingerprint Login',
+        subtitle:
+            'Fingerprint scan failed. Enter your account password to confirm disabling fingerprint login.',
+        confirmButtonLabel: 'Verify & Disable',
+        email: user.email ?? email,
+      );
+
+      if (enteredPassword == null || enteredPassword.isEmpty) {
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = true);
+        return;
+      }
+
+      try {
+        await Supabase.instance.client.auth.signInWithPassword(
+          email: user.email ?? email,
+          password: enteredPassword,
+        );
+
+        await _biometricStorage.setEnabled(user.id, false);
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = false);
+        AppSnackbar.show(context, message: 'Fingerprint login disabled');
+      } catch (_) {
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = true);
         AppSnackbar.show(
           context,
-          message: 'Password is required to enable fingerprint.',
+          message: 'Incorrect password. Fingerprint login remains enabled.',
         );
       }
+      return;
+    }
+
+    // ENABLE FLOW
+    final hasSavedCredentials =
+        await _biometricStorage.hasSavedCredentials(user.id);
+
+    if (hasSavedCredentials) {
+      // Use biometric directly!
+      final authResult = await _biometricService.authenticateWithResult(
+        localizedReason: 'Scan fingerprint to enable biometric login',
+      );
+
+      if (authResult == BiometricAuthResult.success) {
+        await _biometricStorage.setEnabled(user.id, true);
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = true);
+        AppSnackbar.show(
+          context,
+          message: 'Fingerprint login enabled successfully',
+        );
+        return;
+      }
+
+      if (authResult == BiometricAuthResult.cancelled) {
+        if (!mounted) return;
+        setState(() => _isBiometricEnabled = false);
+        return;
+      }
+
+      // Biometric scan failed, allow password fallback below
+    }
+
+    // If no credentials saved yet or biometric failed, prompt for password
+    final enteredPassword = await _showPasswordPromptDialog(
+      title: 'Enable Fingerprint Login',
+      subtitle:
+          'Enter your account password to enable fingerprint login on this device.',
+      confirmButtonLabel: 'Verify & Enable',
+      email: user.email ?? email,
+    );
+
+    if (enteredPassword == null || enteredPassword.isEmpty) {
+      if (!mounted) return;
+      setState(() => _isBiometricEnabled = false);
       return;
     }
 
@@ -174,13 +333,14 @@ class _ProfilePageState extends State<ProfilePage> {
         password: enteredPassword,
       );
 
-      // 2. Verify fingerprint scan
+      // 2. Verify fingerprint scan directly
       final authResult = await _biometricService.authenticateWithResult(
         localizedReason: 'Scan fingerprint to enable biometric login',
       );
 
       if (authResult != BiometricAuthResult.success) {
         if (mounted) {
+          setState(() => _isBiometricEnabled = false);
           AppSnackbar.show(
             context,
             message: 'Fingerprint verification was cancelled or failed.',
@@ -189,7 +349,7 @@ class _ProfilePageState extends State<ProfilePage> {
         return;
       }
 
-      // 3. Save credentials
+      // 3. Save credentials and enable
       await _biometricStorage.enable(
         userId: user.id,
         email: user.email ?? email,
@@ -204,6 +364,7 @@ class _ProfilePageState extends State<ProfilePage> {
       );
     } catch (_) {
       if (mounted) {
+        setState(() => _isBiometricEnabled = false);
         AppSnackbar.show(
           context,
           message:

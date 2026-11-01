@@ -44,6 +44,25 @@ class BiometricCredentialLocalDatasourceService {
     await setLastBiometricUser(userId);
   }
 
+  Future<bool> hasSavedCredentials(String userId) async {
+    final email = await _storage.read(key: _emailKey(userId));
+    final password = await _storage.read(key: _passwordKey(userId));
+    return email != null &&
+        email.isNotEmpty &&
+        password != null &&
+        password.isNotEmpty;
+  }
+
+  Future<void> setEnabled(String userId, bool enabled) async {
+    if (enabled) {
+      await _storage.write(key: _enabledKey(userId), value: 'true');
+      await setLastBiometricUser(userId);
+    } else {
+      await _storage.write(key: _enabledKey(userId), value: 'false');
+      await clearLastBiometricUser(userId);
+    }
+  }
+
   Future<String?> getSavedEmail(String userId) async {
     return _storage.read(key: _emailKey(userId));
   }
