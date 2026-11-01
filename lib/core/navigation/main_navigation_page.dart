@@ -1,9 +1,11 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/colors/app_color.dart';
 import 'package:expense_tracker/core/navigation/desktop_navigation.dart';
 import 'package:expense_tracker/core/navigation/liquid_glass_navigation.dart';
 // import 'package:expense_tracker/core/navigation/mobile_navigation.dart';
 import 'package:expense_tracker/core/navigation/tablet_navigation.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/cubit/dashboard_cubit.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/pages/dashboard_page.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
@@ -112,6 +114,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
     final isDesktop = Responsive.isDesktop(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return PopScope(
       canPop: false,
@@ -131,46 +134,72 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
         final shouldExit = await showDialog<bool>(
           context: context,
-          builder: (context) {
-            return AlertDialog(
-              backgroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(26),
-              ),
-              title: const Text(
-                'Exit App',
-                style: TextStyle(
-                  color: AppColor.ink,
-                  fontWeight: FontWeight.w900,
-                ),
-              ),
-              content: const Text(
-                'Are you sure you want to exit?',
-                style: TextStyle(
-                  color: AppColor.muted,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, false);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context, true);
-                  },
-                  child: const Text(
-                    'Exit',
-                    style: TextStyle(
-                      color: AppColor.teal,
-                      fontWeight: FontWeight.w900,
-                    ),
+          builder: (dialogContext) {
+            return BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+              child: AlertDialog(
+                backgroundColor: isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.95)
+                    : Colors.white.withValues(alpha: 0.95),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(28),
+                  side: BorderSide(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.16)
+                        : Colors.white.withValues(alpha: 0.9),
+                    width: 1.5,
                   ),
                 ),
-              ],
+                title: Text(
+                  'Exit App',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : AppColor.ink,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                content: Text(
+                  'Are you sure you want to exit?',
+                  style: TextStyle(
+                    color: isDark ? const Color(0xFF94A3B8) : AppColor.muted,
+                    fontWeight: FontWeight.w500,
+                    fontSize: 14,
+                  ),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext, true);
+                    },
+                    child: Text(
+                      'Exit',
+                      style: TextStyle(
+                        color: isDark
+                            ? const Color(0xFF94A3B8)
+                            : AppColor.muted,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  LiquidGlassButton(
+                    onPressed: () {
+                      Navigator.pop(dialogContext, false);
+                    },
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    gradient: const LinearGradient(
+                      colors: [AppColor.teal, AppColor.tealLight],
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -180,7 +209,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColor.bg,
+        backgroundColor: Colors.transparent,
         extendBody: isMobile,
         body: Row(
           children: [

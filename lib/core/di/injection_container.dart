@@ -122,7 +122,14 @@ Future<void> init() async {
   );
   sl.registerLazySingleton(() => LoginUsecase(sl()));
   sl.registerLazySingleton(() => GetCurrentUserUseCase(sl()));
-  sl.registerFactory(() => SplashCubit(sl()));
+  sl.registerFactory(
+    () => SplashCubit(
+      getCurrentUserUseCase: sl<GetCurrentUserUseCase>(),
+      biometricService: sl<BiometricService>(),
+      biometricCredentialLocalDatasourceService:
+          sl<BiometricCredentialLocalDatasourceService>(),
+    ),
+  );
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerFactory(() => LogoutCubit(sl()));
   sl.registerLazySingleton(() => ForgotPasswordUsecase(sl()));

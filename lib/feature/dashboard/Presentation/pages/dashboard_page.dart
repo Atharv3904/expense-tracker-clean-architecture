@@ -28,7 +28,7 @@ class _DashboardPageState extends State<DashboardPage> {
         await Future<void>.value();
       },
       child: Scaffold(
-        backgroundColor: DashboardPalettes.bg,
+        backgroundColor: Colors.transparent,
         body: BlocBuilder<DashboardCubit, DashboardStates>(
           builder: (context, state) {
             double balance = 0;

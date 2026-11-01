@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/receipts/domain/entity/receipt_entity.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_event.dart';
@@ -22,8 +24,6 @@ class ReceiptListPage extends StatefulWidget {
 
 class _ReceiptListPageState extends State<ReceiptListPage> {
   static const Color _primary = Color(0xFF238E84);
-  static const Color _background = Color(0xFFF5F8F7);
-  static const Color _danger = Color(0xFFE0524A);
 
   final TextEditingController _searchController = TextEditingController();
 
@@ -63,40 +63,77 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
   }
 
   Future<void> _deleteReceipt(ReceiptEntity receipt) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          title: const Text(
-            'Delete receipt?',
-            style: TextStyle(fontWeight: FontWeight.w700),
-          ),
-          content: Text(
-            'Are you sure you want to delete "${receipt.fileName}"?',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, false);
-              },
-              child: const Text('Cancel'),
-            ),
-
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext, true);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _danger,
-                foregroundColor: Colors.white,
-                elevation: 0,
+        return BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: AlertDialog(
+            backgroundColor: isDark
+                ? const Color(0xFF1E293B).withValues(alpha: 0.95)
+                : Colors.white.withValues(alpha: 0.95),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.16)
+                    : Colors.white.withValues(alpha: 0.9),
+                width: 1.5,
               ),
-              child: const Text('Delete'),
             ),
-          ],
+            title: Text(
+              'Delete receipt?',
+              style: TextStyle(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                color: isDark ? Colors.white : Colors.black,
+              ),
+            ),
+            content: Text(
+              'Are you sure you want to delete "${receipt.fileName}"?',
+              style: TextStyle(
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                fontSize: 14,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext, false);
+                },
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(
+                    color: Color(0xFF64748B),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+
+              LiquidGlassButton(
+                onPressed: () {
+                  Navigator.pop(dialogContext, true);
+                },
+                height: 40,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                gradient: const LinearGradient(
+                  colors: [
+                    Color(0xFFE11D48),
+                    Color(0xFFBE123C),
+                  ],
+                ),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -228,80 +265,82 @@ class _ReceiptListPageState extends State<ReceiptListPage> {
         context.read<ReceiptBloc>().add(const GetReceipts());
       },
       child: Scaffold(
-        backgroundColor: _background,
-        body: BlocListener<ReceiptBloc, ReceiptState>(
-          listener: (context, state) {
-            if (state is ReceiptDeleteSuccess) {
-              AppSnackbar.show(
-                context,
-                message: 'Receipt deleted successfully',
-              );
+        backgroundColor: Colors.transparent,
+        body: LiquidGlassBackground(
+          child: BlocListener<ReceiptBloc, ReceiptState>(
+            listener: (context, state) {
+              if (state is ReceiptDeleteSuccess) {
+                AppSnackbar.show(
+                  context,
+                  message: 'Receipt deleted successfully',
+                );
 
-              context.read<ReceiptBloc>().add(const GetReceipts());
-            }
+                context.read<ReceiptBloc>().add(const GetReceipts());
+              }
 
-            if (state is ReceiptUrlLoaded) {
-              _showReceiptPreview(
-                url: state.url,
-                fileName: state.fileName,
-                fileType: state.fileType,
-              );
-            }
-
-            if (state is ReceiptFailure) {
-              AppSnackbar.show(context, message: state.message);
-            }
-          },
-
-          child: BlocBuilder<ReceiptBloc, ReceiptState>(
-            builder: (context, state) {
-              if (state is ReceiptLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(color: _primary),
+              if (state is ReceiptUrlLoaded) {
+                _showReceiptPreview(
+                  url: state.url,
+                  fileName: state.fileName,
+                  fileType: state.fileType,
                 );
               }
 
               if (state is ReceiptFailure) {
-                return ReceiptErrorState(
-                  message: state.message,
-                  onRetry: () {
-                    context.read<ReceiptBloc>().add(const GetReceipts());
-                  },
-                );
+                AppSnackbar.show(context, message: state.message);
               }
-
-              if (state is ReceiptsLoaded) {
-                return ReceiptListBody(
-                  receipts: state.receipts,
-                  searchController: _searchController,
-                  searchQuery: _searchQuery,
-
-                  onBack: () {
-                    Navigator.maybePop(context);
-                  },
-
-                  onSearchChanged: (value) {
-                    setState(() {
-                      _searchQuery = value.trim().toLowerCase();
-                    });
-                  },
-
-                  onClearSearch: () {
-                    _searchController.clear();
-
-                    setState(() {
-                      _searchQuery = '';
-                    });
-                  },
-
-                  onView: _viewReceipt,
-
-                  onDelete: _deleteReceipt,
-                );
-              }
-
-              return const SizedBox.shrink();
             },
+
+            child: BlocBuilder<ReceiptBloc, ReceiptState>(
+              builder: (context, state) {
+                if (state is ReceiptLoading) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: _primary),
+                  );
+                }
+
+                if (state is ReceiptFailure) {
+                  return ReceiptErrorState(
+                    message: state.message,
+                    onRetry: () {
+                      context.read<ReceiptBloc>().add(const GetReceipts());
+                    },
+                  );
+                }
+
+                if (state is ReceiptsLoaded) {
+                  return ReceiptListBody(
+                    receipts: state.receipts,
+                    searchController: _searchController,
+                    searchQuery: _searchQuery,
+
+                    onBack: () {
+                      Navigator.maybePop(context);
+                    },
+
+                    onSearchChanged: (value) {
+                      setState(() {
+                        _searchQuery = value.trim().toLowerCase();
+                      });
+                    },
+
+                    onClearSearch: () {
+                      _searchController.clear();
+
+                      setState(() {
+                        _searchQuery = '';
+                      });
+                    },
+
+                    onView: _viewReceipt,
+
+                    onDelete: _deleteReceipt,
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
+            ),
           ),
         ),
       ),

@@ -1,5 +1,7 @@
+import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_bloc.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_event.dart';
 import 'package:expense_tracker/feature/receipts/presentation/bloc/receipt_state.dart';
@@ -20,8 +22,6 @@ class ReceiptPage extends StatefulWidget {
 }
 
 class _ReceiptPageState extends State<ReceiptPage> {
-  static const Color _background = Color(0xFFF5F8F7);
-
   Future<void> _pickAndUploadReceipt() async {
     final file = await FilePicker.pickFile(
       type: FileType.custom,
@@ -41,53 +41,58 @@ class _ReceiptPageState extends State<ReceiptPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = Responsive.isMobile(context);
+
     return Scaffold(
-      backgroundColor: _background,
-      body: BlocListener<ReceiptBloc, ReceiptState>(
-        listener: (context, state) {
-          if (state is ReceiptUploadSuccess) {
-            AppSnackbar.show(context, message: 'Receipt uploaded successfully');
+      backgroundColor: Colors.transparent,
+      body: LiquidGlassBackground(
+        child: BlocListener<ReceiptBloc, ReceiptState>(
+          listener: (context, state) {
+            if (state is ReceiptUploadSuccess) {
+              AppSnackbar.show(context, message: 'Receipt uploaded successfully');
+              context.read<ReceiptBloc>().add(const GetReceipts());
+            }
 
-            context.read<ReceiptBloc>().add(const GetReceipts());
-          }
+            if (state is ReceiptDeleteSuccess) {
+              AppSnackbar.show(context, message: 'Receipt deleted successfully');
+              context.read<ReceiptBloc>().add(const GetReceipts());
+            }
 
-          if (state is ReceiptDeleteSuccess) {
-            AppSnackbar.show(context, message: 'Receipt deleted successfully');
+            if (state is ReceiptFailure) {
+              AppSnackbar.show(context, message: state.message);
+            }
+          },
+          child: BlocBuilder<ReceiptBloc, ReceiptState>(
+            builder: (context, state) {
+              final isLoading = state is ReceiptLoading;
 
-            context.read<ReceiptBloc>().add(const GetReceipts());
-          }
-
-          if (state is ReceiptFailure) {
-            AppSnackbar.show(context, message: state.message);
-          }
-        },
-
-        child: BlocBuilder<ReceiptBloc, ReceiptState>(
-          builder: (context, state) {
-            final isLoading = state is ReceiptLoading;
-
-            return Column(
-              children: [
-                ReceiptHeaderUpload(onBack: widget.onBack),
-
-                Expanded(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 560),
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(24, 10, 24, 40),
-                        child: ReceiptUploadCard(
-                          isLoading: isLoading,
-                          onUpload: _pickAndUploadReceipt,
-                          onViewAll: _viewAllReceipts,
+              return Column(
+                children: [
+                  ReceiptHeaderUpload(onBack: widget.onBack),
+                  Expanded(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 560),
+                        child: SingleChildScrollView(
+                          padding: EdgeInsets.fromLTRB(
+                            24,
+                            10,
+                            24,
+                            isMobile ? 120 : 40,
+                          ),
+                          child: ReceiptUploadCard(
+                            isLoading: isLoading,
+                            onUpload: _pickAndUploadReceipt,
+                            onViewAll: _viewAllReceipts,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

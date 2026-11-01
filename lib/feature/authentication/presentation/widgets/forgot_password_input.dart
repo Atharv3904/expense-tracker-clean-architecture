@@ -19,6 +19,8 @@ class ForgotPasswordInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return TextFormField(
       controller: controller,
       keyboardType: TextInputType.emailAddress,
@@ -42,7 +44,9 @@ class ForgotPasswordInput extends StatelessWidget {
         prefixIconConstraints: const BoxConstraints(minWidth: 0, minHeight: 0),
 
         filled: true,
-        fillColor: Colors.white,
+        fillColor: isDark
+            ? const Color(0xFF1E293B).withValues(alpha: 0.65)
+            : Colors.white,
 
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,

@@ -1,3 +1,4 @@
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/app_card.dart';
 import 'package:expense_tracker/feature/profile/presentation/widget/app_colors.dart';
 import 'package:expense_tracker/feature/reminder/presentation/widgets/reminder_option_tile.dart';
@@ -21,58 +22,72 @@ class ReminderPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     final formattedTime = selectedTime.format(context);
 
     return AppCard(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(22),
       child: Column(
         children: [
           Container(
-            width: 76,
-            height: 76,
-            decoration: const BoxDecoration(
-              color: AppColors.softMint,
+            width: 80,
+            height: 80,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: isDark
+                    ? [const Color(0xFF134E4A), const Color(0xFF0F766E)]
+                    : const [Color(0xFFE6F7F5), Color(0xFFCCFBF1)],
+              ),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFF2DD4BF).withValues(alpha: 0.35),
+                width: 1.4,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.teal.withValues(alpha: 0.20),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: const Icon(
               Icons.alarm_rounded,
               color: AppColors.teal,
-              size: 36,
+              size: 38,
             ),
           ),
 
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
-          const Text(
+          Text(
             'Daily Reminder',
             style: TextStyle(
-              color: AppColors.ink,
+              color: isDark ? Colors.white : AppColors.ink,
               fontSize: 24,
               fontWeight: FontWeight.w900,
-              height: 1,
+              letterSpacing: -0.3,
             ),
           ),
 
-          const SizedBox(height: 8),
+          const SizedBox(height: 6),
 
           Text(
             dailyEnabled ? 'Reminder is enabled' : 'Reminder is disabled',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.muted,
+            style: TextStyle(
+              color: isDark ? const Color(0xFF94A3B8) : AppColors.muted,
               fontSize: 14,
               fontWeight: FontWeight.w600,
             ),
           ),
 
-          const SizedBox(height: 24),
+          const SizedBox(height: 26),
 
           ReminderOptionTile(
             icon: Icons.notifications_active_rounded,
-            title: 'Daily notifications',
-            subtitle: dailyEnabled
-                ? 'Active every day'
-                : 'Currently turned off',
+            title: 'Daily Notifications',
+            subtitle: dailyEnabled ? 'Active every day' : 'Currently turned off',
             trailing: Switch(
               value: dailyEnabled,
               activeThumbColor: Colors.white,
@@ -99,25 +114,10 @@ class ReminderPanel extends StatelessWidget {
 
           const SizedBox(height: 28),
 
-          SizedBox(
-            width: double.infinity,
-            height: 56,
-            child: ElevatedButton(
-              onPressed: onSave,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.teal,
-                foregroundColor: Colors.white,
-                elevation: 0,
-                shadowColor: Colors.transparent,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
-              child: const Text(
-                'Save Reminder',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-              ),
-            ),
+          LiquidGlassButton(
+            onPressed: onSave,
+            label: 'Save Reminder',
+            icon: Icons.check_circle_outline_rounded,
           ),
         ],
       ),

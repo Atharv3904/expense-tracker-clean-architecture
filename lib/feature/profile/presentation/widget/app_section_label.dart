@@ -7,12 +7,14 @@ class AppSectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Text(
       text,
-      style: const TextStyle(
-        color: Color(0xFF07091D),
+      style: TextStyle(
+        color: isDark ? Colors.white : const Color(0xFF0F172A),
         fontWeight: FontWeight.w900,
         fontSize: 14,
+        letterSpacing: 0.1,
       ),
     );
   }

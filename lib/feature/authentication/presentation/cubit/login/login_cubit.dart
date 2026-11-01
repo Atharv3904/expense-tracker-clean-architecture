@@ -67,12 +67,28 @@ class LoginCubit extends Cubit<LoginState> {
     return biometricCredentialLocalDatasourceService.isEnabled(userId);
   }
 
+  /// Check whether the user has already been prompted for biometric opt-in.
+  Future<bool> hasPromptedBiometricOptIn(String userId) {
+    return biometricCredentialLocalDatasourceService.hasPromptedOptIn(userId);
+  }
+
+  /// Mark the user as having been prompted for biometric opt-in.
+  Future<void> setBiometricOptInPrompted(
+    String userId, {
+    bool prompted = true,
+  }) {
+    return biometricCredentialLocalDatasourceService.setPromptedOptIn(
+      userId,
+      prompted: prompted,
+    );
+  }
+
   /// Clear the temporary password when the user declines opt-in.
   void clearPendingBiometricOptIn() {
     _pendingPasswordForBiometricOptIn = null;
   }
 
-  /// Save credentials only after the user explicitly opts in.
+  /// Save credentials only after the user explicitly opts in and verifies biometric.
   Future<void> enableBiometricLoginForPendingUser({
     required String userId,
     required String email,
@@ -98,6 +114,15 @@ class LoginCubit extends Cubit<LoginState> {
 
       if (!available) {
         throw Exception('No enrolled biometrics are available on this device.');
+      }
+
+      // Require biometric confirmation before saving credentials
+      final authResult = await biometricService.authenticateWithResult(
+        localizedReason: 'Confirm fingerprint to enable biometric login',
+      );
+
+      if (authResult != BiometricAuthResult.success) {
+        throw Exception('Biometric verification cancelled or failed.');
       }
 
       await biometricCredentialLocalDatasourceService.enable(
@@ -140,12 +165,20 @@ class LoginCubit extends Cubit<LoginState> {
         return;
       }
 
-      final authenticated = await biometricService.authenticate();
+      final authResult = await biometricService.authenticateWithResult(
+        localizedReason: 'Authenticate to log in to Spendly',
+      );
 
-      if (!authenticated) {
+      if (authResult == BiometricAuthResult.cancelled) {
+        // User cancelled the prompt: gracefully return to form without showing an error banner.
+        emit(const LoginInitial());
+        return;
+      }
+
+      if (authResult != BiometricAuthResult.success) {
         emit(
           const LoginFailure(
-            'Biometric authentication was cancelled or unsuccessful.',
+            'Biometric authentication was unsuccessful. Please use your password.',
           ),
         );
         return;
@@ -169,10 +202,24 @@ class LoginCubit extends Cubit<LoginState> {
 
       await result.fold(
         (failure) async {
-          await biometricCredentialLocalDatasourceService.disable(userId);
+          final message = failure.message.toLowerCase();
+          final isNetworkError =
+              message.contains('net') ||
+              message.contains('network') ||
+              message.contains('connection') ||
+              message.contains('socket') ||
+              message.contains('timeout');
+
+          // Never disable biometrics on temporary network failures
+          if (!isNetworkError) {
+            await biometricCredentialLocalDatasourceService.disable(userId);
+          }
+
           emit(
-            const LoginFailure(
-              'Biometric login failed. Please log in with your password.',
+            LoginFailure(
+              isNetworkError
+                  ? 'Network error. Please check your connection and try again.'
+                  : 'Biometric login failed. Please log in with your password.',
             ),
           );
         },
@@ -246,6 +293,17 @@ class LoginCubit extends Cubit<LoginState> {
       );
 
       return enabled ? userId : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Get the saved email for the biometric account.
+  Future<String?> getBiometricEmail(String userId) async {
+    try {
+      return await biometricCredentialLocalDatasourceService.getSavedEmail(
+        userId,
+      );
     } catch (_) {
       return null;
     }

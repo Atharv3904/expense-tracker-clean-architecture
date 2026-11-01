@@ -9,6 +9,8 @@ class TransactionLoadingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(18, 0, 18, 24),
       itemCount: itemCount,
@@ -17,7 +19,9 @@ class TransactionLoadingList extends StatelessWidget {
           height: 78,
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
-            color: TransactionWidgetPalette.border,
+            color: isDark
+                ? const Color(0xFF1E293B).withValues(alpha: 0.6)
+                : TransactionWidgetPalette.border,
             borderRadius: BorderRadius.circular(24),
           ),
         );

@@ -7,21 +7,27 @@ class TransactionError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const ink = Color(0xFF07091D);
-    const danger = Color(0xFFE5484D);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final ink = isDark ? Colors.white : const Color(0xFF0F172A);
+    const danger = Color(0xFFE11D48);
 
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF1F2),
+        color: isDark
+            ? const Color(0xFF1E293B).withValues(alpha: 0.72)
+            : const Color(0xFFFFF1F2).withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: danger.withValues(alpha: 0.16)),
+        border: Border.all(
+          color: danger.withValues(alpha: 0.22),
+          width: 1.2,
+        ),
         boxShadow: [
           BoxShadow(
-            color: danger.withValues(alpha: 0.07),
+            color: danger.withValues(alpha: 0.08),
             blurRadius: 18,
-            offset: const Offset(0, 10),
+            offset: const Offset(0, 8),
           ),
         ],
       ),
@@ -32,25 +38,34 @@ class TransactionError extends StatelessWidget {
             width: 42,
             height: 42,
             decoration: BoxDecoration(
-              color: danger.withValues(alpha: 0.11),
+              gradient: LinearGradient(
+                colors: [
+                  danger.withValues(alpha: 0.16),
+                  const Color(0xFFFB7185).withValues(alpha: 0.08),
+                ],
+              ),
               shape: BoxShape.circle,
+              border: Border.all(
+                color: danger.withValues(alpha: 0.2),
+              ),
             ),
             child: const Icon(
               Icons.error_outline_rounded,
               color: danger,
-              size: 21,
+              size: 22,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 message,
                 style: TextStyle(
-                  color: ink.withValues(alpha: 0.82),
+                  color: ink.withValues(alpha: 0.85),
                   fontWeight: FontWeight.w600,
-                  height: 1.35,
+                  fontSize: 14,
+                  height: 1.4,
                 ),
               ),
             ),

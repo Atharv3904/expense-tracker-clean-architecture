@@ -1,5 +1,5 @@
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class LegendChip extends StatelessWidget {
   final String label;
@@ -15,11 +15,17 @@ class LegendChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
+        color: color.withValues(alpha: isDark ? 0.20 : 0.1),
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: color.withValues(alpha: isDark ? 0.35 : 0.22),
+          width: 1,
+        ),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -33,8 +39,8 @@ class LegendChip extends StatelessWidget {
           Text(
             label,
 
-            style: const TextStyle(
-              color: TransactionWidgetPalette.ink,
+            style: TextStyle(
+              color: isDark ? Colors.white : TransactionWidgetPalette.ink,
               fontSize: 12,
               fontWeight: FontWeight.w800,
             ),

@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/entities/today_income_expense_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
@@ -19,7 +20,6 @@ import 'package:expense_tracker/feature/transaction/presentation/bloc/type_bloc/
 
 import 'package:expense_tracker/feature/transaction/presentation/widgets/overview_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/responsive_chart.dart';
-import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_header.dart';
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_top_background.dart';
 
@@ -184,7 +184,7 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
       ],
 
       child: Scaffold(
-        backgroundColor: TransactionWidgetPalette.bg,
+        backgroundColor: Colors.transparent,
 
         body: BlocBuilder<TransactionBloc, TransactionState>(
           builder: (context, state) {
@@ -225,65 +225,61 @@ class _FinancialInsightsPageState extends State<FinancialInsightsPage> {
                 );
               },
 
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+              child: LiquidGlassBackground(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Stack(
+                    children: [
+                      const TransactionTopBackground(
+                        height: 250,
+                        bottomRadius: 40,
+                      ),
 
-                child: Stack(
-                  children: [
-                    const TransactionTopBackground(
-                      height: 245,
-                      bottomRadius: 34,
-                    ),
+                      SafeArea(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: maxWidth),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalPadding,
+                                isMobile ? 16 : 24,
+                                horizontalPadding,
+                                isMobile ? 120 : 36,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TransactionHeader(
+                                    title: 'Financial Insights',
+                                    isMobile: isMobile,
+                                    onBack: widget.onBack,
+                                  ),
 
-                    SafeArea(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: maxWidth),
+                                  SizedBox(height: isMobile ? 26 : 32),
 
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              horizontalPadding,
-                              isMobile ? 16 : 24,
-                              horizontalPadding,
-                              28,
-                            ),
+                                  OverviewPanel(
+                                    income: income,
+                                    expense: expense,
+                                    isMobile: isMobile,
+                                  ),
 
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                                  const SizedBox(height: 24),
 
-                              children: [
-                                TransactionHeader(
-                                  title: 'Financial Insights',
-                                  isMobile: isMobile,
-                                  onBack: widget.onBack,
-                                ),
-
-                                SizedBox(height: isMobile ? 26 : 32),
-
-                                OverviewPanel(
-                                  income: income,
-                                  expense: expense,
-                                  isMobile: isMobile,
-                                ),
-
-                                const SizedBox(height: 24),
-
-                                ResponsiveCharts(
-                                  income: income,
-                                  expense: expense,
-                                  categoryExpenses: categoryExpenses,
-
-                                  dailyIncomeExpense: todayIncomeExpense,
-
-                                  isMobile: isMobile,
-                                ),
-                              ],
+                                  ResponsiveCharts(
+                                    income: income,
+                                    expense: expense,
+                                    categoryExpenses: categoryExpenses,
+                                    dailyIncomeExpense: todayIncomeExpense,
+                                    isMobile: isMobile,
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             );

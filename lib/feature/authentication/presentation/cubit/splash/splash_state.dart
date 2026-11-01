@@ -13,7 +13,19 @@ class SplashLoading extends SplashState {
 class SplashAuthenticated extends SplashState {
   final String role;
 
-  SplashAuthenticated({required this.role});
+  const SplashAuthenticated({required this.role});
+}
+
+class SplashBiometricRequired extends SplashState {
+  final String role;
+  final String userId;
+  final String email;
+
+  const SplashBiometricRequired({
+    required this.role,
+    required this.userId,
+    required this.email,
+  });
 }
 
 class SplashUnauthenticated extends SplashState {

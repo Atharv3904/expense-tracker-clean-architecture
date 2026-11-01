@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_bloc.dart';
 import 'package:expense_tracker/feature/transaction/presentation/bloc/transaction_bloc/transacation_states.dart';
@@ -37,16 +39,75 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
   void _showReceipt(String url) {
     final isPdf = url.toLowerCase().contains('.pdf');
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     showDialog(
       context: context,
       builder: (context) {
         return Dialog(
-          child: SizedBox(
-            width: 700,
-            height: 600,
-            child: isPdf
-                ? SfPdfViewer.network(url)
-                : Image.network(url, fit: BoxFit.contain),
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.all(16),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              child: Container(
+                width: 700,
+                height: 600,
+                decoration: BoxDecoration(
+                  color: isDark
+                      ? const Color(0xFF1E293B).withValues(alpha: 0.92)
+                      : Colors.white.withValues(alpha: 0.95),
+                  borderRadius: BorderRadius.circular(28),
+                  border: Border.all(
+                    color: isDark
+                        ? Colors.white.withValues(alpha: 0.16)
+                        : Colors.white.withValues(alpha: 0.9),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.25),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 14, 12, 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Receipt Preview',
+                            style: TextStyle(
+                              color: isDark ? Colors.white : TransactionWidgetPalette.ink,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(
+                              Icons.close_rounded,
+                              color: isDark ? Colors.white70 : null,
+                            ),
+                            onPressed: () => Navigator.pop(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    Expanded(
+                      child: isPdf
+                          ? SfPdfViewer.network(url)
+                          : Image.network(url, fit: BoxFit.contain),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -72,20 +133,21 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
         context.read<TransactionBloc>().add(GetAllTransaction());
       },
       child: Scaffold(
-        backgroundColor: TransactionWidgetPalette.bg,
-        body: GestureDetector(
-          behavior: HitTestBehavior.translucent,
-          onTap: () {
-            FocusManager.instance.primaryFocus?.unfocus();
-          },
-          child: Center(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              child: Stack(
-                children: [
-                  const TransactionTopBackground(height: 235, bottomRadius: 38),
-                  SafeArea(
-                    child: Column(
+        backgroundColor: Colors.transparent,
+        body: LiquidGlassBackground(
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+            },
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                child: Stack(
+                  children: [
+                    const TransactionTopBackground(height: 245, bottomRadius: 40),
+                    SafeArea(
+                      child: Column(
                       children: [
                         Padding(
                           padding: EdgeInsets.fromLTRB(
@@ -205,6 +267,7 @@ class _AllTransactionPageState extends State<AllTransactionPage> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

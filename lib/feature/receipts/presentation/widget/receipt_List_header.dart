@@ -1,4 +1,6 @@
-import 'package:expense_tracker/feature/receipts/presentation/widget/header_circle.dart';
+// ignore_for_file: file_names
+
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class ReceiptListHeader extends StatelessWidget {
@@ -11,8 +13,6 @@ class ReceiptListHeader extends StatelessWidget {
     required this.searchField,
   });
 
-  static const Color primary = Color(0xFF238E84);
-
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -21,37 +21,101 @@ class ReceiptListHeader extends StatelessWidget {
       child: Stack(
         children: [
           Container(
-            height: 340,
+            height: 250,
             width: double.infinity,
-            decoration: const BoxDecoration(
-              color: primary,
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(46),
-                bottomRight: Radius.circular(46),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  Color(0xFF0F4E47),
+                  Color(0xFF1B7A70),
+                  Color(0xFF2FB5A6),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(44),
+                bottomRight: Radius.circular(44),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1B7A70).withValues(alpha: 0.35),
+                  blurRadius: 32,
+                  offset: const Offset(0, 14),
+                ),
+              ],
             ),
           ),
 
-          Positioned(top: -55, left: -50, child: HeaderCircle(size: 150)),
-
-          Positioned(top: 72, right: -36, child: HeaderCircle(size: 145)),
-
-          Positioned(top: 145, left: 120, child: HeaderCircle(size: 86)),
+          // Glowing orbs
+          Positioned(
+            top: -50,
+            left: -40,
+            child: Container(
+              width: 170,
+              height: 170,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.20),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            top: 50,
+            right: -30,
+            child: Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF5EEAD4).withValues(alpha: 0.28),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
 
           SafeArea(
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 20, 24, 0),
+                  padding: const EdgeInsets.fromLTRB(16, 16, 24, 0),
                   child: Row(
                     children: [
-                      IconButton(
-                        onPressed: onBack,
-                        tooltip: 'Back',
-                        icon: const Icon(
-                          Icons.arrow_back_rounded,
-                          color: Colors.white,
-                          size: 29,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.16),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.28),
+                                width: 1,
+                              ),
+                            ),
+                            child: IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: onBack,
+                              tooltip: 'Back',
+                              icon: const Icon(
+                                Icons.arrow_back_rounded,
+                                color: Colors.white,
+                                size: 22,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
 
@@ -61,13 +125,14 @@ class ReceiptListHeader extends StatelessWidget {
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 25,
-                            fontWeight: FontWeight.w700,
+                            fontSize: 22,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: -0.3,
                           ),
                         ),
                       ),
 
-                      const SizedBox(width: 48),
+                      const SizedBox(width: 42),
                     ],
                   ),
                 ),
@@ -79,7 +144,7 @@ class ReceiptListHeader extends StatelessWidget {
                   child: searchField,
                 ),
 
-                const SizedBox(height: 28),
+                const SizedBox(height: 24),
               ],
             ),
           ),

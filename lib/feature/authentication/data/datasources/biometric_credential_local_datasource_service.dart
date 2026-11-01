@@ -14,8 +14,22 @@ class BiometricCredentialLocalDatasourceService {
 
   String _enabledKey(String userId) => 'biometric_login_${userId}_enabled';
 
+  String _promptedKey(String userId) => 'biometric_login_${userId}_prompted';
+
   Future<bool> isEnabled(String userId) async {
     return await _storage.read(key: _enabledKey(userId)) == 'true';
+  }
+
+  Future<bool> hasPromptedOptIn(String userId) async {
+    return await _storage.read(key: _promptedKey(userId)) == 'true';
+  }
+
+  Future<void> setPromptedOptIn(String userId, {bool prompted = true}) async {
+    if (prompted) {
+      await _storage.write(key: _promptedKey(userId), value: 'true');
+    } else {
+      await _storage.delete(key: _promptedKey(userId));
+    }
   }
 
   Future<void> enable({
@@ -26,7 +40,12 @@ class BiometricCredentialLocalDatasourceService {
     await _storage.write(key: _emailKey(userId), value: email);
     await _storage.write(key: _passwordKey(userId), value: password);
     await _storage.write(key: _enabledKey(userId), value: 'true');
+    await setPromptedOptIn(userId, prompted: true);
     await setLastBiometricUser(userId);
+  }
+
+  Future<String?> getSavedEmail(String userId) async {
+    return _storage.read(key: _emailKey(userId));
   }
 
   Future<({String email, String password})?> getCredentials(

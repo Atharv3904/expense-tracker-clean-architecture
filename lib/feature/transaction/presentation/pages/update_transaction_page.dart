@@ -3,6 +3,7 @@
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_entity.dart';
@@ -212,26 +213,36 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
   }
 
   Future<void> _showDeleteConfirmation(BuildContext context) async {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return AlertDialog(
-          backgroundColor: Colors.white,
+          backgroundColor: isDark
+              ? const Color(0xFF1E293B).withValues(alpha: 0.95)
+              : Colors.white.withValues(alpha: 0.95),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(28),
+            side: BorderSide(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.16)
+                  : Colors.white.withValues(alpha: 0.9),
+              width: 1.5,
+            ),
           ),
-          title: const Text(
+          title: Text(
             'Delete Transaction?',
             style: TextStyle(
-              color: TransactionWidgetPalette.ink,
+              color: isDark ? Colors.white : TransactionWidgetPalette.ink,
               fontWeight: FontWeight.w900,
             ),
           ),
-          content: const Text(
+          content: Text(
             'Are you sure you want to delete this transaction? '
             'This action cannot be undone.',
             style: TextStyle(
-              color: TransactionWidgetPalette.muted,
+              color: isDark ? const Color(0xFF94A3B8) : TransactionWidgetPalette.muted,
               fontWeight: FontWeight.w600,
               height: 1.35,
             ),
@@ -355,28 +366,29 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
         ),
       ],
       child: Scaffold(
-        backgroundColor: TransactionWidgetPalette.bg,
+        backgroundColor: Colors.transparent,
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Stack(
-              children: [
-                const TransactionTopBackground(height: 245, bottomRadius: 38),
-                SafeArea(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxWidth),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          horizontalPadding,
-                          isMobile ? 16 : 24,
-                          horizontalPadding,
-                          28,
-                        ),
+          child: LiquidGlassBackground(
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Stack(
+                children: [
+                  const TransactionTopBackground(height: 250, bottomRadius: 40),
+                  SafeArea(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            isMobile ? 16 : 24,
+                            horizontalPadding,
+                            isMobile ? 120 : 36,
+                          ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -620,6 +632,7 @@ class _UpdateTransactionPageState extends State<UpdateTransactionPage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

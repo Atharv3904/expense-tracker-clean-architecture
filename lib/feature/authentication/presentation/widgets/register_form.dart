@@ -1,5 +1,7 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/router/routes_name.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/auth_background.dart';
 import 'package:expense_tracker/feature/authentication/presentation/widgets/input_decoration.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +13,10 @@ import '../cubit/register/register_cubit.dart';
 import '../cubit/register/register_state.dart';
 
 class _RegisterPalette {
-  static const bg = Color(0xFFF3F6F4);
-  static const teal = Color(0xFF2B8F84);
-  static const ink = Color(0xFF07091D);
-  static const muted = Color(0xFF89918F);
-  static const softMint = Color(0xFFEAF8F5);
+  static const teal = Color(0xFF1B7A70);
+  static const ink = Color(0xFF0F172A);
+  static const muted = Color(0xFF64748B);
+  static const softMint = Color(0xFFE6F7F5);
 }
 
 class RegisterForm extends StatefulWidget {
@@ -59,6 +60,7 @@ class _RegisterFormState extends State<RegisterForm> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final horizontalPadding = isMobile ? 18.0 : 28.0;
 
@@ -73,36 +75,53 @@ class _RegisterFormState extends State<RegisterForm> {
       onTap: () {
         FocusManager.instance.primaryFocus?.unfocus();
       },
-      child: Container(
-        color: _RegisterPalette.bg,
+      child: LiquidGlassBackground(
         child: Stack(
-          children: [
-            const AuthBackground(),
-            Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: isMobile ? 22 : 42,
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: maxWidth),
-                  child: Container(
-                    padding: EdgeInsets.all(isMobile ? 20 : 30),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.96),
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.85),
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: _RegisterPalette.ink.withValues(alpha: 0.08),
-                          blurRadius: 30,
-                          offset: const Offset(0, 16),
-                        ),
-                      ],
-                    ),
-                    child: Form(
+            children: [
+              const AuthBackground(),
+              Center(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: isMobile ? 22 : 42,
+                  ),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: maxWidth),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(32),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                        child: Container(
+                          padding: EdgeInsets.all(isMobile ? 22 : 32),
+                          decoration: BoxDecoration(
+                            color: isDark
+                                ? const Color(0xFF1E293B).withValues(alpha: 0.72)
+                                : Colors.white.withValues(alpha: 0.90),
+                            borderRadius: BorderRadius.circular(32),
+                            border: Border.all(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.14)
+                                  : Colors.white.withValues(alpha: 0.95),
+                              width: 1.4,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withValues(alpha: 0.3)
+                                    : _RegisterPalette.teal.withValues(alpha: 0.12),
+                                blurRadius: 32,
+                                offset: const Offset(0, 16),
+                              ),
+                              BoxShadow(
+                                color: isDark
+                                    ? Colors.black.withValues(alpha: 0.2)
+                                    : _RegisterPalette.ink.withValues(alpha: 0.04),
+                                blurRadius: 16,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Form(
                       key: _formKey,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -110,13 +129,17 @@ class _RegisterFormState extends State<RegisterForm> {
                           Container(
                             width: isMobile ? 68 : 78,
                             height: isMobile ? 68 : 78,
-                            decoration: const BoxDecoration(
-                              color: _RegisterPalette.softMint,
+                            decoration: BoxDecoration(
+                              color: isDark
+                                  ? const Color(0xFF134E4A)
+                                  : _RegisterPalette.softMint,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
                               Icons.account_balance_wallet_rounded,
-                              color: _RegisterPalette.teal,
+                              color: isDark
+                                  ? const Color(0xFF2DD4BF)
+                                  : _RegisterPalette.teal,
                               size: isMobile ? 34 : 40,
                             ),
                           ),
@@ -125,7 +148,7 @@ class _RegisterFormState extends State<RegisterForm> {
                             'Spendly',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _RegisterPalette.ink,
+                              color: isDark ? Colors.white : _RegisterPalette.ink,
                               fontSize: isMobile ? 28 : 34,
                               fontWeight: FontWeight.w900,
                               height: 1,
@@ -136,7 +159,9 @@ class _RegisterFormState extends State<RegisterForm> {
                             'Create your account',
                             textAlign: TextAlign.center,
                             style: TextStyle(
-                              color: _RegisterPalette.muted,
+                              color: isDark
+                                  ? const Color(0xFF94A3B8)
+                                  : _RegisterPalette.muted,
                               fontSize: isMobile ? 14 : 15,
                               fontWeight: FontWeight.w600,
                             ),
@@ -146,14 +171,15 @@ class _RegisterFormState extends State<RegisterForm> {
                             controller: emailController,
                             keyboardType: TextInputType.emailAddress,
                             textInputAction: TextInputAction.next,
-                            style: const TextStyle(
-                              color: _RegisterPalette.ink,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
                             decoration: inputDecoration(
                               labelText: 'Email',
                               hintText: 'Enter your email',
                               icon: Icons.email_outlined,
+                              isDark: isDark,
                             ),
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -173,14 +199,15 @@ class _RegisterFormState extends State<RegisterForm> {
                             controller: passwordController,
                             obscureText: !isPasswordVisible,
                             textInputAction: TextInputAction.done,
-                            style: const TextStyle(
-                              color: _RegisterPalette.ink,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
                             decoration: inputDecoration(
                               labelText: 'Password',
                               hintText: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
+                              isDark: isDark,
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -191,7 +218,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                   isPasswordVisible
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: _RegisterPalette.muted,
+                                  color: isDark ? Colors.white70 : _RegisterPalette.muted,
                                 ),
                               ),
                             ),
@@ -213,14 +240,15 @@ class _RegisterFormState extends State<RegisterForm> {
                             controller: confirmPasswordController,
                             obscureText: !isConfirmPasswordVisible,
                             textInputAction: TextInputAction.done,
-                            style: const TextStyle(
-                              color: _RegisterPalette.ink,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : _RegisterPalette.ink,
                               fontWeight: FontWeight.w700,
                             ),
                             decoration: inputDecoration(
                               labelText: 'Confirm Password',
                               hintText: 'Enter your password',
                               icon: Icons.lock_outline_rounded,
+                              isDark: isDark,
                               suffixIcon: IconButton(
                                 onPressed: () {
                                   setState(() {
@@ -232,7 +260,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                   isConfirmPasswordVisible
                                       ? Icons.visibility_off_outlined
                                       : Icons.visibility_outlined,
-                                  color: _RegisterPalette.muted,
+                                  color: isDark ? Colors.white70 : _RegisterPalette.muted,
                                 ),
                               ),
                             ),
@@ -253,10 +281,17 @@ class _RegisterFormState extends State<RegisterForm> {
 
                           DropdownButtonFormField<String>(
                             initialValue: selectedRole,
+                            dropdownColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+                            style: TextStyle(
+                              color: isDark ? Colors.white : _RegisterPalette.ink,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
                             decoration: inputDecoration(
                               labelText: 'Select Role',
                               hintText: 'Choose your role',
                               icon: Icons.manage_accounts_outlined,
+                              isDark: isDark,
                             ),
                             items: const [
                               DropdownMenuItem<String>(
@@ -291,29 +326,10 @@ class _RegisterFormState extends State<RegisterForm> {
                                 );
                               }
 
-                              return SizedBox(
-                                width: double.infinity,
-                                height: 54,
-                                child: ElevatedButton(
-                                  onPressed: _register,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: _RegisterPalette.teal,
-                                    foregroundColor: Colors.white,
-                                    elevation: 0,
-                                    shadowColor: Colors.transparent,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Register',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                ),
-                              );
+                               return LiquidGlassButton(
+                                 onPressed: _register,
+                                 label: 'Register',
+                               );
                             },
                           ),
                           const SizedBox(height: 22),
@@ -321,10 +337,10 @@ class _RegisterFormState extends State<RegisterForm> {
                             crossAxisAlignment: WrapCrossAlignment.center,
                             alignment: WrapAlignment.center,
                             children: [
-                              const Text(
+                              Text(
                                 'Already have an account? ',
                                 style: TextStyle(
-                                  color: _RegisterPalette.muted,
+                                  color: isDark ? const Color(0xFF94A3B8) : _RegisterPalette.muted,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -334,7 +350,7 @@ class _RegisterFormState extends State<RegisterForm> {
                                   context.go(RoutesName.login);
                                 },
                                 style: TextButton.styleFrom(
-                                  foregroundColor: _RegisterPalette.teal,
+                                  foregroundColor: isDark ? const Color(0xFF2DD4BF) : _RegisterPalette.teal,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 4,
                                   ),
@@ -356,9 +372,11 @@ class _RegisterFormState extends State<RegisterForm> {
                 ),
               ),
             ),
-          ],
+          ),
         ),
-      ),
-    );
+      ],
+    ),
+  ),
+);
   }
 }

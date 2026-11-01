@@ -3,6 +3,7 @@
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
 import 'package:expense_tracker/feature/transaction/domain/entities/transaction_category_entity.dart';
@@ -272,32 +273,33 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
           }
 
           return Scaffold(
-            backgroundColor: TransactionWidgetPalette.bg,
+            backgroundColor: Colors.transparent,
             body: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
                 FocusManager.instance.primaryFocus?.unfocus();
               },
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Stack(
-                  children: [
-                    const TransactionTopBackground(
-                      height: 245,
-                      bottomRadius: 34,
-                    ),
+              child: LiquidGlassBackground(
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  child: Stack(
+                    children: [
+                      const TransactionTopBackground(
+                        height: 250,
+                        bottomRadius: 40,
+                      ),
 
-                    SafeArea(
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: BoxConstraints(maxWidth: maxWidth),
-                          child: Padding(
-                            padding: EdgeInsets.fromLTRB(
-                              horizontalPadding,
-                              isMobile ? 16 : 24,
-                              horizontalPadding,
-                              28,
-                            ),
+                      SafeArea(
+                        child: Center(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(maxWidth: maxWidth),
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(
+                                horizontalPadding,
+                                isMobile ? 16 : 24,
+                                horizontalPadding,
+                                isMobile ? 120 : 36,
+                              ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -510,9 +512,10 @@ class _AddTransactionPageState extends State<AddTransactionPage> {
                 ),
               ),
             ),
-          );
-        },
-      ),
-    );
+          ),
+        );
+      },
+    ),
+  );
   }
 }

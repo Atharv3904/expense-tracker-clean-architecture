@@ -26,13 +26,9 @@ class RegisterPage extends StatelessWidget {
         }
       },
       child: const Scaffold(
-        backgroundColor: _RegisterPalette.bg,
+        backgroundColor: Colors.transparent,
         body: SafeArea(child: RegisterForm()),
       ),
     );
   }
-}
-
-class _RegisterPalette {
-  static const bg = Color(0xFFF3F6F4);
 }

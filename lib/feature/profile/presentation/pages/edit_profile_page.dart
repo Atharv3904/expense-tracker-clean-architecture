@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/profile/domain/params/update_profile_params.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
@@ -57,6 +58,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final horizontalPadding = isMobile ? 18.0 : 28.0;
 
@@ -67,7 +69,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         : 650.0;
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: Colors.transparent,
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () {
@@ -85,23 +87,24 @@ class _EditProfilePageState extends State<EditProfilePage> {
               AppSnackbar.show(context, message: state.message);
             }
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Stack(
-              children: [
-                const AppAuthBackground(height: 245),
+          child: LiquidGlassBackground(
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Stack(
+                children: [
+                  const AppAuthBackground(height: 250),
 
-                SafeArea(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxWidth),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          horizontalPadding,
-                          isMobile ? 16 : 24,
-                          horizontalPadding,
-                          28,
-                        ),
+                  SafeArea(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            isMobile ? 16 : 24,
+                            horizontalPadding,
+                            36,
+                          ),
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -133,7 +136,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                     Text(
                                       'Name',
                                       style: TextStyle(
-                                        color: AppColors.ink,
+                                        color: isDark ? Colors.white : AppColors.ink,
                                         fontWeight: FontWeight.w900,
                                         fontSize: 14,
                                       ),
@@ -158,41 +161,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
                                     const SizedBox(height: 28),
 
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 56,
-                                      child: ElevatedButton(
-                                        onPressed: updateProfile,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.teal,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shadowColor: Colors.transparent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                          ),
-                                        ),
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(
-                                              Icons
-                                                  .check_circle_outline_rounded,
-                                            ),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              'Save Changes',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    LiquidGlassButton(
+                                      onPressed: updateProfile,
+                                      label: 'Save Changes',
+                                      icon: Icons.check_circle_outline_rounded,
                                     ),
                                   ],
                                 ),
@@ -208,6 +180,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

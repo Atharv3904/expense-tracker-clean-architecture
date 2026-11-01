@@ -17,6 +17,13 @@ class SplashPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SplashCubit, SplashState>(
       listener: (context, state) async {
+        if (state is SplashBiometricRequired) {
+          await context
+              .read<SplashCubit>()
+              .authenticateBiometric(role: state.role);
+          return;
+        }
+
         if (state is SplashAuthenticated) {
           final deviceTokenService = DeviceTokenService();
 

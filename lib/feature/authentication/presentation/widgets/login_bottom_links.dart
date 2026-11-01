@@ -7,16 +7,19 @@ class LoginBottomLinks extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final primaryTeal = isDark ? const Color(0xFF2DD4BF) : const Color(0xFF2B8F84);
+
     return Wrap(
       alignment: WrapAlignment.center,
       crossAxisAlignment: WrapCrossAlignment.center,
       spacing: 8,
       runSpacing: 4,
       children: [
-        const Text(
+        Text(
           'New here?',
           style: TextStyle(
-            color: Color(0xFF89918F),
+            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF89918F),
             fontSize: 14,
             fontWeight: FontWeight.w600,
           ),
@@ -26,7 +29,7 @@ class LoginBottomLinks extends StatelessWidget {
             context.go(RoutesName.register);
           },
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF2B8F84),
+            foregroundColor: primaryTeal,
             padding: const EdgeInsets.symmetric(horizontal: 4),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -41,7 +44,7 @@ class LoginBottomLinks extends StatelessWidget {
             context.go(RoutesName.forgotPage);
           },
           style: TextButton.styleFrom(
-            foregroundColor: const Color(0xFF2B8F84),
+            foregroundColor: primaryTeal,
             padding: const EdgeInsets.symmetric(horizontal: 4),
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,

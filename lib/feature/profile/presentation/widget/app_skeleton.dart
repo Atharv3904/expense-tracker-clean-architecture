@@ -8,11 +8,20 @@ class AppSkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       height: height,
       decoration: BoxDecoration(
-        color: const Color(0xFFE8EEEB),
+        color: isDark
+            ? const Color(0xFF1E293B).withValues(alpha: 0.7)
+            : const Color(0xFFF1F5F9).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : Colors.white.withValues(alpha: 0.6),
+        ),
       ),
     );
   }

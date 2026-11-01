@@ -7,14 +7,17 @@ class FieldIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final teal = isDark ? const Color(0xFF2DD4BF) : const Color(0xFF1B7A70);
+
     return Container(
-      width: 34,
-      height: 34,
+      width: 36,
+      height: 36,
       decoration: BoxDecoration(
-        color: const Color(0xFF2B8F84).withValues(alpha: 0.11),
+        color: teal.withValues(alpha: isDark ? 0.18 : 0.12),
         shape: BoxShape.circle,
       ),
-      child: Icon(icon, color: const Color(0xFF2B8F84), size: 18),
+      child: Icon(icon, color: teal, size: 18),
     );
   }
 }

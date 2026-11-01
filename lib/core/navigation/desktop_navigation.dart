@@ -2,8 +2,10 @@
 // DESKTOP NAVIGATION
 // ============================================================
 
+import 'dart:ui';
 import 'package:expense_tracker/core/colors/app_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class DesktopNavigationSidebar extends StatelessWidget {
   final int currentIndex;
@@ -17,120 +19,189 @@ class DesktopNavigationSidebar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 260,
-      decoration: const BoxDecoration(
-        color: AppColor.bg,
-        border: Border(right: BorderSide(color: AppColor.border)),
-      ),
-      child: SafeArea(
-        child: Column(
-          children: [
-            const SizedBox(height: 26),
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          width: 270,
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.85),
+            border: Border(
+              right: BorderSide(
+                color: Colors.white.withValues(alpha: 0.8),
+                width: 1.5,
+              ),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColor.ink.withValues(alpha: 0.04),
+                blurRadius: 20,
+                offset: const Offset(4, 0),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                const SizedBox(height: 28),
 
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    decoration: const BoxDecoration(
-                      color: AppColor.softMint,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.account_balance_wallet_rounded,
-                      color: AppColor.teal,
-                    ),
+                // Brand Header with Liquid Glass badge
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColor.tealLight,
+                              AppColor.teal,
+                            ],
+                          ),
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColor.teal.withValues(alpha: 0.35),
+                              blurRadius: 14,
+                              offset: const Offset(0, 6),
+                            ),
+                          ],
+                        ),
+                        child: const Icon(
+                          Icons.account_balance_wallet_rounded,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+
+                      const SizedBox(width: 14),
+
+                      const Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Spendly',
+                              style: TextStyle(
+                                color: AppColor.ink,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 20,
+                                letterSpacing: -0.3,
+                              ),
+                            ),
+                            Text(
+                              'Expense Tracker',
+                              style: TextStyle(
+                                color: AppColor.muted,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+                ),
 
-                  const SizedBox(width: 12),
+                const SizedBox(height: 32),
 
-                  const Expanded(
-                    child: Text(
-                      'Expense Tracker',
-                      style: TextStyle(
-                        color: AppColor.ink,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 17,
+                // Nav items
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    children: [
+                      _DesktopNavigationItem(
+                        icon: Icons.dashboard_outlined,
+                        selectedIcon: Icons.dashboard_rounded,
+                        label: 'Dashboard',
+                        selected: currentIndex == 0,
+                        onTap: () => onChanged(0),
+                      ),
+
+                      _DesktopNavigationItem(
+                        icon: Icons.add_circle_outline_rounded,
+                        selectedIcon: Icons.add_circle_rounded,
+                        label: 'Add Transaction',
+                        selected: currentIndex == 1,
+                        onTap: () => onChanged(1),
+                      ),
+
+                      _DesktopNavigationItem(
+                        icon: Icons.bar_chart_outlined,
+                        selectedIcon: Icons.bar_chart_rounded,
+                        label: 'Financial Insights',
+                        selected: currentIndex == 2,
+                        onTap: () => onChanged(2),
+                      ),
+
+                      _DesktopNavigationItem(
+                        icon: Icons.receipt_long_outlined,
+                        selectedIcon: Icons.receipt_long_rounded,
+                        label: 'Receipts',
+                        selected: currentIndex == 3,
+                        onTap: () => onChanged(3),
+                      ),
+
+                      _DesktopNavigationItem(
+                        icon: Icons.person_outline_rounded,
+                        selectedIcon: Icons.person_rounded,
+                        label: 'Profile',
+                        selected: currentIndex == 4,
+                        onTap: () => onChanged(4),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Bottom Pro tip glass card
+                Padding(
+                  padding: const EdgeInsets.all(18),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColor.softMint.withValues(alpha: 0.8),
+                          Colors.white.withValues(alpha: 0.6),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.9),
+                        width: 1.2,
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 34),
-
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                children: [
-                  _DesktopNavigationItem(
-                    icon: Icons.dashboard_outlined,
-                    selectedIcon: Icons.dashboard_rounded,
-                    label: 'Dashboard',
-                    selected: currentIndex == 0,
-                    onTap: () => onChanged(0),
-                  ),
-
-                  _DesktopNavigationItem(
-                    icon: Icons.add_circle_outline_rounded,
-                    selectedIcon: Icons.add_circle_rounded,
-                    label: 'Add Transaction',
-                    selected: currentIndex == 1,
-                    onTap: () => onChanged(1),
-                  ),
-
-                  _DesktopNavigationItem(
-                    icon: Icons.bar_chart_outlined,
-                    selectedIcon: Icons.bar_chart_rounded,
-                    label: 'Financial Insights',
-                    selected: currentIndex == 2,
-                    onTap: () => onChanged(2),
-                  ),
-
-                  _DesktopNavigationItem(
-                    icon: Icons.receipt_long_outlined,
-                    selectedIcon: Icons.receipt_long_rounded,
-                    label: 'Receipts',
-                    selected: currentIndex == 3,
-                    onTap: () => onChanged(3),
-                  ),
-
-                  _DesktopNavigationItem(
-                    icon: Icons.person_outline_rounded,
-                    selectedIcon: Icons.person_rounded,
-                    label: 'Profile',
-                    selected: currentIndex == 4,
-                    onTap: () => onChanged(4),
-                  ),
-                ],
-              ),
-            ),
-
-            Padding(
-              padding: const EdgeInsets.all(20),
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(14),
-                decoration: BoxDecoration(
-                  color: AppColor.softMint,
-                  borderRadius: BorderRadius.circular(22),
-                ),
-                child: const Text(
-                  'Your money, in perspective.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: AppColor.teal,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w800,
+                    child: const Row(
+                      children: [
+                        Icon(
+                          Icons.auto_awesome_rounded,
+                          color: AppColor.teal,
+                          size: 18,
+                        ),
+                        SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            'Smart clean analytics',
+                            style: TextStyle(
+                              color: AppColor.teal,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
@@ -156,34 +227,60 @@ class _DesktopNavigationItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Material(
-        color: selected ? AppColor.softMint : Colors.transparent,
-        borderRadius: BorderRadius.circular(22),
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(22),
-          child: Container(
-            height: 54,
-            padding: const EdgeInsets.symmetric(horizontal: 14),
-            child: Row(
-              children: [
-                Icon(
-                  selected ? selectedIcon : icon,
-                  color: selected ? AppColor.teal : AppColor.muted,
-                ),
-
-                const SizedBox(width: 12),
-
-                Expanded(
-                  child: Text(
-                    label,
-                    style: TextStyle(
-                      color: selected ? AppColor.teal : AppColor.ink,
-                      fontWeight: selected ? FontWeight.w900 : FontWeight.w700,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          gradient: selected
+              ? LinearGradient(
+                  colors: [
+                    AppColor.teal.withValues(alpha: 0.14),
+                    AppColor.tealLight.withValues(alpha: 0.08),
+                  ],
+                )
+              : null,
+          border: selected
+              ? Border.all(
+                  color: AppColor.tealLight.withValues(alpha: 0.35),
+                  width: 1.2,
+                )
+              : Border.all(color: Colors.transparent),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: () {
+              HapticFeedback.selectionClick();
+              onTap();
+            },
+            borderRadius: BorderRadius.circular(20),
+            child: SizedBox(
+              height: 52,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Row(
+                  children: [
+                    Icon(
+                      selected ? selectedIcon : icon,
+                      color: selected ? AppColor.teal : AppColor.muted,
+                      size: 22,
                     ),
-                  ),
+
+                    const SizedBox(width: 14),
+
+                    Expanded(
+                      child: Text(
+                        label,
+                        style: TextStyle(
+                          color: selected ? AppColor.teal : AppColor.ink,
+                          fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

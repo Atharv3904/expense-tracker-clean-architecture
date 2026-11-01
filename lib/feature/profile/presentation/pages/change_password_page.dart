@@ -1,5 +1,6 @@
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_event.dart';
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_states.dart';
@@ -74,190 +75,165 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
         }
       },
       child: Scaffold(
-        backgroundColor: AppColors.bg,
+        backgroundColor: Colors.transparent,
         body: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
             FocusManager.instance.primaryFocus?.unfocus();
           },
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Stack(
-              children: [
-                const AppAuthBackground(height: 245),
+          child: LiquidGlassBackground(
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              child: Stack(
+                children: [
+                  const AppAuthBackground(height: 250),
 
-                SafeArea(
-                  child: Center(
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: maxWidth),
-                      child: Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          horizontalPadding,
-                          isMobile ? 16 : 24,
-                          horizontalPadding,
-                          28,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              AppHeader(
-                                title: 'Change Password',
-                                isMobile: isMobile,
-                                onBack: () {
-                                  context.pop();
-                                },
-                              ),
+                  SafeArea(
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: maxWidth),
+                        child: Padding(
+                          padding: EdgeInsets.fromLTRB(
+                            horizontalPadding,
+                            isMobile ? 16 : 24,
+                            horizontalPadding,
+                            36,
+                          ),
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                AppHeader(
+                                  title: 'Change Password',
+                                  isMobile: isMobile,
+                                  onBack: () {
+                                    context.pop();
+                                  },
+                                ),
 
-                              SizedBox(height: isMobile ? 28 : 34),
+                                SizedBox(height: isMobile ? 28 : 34),
 
-                              AppCard(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const AppIntroTile(
-                                      icon: Icons.lock_outline_rounded,
-                                      title: 'Security',
-                                      subtitle:
-                                          'Create a new secure password for your account',
-                                    ),
-
-                                    const SizedBox(height: 26),
-
-                                    const AppSectionLabel('New Password'),
-
-                                    const SizedBox(height: 10),
-
-                                    AppTextField(
-                                      controller: passwordController,
-                                      hintText: 'Enter your new password',
-                                      icon: Icons.lock_outline_rounded,
-                                      obscureText: !isPasswordVisible,
-                                      textInputAction: TextInputAction.next,
-
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Please enter password';
-                                        }
-
-                                        if (value.trim().length < 6) {
-                                          return 'Password must be at least 6 characters';
-                                        }
-
-                                        return null;
-                                      },
-
-                                      suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isPasswordVisible =
-                                                !isPasswordVisible;
-                                          });
-                                        },
-                                        icon: Icon(
-                                          isPasswordVisible
-                                              ? Icons.visibility_outlined
-                                              : Icons.visibility_off_outlined,
-                                          color: AppColors.muted,
-                                        ),
+                                AppCard(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      const AppIntroTile(
+                                        icon: Icons.lock_outline_rounded,
+                                        title: 'Security',
+                                        subtitle:
+                                            'Create a new secure password for your account',
                                       ),
-                                    ),
 
-                                    const SizedBox(height: 20),
+                                      const SizedBox(height: 26),
 
-                                    const AppSectionLabel('Confirm Password'),
+                                      const AppSectionLabel('New Password'),
 
-                                    const SizedBox(height: 10),
+                                      const SizedBox(height: 10),
 
-                                    AppTextField(
-                                      controller: confirmPasswordController,
-                                      hintText: 'Confirm your new password',
-                                      icon: Icons.lock_outline_rounded,
-                                      obscureText: !isConfirmPasswordVisible,
-                                      textInputAction: TextInputAction.done,
+                                      AppTextField(
+                                        controller: passwordController,
+                                        hintText: 'Enter your new password',
+                                        icon: Icons.lock_outline_rounded,
+                                        obscureText: !isPasswordVisible,
+                                        textInputAction: TextInputAction.next,
 
-                                      validator: (value) {
-                                        if (value == null ||
-                                            value.trim().isEmpty) {
-                                          return 'Please confirm password';
-                                        }
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'Please enter password';
+                                          }
 
-                                        if (value.trim() !=
-                                            passwordController.text.trim()) {
-                                          return 'Passwords do not match';
-                                        }
+                                          if (value.trim().length < 6) {
+                                            return 'Password must be at least 6 characters';
+                                          }
 
-                                        return null;
-                                      },
-
-                                      suffixIcon: IconButton(
-                                        onPressed: () {
-                                          setState(() {
-                                            isConfirmPasswordVisible =
-                                                !isConfirmPasswordVisible;
-                                          });
+                                          return null;
                                         },
-                                        icon: Icon(
-                                          isConfirmPasswordVisible
-                                              ? Icons.visibility_outlined
-                                              : Icons.visibility_off_outlined,
-                                          color: AppColors.muted,
-                                        ),
-                                      ),
-                                    ),
 
-                                    const SizedBox(height: 14),
-
-                                    const PasswordHint(),
-
-                                    const SizedBox(height: 28),
-
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 56,
-                                      child: ElevatedButton(
-                                        onPressed: changePassword,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.teal,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shadowColor: Colors.transparent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isPasswordVisible =
+                                                  !isPasswordVisible;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            isPasswordVisible
+                                                ? Icons.visibility_outlined
+                                                : Icons.visibility_off_outlined,
+                                            color: AppColors.muted,
                                           ),
                                         ),
-                                        child: const Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.center,
-                                          children: [
-                                            Icon(Icons.lock_reset_rounded),
-                                            SizedBox(width: 8),
-                                            Text(
-                                              'Change Password',
-                                              style: TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.w900,
-                                              ),
-                                            ),
-                                          ],
+                                      ),
+
+                                      const SizedBox(height: 20),
+
+                                      const AppSectionLabel('Confirm Password'),
+
+                                      const SizedBox(height: 10),
+
+                                      AppTextField(
+                                        controller: confirmPasswordController,
+                                        hintText: 'Confirm your new password',
+                                        icon: Icons.lock_outline_rounded,
+                                        obscureText: !isConfirmPasswordVisible,
+                                        textInputAction: TextInputAction.done,
+
+                                        validator: (value) {
+                                          if (value == null ||
+                                              value.trim().isEmpty) {
+                                            return 'Please confirm password';
+                                          }
+
+                                          if (value.trim() !=
+                                              passwordController.text.trim()) {
+                                            return 'Passwords do not match';
+                                          }
+
+                                          return null;
+                                        },
+
+                                        suffixIcon: IconButton(
+                                          onPressed: () {
+                                            setState(() {
+                                              isConfirmPasswordVisible =
+                                                  !isConfirmPasswordVisible;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            isConfirmPasswordVisible
+                                                ? Icons.visibility_outlined
+                                                : Icons.visibility_off_outlined,
+                                            color: AppColors.muted,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ],
+
+                                      const SizedBox(height: 14),
+
+                                      const PasswordHint(),
+
+                                      const SizedBox(height: 28),
+
+                                      LiquidGlassButton(
+                                        onPressed: changePassword,
+                                        label: 'Change Password',
+                                        icon: Icons.lock_reset_rounded,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

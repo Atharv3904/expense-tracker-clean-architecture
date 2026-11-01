@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class LiquidGlassBottomNavigation extends StatefulWidget {
   const LiquidGlassBottomNavigation({
@@ -42,8 +43,8 @@ class _LiquidGlassBottomNavigationState
   // Visual tab order -> existing MainNavigationPage index.
   static const List<int> _pageIndices = [0, 2, 1, 3, 4];
 
-  static const double _barHeight = 78;
-  static const double _bubbleSize = 94;
+  static const double _barHeight = 70;
+  static const double _indicatorHeight = 54;
 
   int get _selectedVisualIndex {
     final index = _pageIndices.indexOf(widget.currentIndex);
@@ -67,6 +68,8 @@ class _LiquidGlassBottomNavigationState
 
   void _selectItem(int index) {
     if (index < 0 || index >= _icons.length) return;
+
+    HapticFeedback.selectionClick();
 
     setState(() {
       _indicatorPosition = index.toDouble();
@@ -117,15 +120,17 @@ class _LiquidGlassBottomNavigationState
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return SafeArea(
       top: false,
       child: Padding(
-        // Extra top space lets the oversized bubble rise above the bar.
-        padding: const EdgeInsets.fromLTRB(16, 48, 16, 12),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
         child: LayoutBuilder(
           builder: (context, constraints) {
             final width = constraints.maxWidth;
             final itemWidth = width / _icons.length;
+            final indicatorWidth = (itemWidth - 8).clamp(56.0, 78.0);
 
             return MouseRegion(
               onHover: (event) {
@@ -164,30 +169,37 @@ class _LiquidGlassBottomNavigationState
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(36),
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   begin: Alignment.topLeft,
                                   end: Alignment.bottomRight,
-                                  colors: [
-                                    Color(0xC8FFFFFF),
-                                    Color(0xA5DCE5FF),
-                                    Color(0xA6B7C8F8),
-                                  ],
+                                  colors: isDark
+                                      ? [
+                                          const Color(0xF21E293B),
+                                          const Color(0xD90F172A),
+                                          const Color(0xCC0B1320),
+                                        ]
+                                      : const [
+                                          Color(0xF2FFFFFF),
+                                          Color(0xD9E2E8F0),
+                                          Color(0xCCE2E8F0),
+                                        ],
                                 ),
                                 border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.75),
-                                  width: 1.3,
+                                  color: isDark
+                                      ? Colors.white.withValues(alpha: 0.16)
+                                      : Colors.white.withValues(alpha: 0.9),
+                                  width: 1.4,
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: const Color(
-                                      0xFF8DA8FF,
-                                    ).withValues(alpha: 0.25),
-                                    blurRadius: 28,
+                                    color: const Color(0xFF1B7A70).withValues(alpha: 0.16),
+                                    blurRadius: 30,
+                                    offset: const Offset(0, 10),
                                   ),
                                   BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.10),
+                                    color: Colors.black.withValues(alpha: 0.08),
                                     blurRadius: 18,
-                                    offset: const Offset(0, 8),
+                                    offset: const Offset(0, 6),
                                   ),
                                 ],
                               ),
@@ -196,54 +208,54 @@ class _LiquidGlassBottomNavigationState
                         ),
                       ),
 
-                      // Oversized glass bubble follows the selected tab.
+                      // Round glass capsule follows the selected tab, enclosing both icon and label.
                       AnimatedPositioned(
-                        duration: Duration(milliseconds: _isDragging ? 0 : 260),
+                        duration: Duration(milliseconds: _isDragging ? 0 : 240),
                         curve: Curves.easeOutCubic,
                         left:
                             _indicatorPosition * itemWidth +
-                            (itemWidth - _bubbleSize) / 2,
-                        top: (_barHeight - _bubbleSize) / 2,
-                        width: _bubbleSize,
-                        height: _bubbleSize,
+                            (itemWidth - indicatorWidth) / 2,
+                        top: (_barHeight - _indicatorHeight) / 2,
+                        width: indicatorWidth,
+                        height: _indicatorHeight,
                         child: IgnorePointer(
-                          child: ClipOval(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
                             child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
                               child: Container(
                                 decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
+                                  borderRadius: BorderRadius.circular(22),
                                   gradient: RadialGradient(
-                                    center: const Alignment(-0.35, -0.5),
-                                    radius: 1.2,
-                                    colors: [
-                                      Colors.white.withValues(alpha: 0.65),
-                                      const Color(
-                                        0xFF92B9FF,
-                                      ).withValues(alpha: 0.42),
-                                      const Color(
-                                        0xFF9D85FF,
-                                      ).withValues(alpha: 0.30),
-                                      Colors.white.withValues(alpha: 0.12),
-                                    ],
+                                    center: const Alignment(-0.20, -0.4),
+                                    radius: 1.25,
+                                    colors: isDark
+                                        ? [
+                                            const Color(0xFF2DD4BF).withValues(alpha: 0.38),
+                                            const Color(0xFF0F766E).withValues(alpha: 0.22),
+                                            const Color(0xFF1E293B).withValues(alpha: 0.12),
+                                            Colors.white.withValues(alpha: 0.04),
+                                          ]
+                                        : [
+                                            Colors.white.withValues(alpha: 0.90),
+                                            const Color(0xFF5EEAD4).withValues(alpha: 0.50),
+                                            const Color(0xFF1B7A70).withValues(alpha: 0.20),
+                                            Colors.white.withValues(alpha: 0.12),
+                                          ],
                                   ),
                                   border: Border.all(
-                                    color: Colors.white.withValues(alpha: 0.9),
-                                    width: 1.6,
+                                    color: isDark
+                                        ? const Color(0xFF2DD4BF).withValues(alpha: 0.50)
+                                        : Colors.white.withValues(alpha: 0.95),
+                                    width: 1.4,
                                   ),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(
-                                        0xFF7CA6FF,
-                                      ).withValues(alpha: 0.5),
-                                      blurRadius: 24,
-                                      spreadRadius: 2,
-                                    ),
-                                    BoxShadow(
-                                      color: const Color(
-                                        0xFFFF9ED8,
-                                      ).withValues(alpha: 0.25),
-                                      blurRadius: 18,
+                                      color: const Color(0xFF2DD4BF).withValues(
+                                        alpha: isDark ? 0.38 : 0.28,
+                                      ),
+                                      blurRadius: 16,
+                                      spreadRadius: 1,
                                     ),
                                   ],
                                 ),
@@ -272,7 +284,7 @@ class _LiquidGlassBottomNavigationState
                               .clamp(0.0, 1.0)
                               .toDouble();
 
-                          final scale = 1.0 + dragZoom * 0.42 + hover * 0.12;
+                          final scale = 1.0 + dragZoom * 0.10 + hover * 0.05;
 
                           final isSelected =
                               widget.currentIndex == _pageIndices[index];
@@ -297,14 +309,16 @@ class _LiquidGlassBottomNavigationState
                                       children: [
                                         Icon(
                                           _icons[index],
-                                          size: index == 2 ? 29 : 23,
-                                          color: index == 2
-                                              ? Colors.white
-                                              : isSelected
-                                              ? const Color(0xFF26385F)
-                                              : const Color(0xFF596581),
+                                          size: 20,
+                                          color: isSelected
+                                              ? (isDark
+                                                  ? const Color(0xFF2DD4BF)
+                                                  : const Color(0xFF0F4E47))
+                                              : (isDark
+                                                  ? const Color(0xFF94A3B8)
+                                                  : const Color(0xFF64748B)),
                                         ),
-                                        const SizedBox(height: 4),
+                                        const SizedBox(height: 3),
                                         Text(
                                           _labels[index],
                                           maxLines: 1,
@@ -315,7 +329,13 @@ class _LiquidGlassBottomNavigationState
                                             fontWeight: isSelected
                                                 ? FontWeight.w800
                                                 : FontWeight.w600,
-                                            color: const Color(0xFF303C5C),
+                                            color: isSelected
+                                                ? (isDark
+                                                    ? const Color(0xFF2DD4BF)
+                                                    : const Color(0xFF0F4E47))
+                                                : (isDark
+                                                    ? const Color(0xFF94A3B8)
+                                                    : const Color(0xFF64748B)),
                                           ),
                                         ),
                                       ],

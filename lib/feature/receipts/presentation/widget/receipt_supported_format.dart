@@ -9,24 +9,40 @@ class ReceiptSupportedFormat extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: const Color(0xFFF6FAF9),
+        color: isDark
+            ? const Color(0xFF0F172A).withValues(alpha: 0.6)
+            : const Color(0xFFF6FAF9),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: _border),
+        border: Border.all(
+          color: isDark
+              ? Colors.white.withValues(alpha: 0.12)
+              : _border,
+        ),
       ),
-      child: const Row(
+      child: Row(
         children: [
-          Icon(Icons.info_outline_rounded, color: _primary, size: 20),
+          Icon(
+            Icons.info_outline_rounded,
+            color: isDark ? const Color(0xFF2DD4BF) : _primary,
+            size: 20,
+          ),
 
-          SizedBox(width: 10),
+          const SizedBox(width: 10),
 
           Expanded(
             child: Text(
               'Supported: PDF, JPG, JPEG, PNG and WEBP',
-              style: TextStyle(color: _mutedText, fontSize: 12),
+              style: TextStyle(
+                color: isDark ? const Color(0xFF94A3B8) : _mutedText,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
         ],

@@ -1,5 +1,3 @@
-import 'package:expense_tracker/feature/authentication/presentation/widgets/color_pallete.dart';
-import 'package:expense_tracker/feature/authentication/presentation/widgets/header_ring.dart';
 import 'package:flutter/material.dart';
 
 class SplashLoadingView extends StatelessWidget {
@@ -10,43 +8,93 @@ class SplashLoadingView extends StatelessWidget {
     return Container(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [ColorPallete.teal, ColorPallete.tealDark],
+          colors: [
+            Color(0xFF0F4E47),
+            Color(0xFF1B7A70),
+            Color(0xFF2FB5A6),
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
       child: Stack(
         children: [
-          Positioned(top: -58, left: -44, child: HeaderRing(size: 170)),
-          Positioned(top: 92, right: -56, child: HeaderRing(size: 150)),
-          Positioned(bottom: 120, left: -42, child: HeaderRing(size: 130)),
+          // Luminous liquid background orbs
+          Positioned(
+            top: -60,
+            left: -40,
+            child: Container(
+              width: 220,
+              height: 220,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    Colors.white.withValues(alpha: 0.22),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -50,
+            right: -40,
+            child: Container(
+              width: 240,
+              height: 240,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    const Color(0xFF5EEAD4).withValues(alpha: 0.28),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
           Center(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  width: 92,
-                  height: 92,
+                  width: 96,
+                  height: 96,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14),
+                    color: Colors.white.withValues(alpha: 0.16),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.18),
+                      color: Colors.white.withValues(alpha: 0.35),
+                      width: 1.5,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.15),
+                        blurRadius: 24,
+                        offset: const Offset(0, 10),
+                      ),
+                      BoxShadow(
+                        color: const Color(0xFF5EEAD4).withValues(alpha: 0.35),
+                        blurRadius: 20,
+                        spreadRadius: 2,
+                      ),
+                    ],
                   ),
                   child: const Icon(
                     Icons.account_balance_wallet_rounded,
                     color: Colors.white,
-                    size: 44,
+                    size: 46,
                   ),
                 ),
-                const SizedBox(height: 22),
+                const SizedBox(height: 24),
                 const Text(
                   'Spendly',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 28,
+                    fontSize: 32,
                     fontWeight: FontWeight.w900,
+                    letterSpacing: -0.5,
                     height: 1,
                   ),
                 ),
@@ -54,18 +102,18 @@ class SplashLoadingView extends StatelessWidget {
                 Text(
                   'Your money, in perspective.',
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.78),
+                    color: Colors.white.withValues(alpha: 0.82),
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
+                    letterSpacing: 0.2,
                   ),
                 ),
-                const SizedBox(height: 30),
-
+                const SizedBox(height: 36),
                 SizedBox(
-                  width: 34,
-                  height: 34,
+                  width: 32,
+                  height: 32,
                   child: CircularProgressIndicator(
-                    strokeWidth: 3,
+                    strokeWidth: 2.6,
                     valueColor: AlwaysStoppedAnimation<Color>(
                       Colors.white.withValues(alpha: 0.95),
                     ),

@@ -1,4 +1,7 @@
+// ignore_for_file: file_names
+
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/balance_card.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/dashboard_header.dart';
 import 'package:expense_tracker/feature/dashboard/presentation/widgets/dashboard_top_background.dart';
@@ -52,53 +55,55 @@ class DashboardContent extends StatelessWidget {
 
         final maxContentWidth = isDesktop ? 1180.0 : double.infinity;
 
-        return SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Stack(
-            children: [
-              const DashboardTopBackground(),
+        return LiquidGlassBackground(
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Stack(
+              children: [
+                const DashboardTopBackground(),
 
-              SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: maxContentWidth),
-                    child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        horizontalPadding,
-                        isMobile ? 18 : 24,
-                        horizontalPadding,
-                        24,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          DashboardHeader(
-                            greeting: _getGreeting(),
-                            isMobile: isMobile,
-                          ),
+                SafeArea(
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: maxContentWidth),
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(
+                          horizontalPadding,
+                          isMobile ? 18 : 24,
+                          horizontalPadding,
+                          isMobile ? 120 : 36,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            DashboardHeader(
+                              greeting: _getGreeting(),
+                              isMobile: isMobile,
+                            ),
 
-                          SizedBox(height: isMobile ? 22 : 28),
+                            SizedBox(height: isMobile ? 22 : 28),
 
-                          BalanceCard(balance: balance, isMobile: isMobile),
+                            BalanceCard(balance: balance, isMobile: isMobile),
 
-                          const SizedBox(height: 18),
+                            const SizedBox(height: 18),
 
-                          SummarySection(
-                            isMobile: isMobile,
-                            income: income,
-                            expense: expense,
-                          ),
+                            SummarySection(
+                              isMobile: isMobile,
+                              income: income,
+                              expense: expense,
+                            ),
 
-                          const SizedBox(height: 26),
+                            const SizedBox(height: 26),
 
-                          TransactionsPanel(isMobile: isMobile),
-                        ],
+                            TransactionsPanel(isMobile: isMobile),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

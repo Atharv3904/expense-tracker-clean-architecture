@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class ReceiptSearchField extends StatelessWidget {
@@ -14,47 +15,85 @@ class ReceiptSearchField extends StatelessWidget {
     required this.onClear,
   });
 
-  static const Color primary = Color(0xFF238E84);
+  static const Color primary = Color(0xFF1B7A70);
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(28),
-      elevation: 2,
-      shadowColor: Colors.black.withValues(alpha: 0.10),
-      child: TextField(
-        controller: controller,
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          hintText: 'Search receipts...',
-          hintStyle: const TextStyle(
-            color: Color(0xFF9CA3A3),
-            fontSize: 17,
-            fontWeight: FontWeight.w500,
-          ),
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-          prefixIcon: const Icon(
-            Icons.search_rounded,
-            color: primary,
-            size: 29,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          decoration: BoxDecoration(
+            color: isDark
+                ? const Color(0xFF1E293B).withValues(alpha: 0.72)
+                : Colors.white.withValues(alpha: 0.88),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isDark
+                  ? Colors.white.withValues(alpha: 0.14)
+                  : Colors.white.withValues(alpha: 0.95),
+              width: 1.3,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: isDark
+                    ? Colors.black.withValues(alpha: 0.3)
+                    : const Color(0xFF0F172A).withValues(alpha: 0.06),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
-
-          suffixIcon: searchQuery.isEmpty
-              ? null
-              : IconButton(
-                  onPressed: onClear,
-                  icon: const Icon(Icons.close_rounded),
+          child: TextField(
+            controller: controller,
+            onChanged: onChanged,
+            style: TextStyle(
+              color: isDark ? Colors.white : const Color(0xFF0F172A),
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+            ),
+            decoration: InputDecoration(
+              hintText: 'Search receipts...',
+              hintStyle: TextStyle(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.45)
+                    : const Color(0xFF64748B).withValues(alpha: 0.70),
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+              ),
+              prefixIcon: Container(
+                margin: const EdgeInsets.only(left: 14, right: 10),
+                child: const Icon(
+                  Icons.search_rounded,
+                  color: primary,
+                  size: 22,
                 ),
-
-          filled: true,
-          fillColor: Colors.white,
-
-          contentPadding: const EdgeInsets.symmetric(vertical: 19),
-
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(28),
-            borderSide: BorderSide.none,
+              ),
+              prefixIconConstraints: const BoxConstraints(minWidth: 46, minHeight: 46),
+              suffixIcon: searchQuery.isEmpty
+                  ? null
+                  : IconButton(
+                      onPressed: onClear,
+                      icon: Icon(
+                        Icons.close_rounded,
+                        color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                        size: 20,
+                      ),
+                    ),
+              filled: true,
+              fillColor: Colors.transparent,
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 18,
+                vertical: 16,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(24),
+                borderSide: BorderSide.none,
+              ),
+            ),
           ),
         ),
       ),

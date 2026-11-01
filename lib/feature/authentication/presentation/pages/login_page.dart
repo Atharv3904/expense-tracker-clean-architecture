@@ -8,9 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-class _LoginPagePalette {
-  static const bg = Color(0xFFF3F6F4);
-}
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -28,11 +25,14 @@ class LoginPage extends StatelessWidget {
     }
 
     try {
+      final alreadyPrompted = await cubit.hasPromptedBiometricOptIn(
+        state.userId!,
+      );
       final alreadyEnabled = await cubit.isBiometricEnabled(state.userId!);
 
       if (!context.mounted) return;
 
-      if (alreadyEnabled) {
+      if (alreadyPrompted || alreadyEnabled) {
         cubit.clearPendingBiometricOptIn();
         return;
       }
@@ -102,6 +102,7 @@ class LoginPage extends StatelessWidget {
           }
         }
       } else {
+        await cubit.setBiometricOptInPrompted(state.userId!, prompted: true);
         cubit.clearPendingBiometricOptIn();
       }
     } catch (_) {
@@ -165,7 +166,7 @@ class LoginPage extends StatelessWidget {
         }
       },
       child: const Scaffold(
-        backgroundColor: _LoginPagePalette.bg,
+        backgroundColor: Colors.transparent,
         body: SafeArea(child: LoginForm()),
       ),
     );

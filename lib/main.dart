@@ -4,10 +4,13 @@ import 'package:expense_tracker/core/constants/app_constants.dart';
 import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/notification/notification_service.dart';
 import 'package:expense_tracker/core/router/app_router.dart';
+import 'package:expense_tracker/core/theme/cubit/theme_cubit.dart';
 import 'package:expense_tracker/core/widgets/app_error_widget.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -55,7 +58,12 @@ Future<void> main() async {
         'Notifications could not be initialized. Please try again.';
   }
 
-  runApp(MyApp(initializationError: initializationError));
+  runApp(
+    BlocProvider(
+      create: (context) => ThemeCubit(),
+      child: MyApp(initializationError: initializationError),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -73,14 +81,18 @@ class MyApp extends StatelessWidget {
       );
     }
 
-    // Normal application
-    return MaterialApp.router(
-      title: AppConstants.appName,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      debugShowCheckedModeBanner: false,
-      routerConfig: AppRouter.router,
+    // Normal application with dynamic Liquid Glass Theme switcher
+    return BlocBuilder<ThemeCubit, ThemeMode>(
+      builder: (context, themeMode) {
+        return MaterialApp.router(
+          title: AppConstants.appName,
+          themeMode: themeMode,
+          theme: LiquidGlassTheme.lightTheme,
+          darkTheme: LiquidGlassTheme.darkTheme,
+          debugShowCheckedModeBanner: false,
+          routerConfig: AppRouter.router,
+        );
+      },
     );
   }
 }

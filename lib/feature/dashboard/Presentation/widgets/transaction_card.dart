@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/responsive/responsive.dart';
 import 'package:flutter/material.dart';
 
@@ -20,109 +21,173 @@ class TransactionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
-    const ink = Color(0xFF07091D);
-    const accentColor = Color(0xFF22C55E);
-
+    final ink = isDark ? Colors.white : const Color(0xFF0F172A);
+    const accentColor = Color(0xFF10B981);
     final hasReceipt = receiptUrl != null && receiptUrl!.isNotEmpty;
 
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(24),
-        child: Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: isMobile ? 14 : 18,
-            vertical: isMobile ? 12 : 14,
-          ),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.96),
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: ink.withValues(alpha: 0.055)),
-            boxShadow: [
-              BoxShadow(
-                color: ink.withValues(alpha: 0.045),
-                blurRadius: 18,
-                offset: const Offset(0, 9),
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: isMobile ? 16 : 20,
+                vertical: isMobile ? 14 : 16,
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: isMobile ? 48 : 52,
-                height: isMobile ? 48 : 52,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFB8F4F1).withValues(alpha: 0.45),
-                  shape: BoxShape.circle,
+              decoration: BoxDecoration(
+                color: isDark
+                    ? const Color(0xFF1E293B).withValues(alpha: 0.72)
+                    : Colors.white.withValues(alpha: 0.90),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isDark
+                      ? Colors.white.withValues(alpha: 0.14)
+                      : Colors.white.withValues(alpha: 0.95),
+                  width: 1.3,
                 ),
-                child: const Icon(
-                  Icons.receipt_long_rounded,
-                  color: ink,
-                  size: 21,
-                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: isDark
+                        ? Colors.black.withValues(alpha: 0.3)
+                        : const Color(0xFF64748B).withValues(alpha: 0.08),
+                    blurRadius: 18,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-
-              const SizedBox(width: 13),
-
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      description,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: ink,
-                        fontSize: isMobile ? 14 : 15,
-                        fontWeight: FontWeight.w800,
+              child: Row(
+                children: [
+                  Container(
+                    width: isMobile ? 48 : 52,
+                    height: isMobile ? 48 : 52,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          Color(0xFFE6F7F5),
+                          Color(0xFFD1F2ED),
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: const Color(0xFF2FB5A6).withValues(alpha: 0.3),
+                        width: 1.2,
                       ),
                     ),
-
-                    const SizedBox(height: 4),
-
-                    const Text(
-                      'Transaction amount',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey,
-                      ),
+                    child: const Icon(
+                      Icons.receipt_long_rounded,
+                      color: Color(0xFF1B7A70),
+                      size: 22,
                     ),
+                  ),
 
-                    if (hasReceipt)
-                      TextButton.icon(
-                        onPressed: onReceiptTap,
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  const SizedBox(width: 14),
+
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          description,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: ink,
+                            fontSize: isMobile ? 15 : 16,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.2,
+                          ),
                         ),
-                        icon: const Icon(Icons.visibility_rounded, size: 15),
-                        label: const Text(
-                          'View Receipt',
-                          style: TextStyle(fontSize: 12),
+
+                        const SizedBox(height: 4),
+
+                        Text(
+                          'Transaction record',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ink.withValues(alpha: 0.45),
+                          ),
+                        ),
+
+                        if (hasReceipt) ...[
+                          const SizedBox(height: 6),
+                          InkWell(
+                            onTap: onReceiptTap,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1B7A70).withValues(alpha: 0.08),
+                                borderRadius: BorderRadius.circular(12),
+                                border: Border.all(
+                                  color: const Color(0xFF1B7A70).withValues(alpha: 0.2),
+                                  width: 0.8,
+                                ),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.attachment_rounded,
+                                    size: 12,
+                                    color: Color(0xFF1B7A70),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Receipt Attached',
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFF1B7A70),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(width: 12),
+
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '₹$amount',
+                        style: TextStyle(
+                          fontSize: isMobile ? 16 : 17,
+                          fontWeight: FontWeight.w900,
+                          color: accentColor,
+                          letterSpacing: -0.3,
+                          fontFeatures: const [FontFeature.tabularFigures()],
                         ),
                       ),
-                  ],
-                ),
+                      const SizedBox(height: 2),
+                      Icon(
+                        Icons.chevron_right_rounded,
+                        size: 18,
+                        color: ink.withValues(alpha: 0.3),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-
-              const SizedBox(width: 10),
-
-              Text(
-                '₹$amount',
-                style: TextStyle(
-                  fontSize: isMobile ? 14 : 15,
-                  fontWeight: FontWeight.w900,
-                  color: accentColor,
-                ),
-              ),
-
-              const SizedBox(width: 8),
-            ],
+            ),
           ),
         ),
       ),

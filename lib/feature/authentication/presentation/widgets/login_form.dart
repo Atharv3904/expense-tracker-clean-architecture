@@ -1,4 +1,6 @@
+import 'dart:ui';
 import 'package:expense_tracker/core/responsive/responsive.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
 import 'package:expense_tracker/feature/authentication/domain/params/login_params.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_cubit.dart';
 import 'package:expense_tracker/feature/authentication/presentation/cubit/login/login_state.dart';
@@ -26,6 +28,7 @@ class _LoginFormState extends State<LoginForm> {
   bool isBiometricAvailable = false;
   bool isCheckingBiometrics = true;
   String? biometricUserId;
+  String? biometricEmail;
 
   @override
   void initState() {
@@ -41,12 +44,14 @@ class _LoginFormState extends State<LoginForm> {
 
     final available = await cubit.isBiometricAvailable();
     final userId = available ? await cubit.getBiometricUserId() : null;
+    final email = userId != null ? await cubit.getBiometricEmail(userId) : null;
 
     if (!mounted) return;
 
     setState(() {
       isBiometricAvailable = available;
       biometricUserId = userId;
+      biometricEmail = email;
       isCheckingBiometrics = false;
     });
   }
@@ -87,6 +92,7 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final maxWidth = isMobile
         ? double.infinity
@@ -97,8 +103,7 @@ class _LoginFormState extends State<LoginForm> {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Container(
-        color: const Color(0xFFF3F6F4),
+      child: LiquidGlassBackground(
         child: Stack(
           children: [
             const AuthBackground(),
@@ -110,169 +115,186 @@ class _LoginFormState extends State<LoginForm> {
                 ),
                 child: ConstrainedBox(
                   constraints: BoxConstraints(maxWidth: maxWidth),
-                  child: Container(
-                    padding: EdgeInsets.all(isMobile ? 20 : 30),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.96),
-                      borderRadius: BorderRadius.circular(30),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF07091D,
-                          ).withValues(alpha: 0.08),
-                          blurRadius: 30,
-                          offset: const Offset(0, 16),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(32),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        padding: EdgeInsets.all(isMobile ? 22 : 32),
+                        decoration: BoxDecoration(
+                          color: isDark
+                              ? const Color(0xFF1E293B).withValues(alpha: 0.72)
+                              : Colors.white.withValues(alpha: 0.90),
+                          borderRadius: BorderRadius.circular(32),
+                          border: Border.all(
+                            color: isDark
+                                ? Colors.white.withValues(alpha: 0.14)
+                                : Colors.white.withValues(alpha: 0.95),
+                            width: 1.4,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.3)
+                                  : const Color(0xFF1B7A70).withValues(alpha: 0.12),
+                              blurRadius: 32,
+                              offset: const Offset(0, 16),
+                            ),
+                            BoxShadow(
+                              color: isDark
+                                  ? Colors.black.withValues(alpha: 0.2)
+                                  : const Color(0xFF0F172A).withValues(alpha: 0.04),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          LoginHeader(isMobile: isMobile),
-                          SizedBox(height: isMobile ? 28 : 36),
-                          TextFormField(
-                            controller: emailController,
-                            keyboardType: TextInputType.emailAddress,
-                            textInputAction: TextInputAction.next,
-                            onChanged: (_) => _updateButtonVisibility(),
-                            decoration: inputDecoration(
-                              labelText: 'Email',
-                              hintText: 'Enter your email',
-                              icon: Icons.email_outlined,
-                            ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Email is required';
-                              }
-
-                              final emailRegex = RegExp(
-                                r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                              );
-
-                              if (!emailRegex.hasMatch(value.trim())) {
-                                return 'Enter a valid email address';
-                              }
-
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 18),
-                          TextFormField(
-                            controller: passwordController,
-                            obscureText: !isPasswordVisible,
-                            textInputAction: TextInputAction.done,
-                            onChanged: (_) => _updateButtonVisibility(),
-                            decoration: inputDecoration(
-                              labelText: 'Password',
-                              hintText: 'Enter your password',
-                              icon: Icons.lock_outline_rounded,
-                              suffixIcon: IconButton(
-                                onPressed: () {
-                                  setState(() {
-                                    isPasswordVisible = !isPasswordVisible;
-                                  });
-                                },
-                                icon: Icon(
-                                  isPasswordVisible
-                                      ? Icons.visibility_off_outlined
-                                      : Icons.visibility_outlined,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              LoginHeader(isMobile: isMobile),
+                              SizedBox(height: isMobile ? 28 : 36),
+                              TextFormField(
+                                controller: emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
                                 ),
+                                onChanged: (_) => _updateButtonVisibility(),
+                                decoration: inputDecoration(
+                                  labelText: 'Email',
+                                  hintText: 'Enter your email',
+                                  icon: Icons.email_outlined,
+                                  isDark: isDark,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return 'Email is required';
+                                  }
+
+                                  final emailRegex = RegExp(
+                                    r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                                  );
+
+                                  if (!emailRegex.hasMatch(value.trim())) {
+                                    return 'Enter a valid email address';
+                                  }
+
+                                  return null;
+                                },
                               ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Password is required';
-                              }
+                              const SizedBox(height: 18),
+                              TextFormField(
+                                controller: passwordController,
+                                obscureText: !isPasswordVisible,
+                                textInputAction: TextInputAction.done,
+                                style: TextStyle(
+                                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 15,
+                                ),
+                                onChanged: (_) => _updateButtonVisibility(),
+                                decoration: inputDecoration(
+                                  labelText: 'Password',
+                                  hintText: 'Enter your password',
+                                  icon: Icons.lock_outline_rounded,
+                                  isDark: isDark,
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isPasswordVisible = !isPasswordVisible;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      isPasswordVisible
+                                          ? Icons.visibility_off_outlined
+                                          : Icons.visibility_outlined,
+                                      color: isDark ? Colors.white70 : null,
+                                    ),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Password is required';
+                                  }
 
-                              if (value.length < 6) {
-                                return 'Password must be at least 6 characters';
-                              }
+                                  if (value.length < 6) {
+                                    return 'Password must be at least 6 characters';
+                                  }
 
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 24),
-                          BlocBuilder<LoginCubit, LoginState>(
-                            builder: (context, state) {
-                              final isLoading = state is LoginLoading;
+                                  return null;
+                                },
+                              ),
+                              const SizedBox(height: 24),
+                              BlocBuilder<LoginCubit, LoginState>(
+                                builder: (context, state) {
+                                  final isLoading = state is LoginLoading;
 
-                              return Column(
-                                children: [
-                                  if (isLoading)
-                                    const SizedBox(
-                                      height: 54,
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          color: Color(0xFF2B8F84),
+                                  return Column(
+                                    children: [
+                                      if (isLoading)
+                                        const SizedBox(
+                                          height: 54,
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              color: Color(0xFF1B7A70),
+                                            ),
+                                          ),
+                                        )
+                                      else if (isButtonVisible)
+                                        LiquidGlassButton(
+                                          onPressed: _login,
+                                          label: 'Login',
                                         ),
-                                      ),
-                                    )
-                                  else if (isButtonVisible)
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 54,
-                                      child: ElevatedButton(
-                                        onPressed: _login,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.teal,
-                                          foregroundColor: Colors.white,
-                                          elevation: 0,
-                                          shadowColor: Colors.transparent,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
+                                      if (!isLoading &&
+                                          !isCheckingBiometrics &&
+                                          isBiometricAvailable &&
+                                          biometricUserId != null) ...[
+                                        const SizedBox(height: 12),
+                                        SizedBox(
+                                          width: double.infinity,
+                                          height: 54,
+                                          child: OutlinedButton.icon(
+                                            onPressed: _loginWithBiometrics,
+                                            icon: const Icon(Icons.fingerprint),
+                                            label: Text(
+                                              biometricEmail != null &&
+                                                      biometricEmail!.isNotEmpty
+                                                  ? 'Login as $biometricEmail'
+                                                  : 'Login with fingerprint',
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                            style: OutlinedButton.styleFrom(
+                                              foregroundColor: const Color(0xFF1B7A70),
+                                              side: BorderSide(
+                                                color: const Color(0xFF1B7A70).withValues(alpha: 0.35),
+                                                width: 1.4,
+                                              ),
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(20),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                        child: const Text(
-                                          'Login',
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.w900,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  if (!isLoading &&
-                                      !isCheckingBiometrics &&
-                                      isBiometricAvailable &&
-                                      biometricUserId != null) ...[
-                                    const SizedBox(height: 12),
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 54,
-                                      child: OutlinedButton.icon(
-                                        onPressed: _loginWithBiometrics,
-                                        icon: const Icon(Icons.fingerprint),
-                                        label: const Text(
-                                          'Login with fingerprint',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: Colors.teal,
-                                          side: const BorderSide(
-                                            color: Colors.teal,
-                                          ),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              );
-                            },
+                                      ],
+                                    ],
+                                  );
+                                },
+                              ),
+                              const SizedBox(height: 20),
+                              const LoginBottomLinks(),
+                            ],
                           ),
-                          const SizedBox(height: 20),
-                          const LoginBottomLinks(),
-                        ],
+                        ),
                       ),
                     ),
                   ),

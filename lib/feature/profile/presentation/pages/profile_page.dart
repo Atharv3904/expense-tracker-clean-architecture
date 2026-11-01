@@ -1,8 +1,12 @@
+import 'package:expense_tracker/core/di/injection_container.dart';
 import 'package:expense_tracker/core/responsive/responsive.dart';
-
 import 'package:expense_tracker/core/router/routes_name.dart';
-
+import 'package:expense_tracker/core/services/biometric_service.dart';
+import 'package:expense_tracker/core/theme/cubit/theme_cubit.dart';
 import 'package:expense_tracker/core/utils/app_snackbar.dart';
+import 'package:expense_tracker/core/widgets/liquid_glass.dart';
+import 'package:expense_tracker/feature/authentication/data/datasources/biometric_credential_local_datasource_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:expense_tracker/feature/profile/presentation/bloc/profile_bloc.dart';
 
@@ -44,12 +48,169 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String appVersion = '';
   String? avatarUrl;
+  bool _isBiometricSupported = false;
+  bool _isBiometricEnabled = false;
+  final _biometricService = sl<BiometricService>();
+  final _biometricStorage = sl<BiometricCredentialLocalDatasourceService>();
 
   @override
   void initState() {
     super.initState();
 
     loadAppVersion();
+    _checkBiometricStatus();
+  }
+
+  Future<void> _checkBiometricStatus() async {
+    final available = await _biometricService.isBiometricAvailable();
+    final user = Supabase.instance.client.auth.currentUser;
+    final enabled =
+        user != null && await _biometricStorage.isEnabled(user.id);
+
+    if (!mounted) return;
+
+    setState(() {
+      _isBiometricSupported = available;
+      _isBiometricEnabled = enabled;
+    });
+  }
+
+  Future<void> _toggleBiometric(bool enable, String email) async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    if (!enable) {
+      await _biometricStorage.disable(user.id);
+      if (!mounted) return;
+      setState(() => _isBiometricEnabled = false);
+      AppSnackbar.show(context, message: 'Fingerprint login disabled');
+      return;
+    }
+
+    if (!_isBiometricSupported) {
+      AppSnackbar.show(
+        context,
+        message: 'Fingerprint is not available or enrolled on this device.',
+      );
+      return;
+    }
+
+    final passwordController = TextEditingController();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        bool obscure = true;
+        return StatefulBuilder(
+          builder: (dialogCtx, setDialogState) {
+            return AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(24),
+              ),
+              title: const Text('Enable Fingerprint Login'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Enter your current account password to enable fingerprint login on this device.',
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: passwordController,
+                    obscureText: obscure,
+                    decoration: InputDecoration(
+                      labelText: 'Password',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          obscure ? Icons.visibility_off : Icons.visibility,
+                        ),
+                        onPressed: () {
+                          setDialogState(() => obscure = !obscure);
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext, false),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(dialogContext, true),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: const Color(0xFF1B7A70),
+                  ),
+                  child: const Text('Verify & Enable'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    final enteredPassword = passwordController.text;
+    if (enteredPassword.isEmpty) {
+      if (mounted) {
+        AppSnackbar.show(
+          context,
+          message: 'Password is required to enable fingerprint.',
+        );
+      }
+      return;
+    }
+
+    try {
+      // 1. Verify password with Supabase
+      await Supabase.instance.client.auth.signInWithPassword(
+        email: user.email ?? email,
+        password: enteredPassword,
+      );
+
+      // 2. Verify fingerprint scan
+      final authResult = await _biometricService.authenticateWithResult(
+        localizedReason: 'Scan fingerprint to enable biometric login',
+      );
+
+      if (authResult != BiometricAuthResult.success) {
+        if (mounted) {
+          AppSnackbar.show(
+            context,
+            message: 'Fingerprint verification was cancelled or failed.',
+          );
+        }
+        return;
+      }
+
+      // 3. Save credentials
+      await _biometricStorage.enable(
+        userId: user.id,
+        email: user.email ?? email,
+        password: enteredPassword,
+      );
+
+      if (!mounted) return;
+      setState(() => _isBiometricEnabled = true);
+      AppSnackbar.show(
+        context,
+        message: 'Fingerprint login enabled successfully',
+      );
+    } catch (_) {
+      if (mounted) {
+        AppSnackbar.show(
+          context,
+          message:
+              'Incorrect password or authentication failed. Please try again.',
+        );
+      }
+    }
   }
 
   void _pickAvatar(String currentName) async {
@@ -81,6 +242,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final isMobile = Responsive.isMobile(context);
     final isTablet = Responsive.isTablet(context);
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     final horizontalPadding = isMobile ? 18.0 : 28.0;
 
@@ -91,7 +253,7 @@ class _ProfilePageState extends State<ProfilePage> {
         : 700.0;
 
     return Scaffold(
-      backgroundColor: AppColors.bg,
+      backgroundColor: Colors.transparent,
       body: BlocConsumer<ProfileBloc, ProfileState>(
         listener: (context, state) {
           if (state is ProfileSuccess) {
@@ -119,23 +281,24 @@ class _ProfilePageState extends State<ProfilePage> {
             onRefresh: () async {
               context.read<ProfileBloc>().add(const LoadProfile());
             },
-            child: SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Stack(
-                children: [
-                  const AppAuthBackground(height: 250),
+            child: LiquidGlassBackground(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Stack(
+                  children: [
+                    const AppAuthBackground(height: 250),
 
-                  SafeArea(
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: maxWidth),
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(
-                            horizontalPadding,
-                            isMobile ? 16 : 24,
-                            horizontalPadding,
-                            28,
-                          ),
+                    SafeArea(
+                      child: Center(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(maxWidth: maxWidth),
+                          child: Padding(
+                            padding: EdgeInsets.fromLTRB(
+                              horizontalPadding,
+                              isMobile ? 16 : 24,
+                              horizontalPadding,
+                              isMobile ? 120 : 36,
+                            ),
                           child: Column(
                             children: [
                               AppHeader(
@@ -158,12 +321,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
                               const SizedBox(height: 24),
 
-                              const Align(
+                              Align(
                                 alignment: Alignment.centerLeft,
                                 child: Text(
                                   'Account Settings',
                                   style: TextStyle(
-                                    color: AppColors.ink,
+                                    color: isDark ? Colors.white : AppColors.ink,
                                     fontSize: 18,
                                     fontWeight: FontWeight.w900,
                                   ),
@@ -204,6 +367,27 @@ class _ProfilePageState extends State<ProfilePage> {
 
                               const SizedBox(height: 12),
 
+                              if (_isBiometricSupported) ...[
+                                ProfileOption(
+                                  icon: Icons.fingerprint,
+                                  title: 'Fingerprint Login',
+                                  subtitle: _isBiometricEnabled
+                                      ? 'Enabled for this device'
+                                      : 'Use biometric to log in to Spendly',
+                                  trailing: Switch.adaptive(
+                                    value: _isBiometricEnabled,
+                                    activeTrackColor: const Color(0xFF1B7A70),
+                                    onChanged: (value) =>
+                                        _toggleBiometric(value, email),
+                                  ),
+                                  onTap: () => _toggleBiometric(
+                                    !_isBiometricEnabled,
+                                    email,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                              ],
+
                               ProfileOption(
                                 icon: Icons.remember_me_rounded,
                                 title: 'Reminder',
@@ -211,6 +395,27 @@ class _ProfilePageState extends State<ProfilePage> {
                                     'Create your reminder for daily expenses',
                                 onTap: () async {
                                   await context.push(RoutesName.reminderPage);
+                                },
+                              ),
+
+                              const SizedBox(height: 12),
+
+                              BlocBuilder<ThemeCubit, ThemeMode>(
+                                builder: (context, themeMode) {
+                                  final isDark = themeMode == ThemeMode.dark;
+                                  return ProfileOption(
+                                    icon: isDark
+                                        ? Icons.dark_mode_rounded
+                                        : Icons.light_mode_rounded,
+                                    title: 'Appearance',
+                                    subtitle: isDark
+                                        ? 'Dark Obsidian Glass'
+                                        : 'Light Luminous Glass',
+                                    trailing: const LiquidThemeToggle(size: 38),
+                                    onTap: () {
+                                      context.read<ThemeCubit>().toggleTheme();
+                                    },
+                                  );
                                 },
                               ),
 
@@ -273,7 +478,8 @@ class _ProfilePageState extends State<ProfilePage> {
                 ],
               ),
             ),
-          );
+          ),
+        );
         },
       ),
     );

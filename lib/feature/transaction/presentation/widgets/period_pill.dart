@@ -1,5 +1,5 @@
 import 'package:expense_tracker/feature/transaction/presentation/widgets/transaction_form_panel.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class PeriodPill extends StatelessWidget {
   final String text;
@@ -8,18 +8,25 @@ class PeriodPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
       decoration: BoxDecoration(
-        color: TransactionWidgetPalette.softMint,
-        borderRadius: BorderRadius.circular(18),
+        color: TransactionWidgetPalette.teal.withValues(alpha: isDark ? 0.22 : 0.10),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: TransactionWidgetPalette.tealLight.withValues(alpha: isDark ? 0.45 : 0.28),
+          width: 1,
+        ),
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: TransactionWidgetPalette.teal,
+        style: TextStyle(
+          color: isDark ? const Color(0xFF2DD4BF) : TransactionWidgetPalette.teal,
           fontSize: 12,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.2,
         ),
       ),
     );
