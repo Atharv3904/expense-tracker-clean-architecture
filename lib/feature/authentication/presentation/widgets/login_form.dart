@@ -274,9 +274,14 @@ class _LoginFormState extends State<LoginForm> {
                                               ),
                                             ),
                                             style: OutlinedButton.styleFrom(
-                                              foregroundColor: const Color(0xFF1B7A70),
+                                              foregroundColor: isDark
+                                                  ? const Color(0xFF2DD4BF)
+                                                  : const Color(0xFF1B7A70),
                                               side: BorderSide(
-                                                color: const Color(0xFF1B7A70).withValues(alpha: 0.35),
+                                                color: (isDark
+                                                        ? const Color(0xFF2DD4BF)
+                                                        : const Color(0xFF1B7A70))
+                                                    .withValues(alpha: 0.35),
                                                 width: 1.4,
                                               ),
                                               shape: RoundedRectangleBorder(

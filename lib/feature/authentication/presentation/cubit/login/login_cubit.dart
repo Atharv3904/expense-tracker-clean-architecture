@@ -83,6 +83,11 @@ class LoginCubit extends Cubit<LoginState> {
     );
   }
 
+  /// Disable biometric login for this user and clear if last active.
+  Future<void> disableBiometricForUser(String userId) async {
+    await biometricCredentialLocalDatasourceService.disable(userId);
+  }
+
   /// Clear the temporary password when the user declines opt-in.
   void clearPendingBiometricOptIn() {
     _pendingPasswordForBiometricOptIn = null;

@@ -25,18 +25,6 @@ class LoginPage extends StatelessWidget {
     }
 
     try {
-      final alreadyPrompted = await cubit.hasPromptedBiometricOptIn(
-        state.userId!,
-      );
-      final alreadyEnabled = await cubit.isBiometricEnabled(state.userId!);
-
-      if (!context.mounted) return;
-
-      if (alreadyPrompted || alreadyEnabled) {
-        cubit.clearPendingBiometricOptIn();
-        return;
-      }
-
       final biometricAvailable = await cubit.isBiometricAvailable();
 
       if (!context.mounted) return;
@@ -46,30 +34,65 @@ class LoginPage extends StatelessWidget {
         return;
       }
 
+      final isDark = Theme.of(context).brightness == Brightness.dark;
       final enable = await showDialog<bool>(
         context: context,
         barrierDismissible: false,
         builder: (dialogContext) {
           return AlertDialog(
-            title: const Text('Enable fingerprint login?'),
-            content: const Text(
-              'Would you like to use your device biometrics '
-              'to log in to Spendly next time? Your login '
-              'credentials will be stored securely on this device '
-              'only if you choose Enable.',
+            backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+              side: BorderSide(
+                color: isDark
+                    ? Colors.white.withValues(alpha: 0.16)
+                    : Colors.white.withValues(alpha: 0.9),
+                width: 1.2,
+              ),
+            ),
+            title: Text(
+              'Enable fingerprint login?',
+              style: TextStyle(
+                color: isDark ? Colors.white : const Color(0xFF0F172A),
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+            content: Text(
+              'Would you like to use fingerprint login for ${state.email} next time? '
+              'Your login credentials will be stored securely on this device.',
+              style: TextStyle(
+                color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                fontSize: 14,
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.of(dialogContext).pop(false);
                 },
-                child: const Text('Not now'),
+                child: Text(
+                  'Not now',
+                  style: TextStyle(
+                    color: isDark ? Colors.white70 : const Color(0xFF64748B),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
               ),
               FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: const Color(0xFF1B7A70),
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                ),
                 onPressed: () {
                   Navigator.of(dialogContext).pop(true);
                 },
-                child: const Text('Enable'),
+                child: const Text(
+                  'Enable',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
               ),
             ],
           );
@@ -102,7 +125,7 @@ class LoginPage extends StatelessWidget {
           }
         }
       } else {
-        await cubit.setBiometricOptInPrompted(state.userId!, prompted: true);
+        await cubit.disableBiometricForUser(state.userId!);
         cubit.clearPendingBiometricOptIn();
       }
     } catch (_) {
